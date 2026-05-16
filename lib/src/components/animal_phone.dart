@@ -108,9 +108,9 @@ class _AnimalPhoneState extends State<AnimalPhone> {
                         text: TextSpan(
                           style: Theme.of(context).textTheme.headlineLarge
                               ?.copyWith(
-                                fontSize: 32,
+                                fontSize: 24,
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: 2,
+                                letterSpacing: 1.4,
                                 color: const Color(0xFFDDDBCC),
                               ),
                           children: [
@@ -135,10 +135,10 @@ class _AnimalPhoneState extends State<AnimalPhone> {
                         ? 'Welcome!'
                         : 'Good evening!',
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontSize: 48,
+                      fontSize: 34,
                       fontWeight: FontWeight.w800,
                       color: const Color(0xFF725C4E),
-                      letterSpacing: 2,
+                      letterSpacing: 1.2,
                     ),
                   ),
                 ],

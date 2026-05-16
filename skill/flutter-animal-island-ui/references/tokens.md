@@ -51,6 +51,28 @@
 - switch default: `52 × 28`
 - phone shell: `527 × 788`
 
+## Typography
+
+- micro: `10`
+- caption: `11`
+- body small: `12`
+- label: `13`
+- body: `14`
+- body large: `15`
+- title small: `16`
+- title: `18`
+- headline small: `20`
+- headline: `24`
+- display small: `30`
+- display: `36`
+
+移动端默认约束：
+
+- 正文以 `14` 为基线
+- 组件交互文本通常落在 `11-14`
+- 标题通常落在 `16-20`
+- 展示型大字默认不要超过 `36`
+
 ## 动效
 
 - fast: `150ms`

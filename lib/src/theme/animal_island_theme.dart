@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'animal_island_tokens.dart';
+
 enum AnimalIslandThemeMode { day, night }
 
 @immutable
@@ -366,61 +368,61 @@ ThemeData buildAnimalIslandTheme({
 
   final rounded = GoogleFonts.nunitoTextTheme(base.textTheme).copyWith(
     displayLarge: GoogleFonts.nunito(
-      fontSize: 48,
+      fontSize: AnimalIslandTokens.fontDisplay,
       fontWeight: FontWeight.w800,
       color: palette.textPrimary,
     ),
     displayMedium: GoogleFonts.nunito(
-      fontSize: 36,
+      fontSize: AnimalIslandTokens.fontDisplaySm,
       fontWeight: FontWeight.w800,
       color: palette.textPrimary,
     ),
     headlineLarge: GoogleFonts.nunito(
-      fontSize: 28,
+      fontSize: AnimalIslandTokens.fontHeadline,
       fontWeight: FontWeight.w700,
       color: palette.textPrimary,
     ),
     headlineMedium: GoogleFonts.nunito(
-      fontSize: 24,
+      fontSize: AnimalIslandTokens.fontHeadlineSm,
       fontWeight: FontWeight.w700,
       color: palette.textPrimary,
     ),
     titleLarge: GoogleFonts.nunito(
-      fontSize: 18,
+      fontSize: AnimalIslandTokens.fontTitle,
       fontWeight: FontWeight.w700,
       color: palette.textPrimary,
     ),
     titleMedium: GoogleFonts.nunito(
-      fontSize: 16,
+      fontSize: AnimalIslandTokens.fontTitleSm,
       fontWeight: FontWeight.w700,
       color: palette.textBody,
     ),
     bodyLarge: GoogleFonts.nunito(
-      fontSize: 16,
+      fontSize: AnimalIslandTokens.fontBodyLg,
       fontWeight: FontWeight.w500,
-      height: 1.6,
+      height: 1.55,
       color: palette.textBody,
     ),
     bodyMedium: GoogleFonts.nunito(
-      fontSize: 14,
+      fontSize: AnimalIslandTokens.fontBody,
       fontWeight: FontWeight.w500,
-      height: 1.6,
+      height: 1.55,
       color: palette.textBody,
     ),
     bodySmall: GoogleFonts.nunito(
-      fontSize: 12,
+      fontSize: AnimalIslandTokens.fontBodySm,
       fontWeight: FontWeight.w500,
-      height: 1.5,
+      height: 1.45,
       color: palette.textSecondary,
     ),
     labelLarge: GoogleFonts.nunito(
-      fontSize: 14,
+      fontSize: AnimalIslandTokens.fontLabel,
       fontWeight: FontWeight.w700,
-      letterSpacing: 0.28,
+      letterSpacing: 0.18,
       color: palette.textPrimary,
     ),
     labelMedium: GoogleFonts.nunito(
-      fontSize: 12,
+      fontSize: AnimalIslandTokens.fontCaption,
       fontWeight: FontWeight.w700,
       color: palette.textSecondary,
     ),

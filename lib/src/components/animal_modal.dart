@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 import '../theme/animal_island_theme.dart';
+import '../theme/animal_island_tokens.dart';
 import '../models/animal_island_models.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
@@ -160,7 +161,7 @@ class _AnimalModalPanel extends StatelessWidget {
     final showFooter = useDefaultFooter || footer != null;
     final customFooter = footer is Widget ? footer as Widget : null;
     final dialogButtonStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
-      fontSize: 18,
+      fontSize: AnimalIslandTokens.fontBody,
       fontWeight: FontWeight.w600,
       color: theme.textBody,
       height: 1,
@@ -195,7 +196,7 @@ class _AnimalModalPanel extends StatelessWidget {
         child: DecoratedBox(
           decoration: BoxDecoration(color: theme.surfaceRaised),
           child: Padding(
-            padding: const EdgeInsets.fromLTRB(48, 48, 48, 32),
+            padding: const EdgeInsets.fromLTRB(36, 36, 36, 28),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -204,7 +205,7 @@ class _AnimalModalPanel extends StatelessWidget {
                   DefaultTextStyle(
                     style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                       color: theme.textBody,
-                      fontSize: 28,
+                      fontSize: AnimalIslandTokens.fontHeadlineSm,
                     ),
                     child: title!,
                   ),
@@ -215,9 +216,9 @@ class _AnimalModalPanel extends StatelessWidget {
                     child: DefaultTextStyle(
                       style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                         color: theme.textMuted,
-                        fontSize: 20,
+                        fontSize: AnimalIslandTokens.fontBodyLg,
                         fontWeight: FontWeight.w600,
-                        height: 1.6,
+                        height: 1.55,
                       ),
                       child: _AnimalModalBody(
                         typeSpeed: typeSpeed,

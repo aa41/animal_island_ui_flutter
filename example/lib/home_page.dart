@@ -192,7 +192,7 @@ class _HeroText extends StatelessWidget {
           textAlign: compact ? TextAlign.center : TextAlign.left,
           style: Theme.of(context).textTheme.displayLarge?.copyWith(
             color: const Color(0xFFFFF9E6),
-            fontSize: compact ? 40 : 60,
+            fontSize: compact ? 34 : 52,
             height: 1.05,
             shadows: const [AnimalIslandShadows.warmText],
           ),
@@ -210,7 +210,7 @@ class _HeroText extends StatelessWidget {
           textAlign: compact ? TextAlign.center : TextAlign.left,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: const Color(0xFF7C5734),
-            fontSize: compact ? 14 : 17,
+            fontSize: compact ? 13 : 15,
           ),
         ),
         const SizedBox(height: 28),

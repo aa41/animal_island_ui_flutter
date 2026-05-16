@@ -175,7 +175,7 @@ class _TabChipState extends State<_TabChip>
                   Text(
                     widget.active ? '●' : '○',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      fontSize: 10,
+                      fontSize: AnimalIslandTokens.fontMicro,
                       color: widget.active
                           ? const Color(0xFFFFF9E3)
                           : theme.textPrimary,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/animal_island_theme.dart';
+import '../theme/animal_island_tokens.dart';
 
 class AnimalCodeBlock extends StatelessWidget {
   const AnimalCodeBlock({
@@ -44,9 +45,9 @@ class AnimalCodeBlock extends StatelessWidget {
             style: TextStyle(
               color: _colors['default'],
               fontFamily: 'monospace',
-              fontSize: 14,
+              fontSize: AnimalIslandTokens.fontLabel,
               fontWeight: FontWeight.w600,
-              height: 1.7,
+              height: 1.6,
             ),
             children: _highlight(code),
           ),

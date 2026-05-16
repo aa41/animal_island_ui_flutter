@@ -106,8 +106,10 @@ class _AnimalTimeState extends State<AnimalTime> {
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     color: theme.success,
                     fontWeight: FontWeight.w900,
-                    fontSize: compact ? 11 : 14,
-                    letterSpacing: 1.5,
+                    fontSize: compact
+                        ? AnimalIslandTokens.fontMicro
+                        : AnimalIslandTokens.fontCaption,
+                    letterSpacing: compact ? 1.1 : 1.3,
                   ),
                 ),
                 Text(
@@ -115,7 +117,9 @@ class _AnimalTimeState extends State<AnimalTime> {
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: const Color(0xFF8B7355),
                     fontWeight: FontWeight.w800,
-                    fontSize: compact ? 16 : 22,
+                    fontSize: compact
+                        ? AnimalIslandTokens.fontBody
+                        : AnimalIslandTokens.fontTitleSm,
                   ),
                 ),
               ],
@@ -125,9 +129,9 @@ class _AnimalTimeState extends State<AnimalTime> {
             text: TextSpan(
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 color: const Color(0xFF8B7355),
-                fontSize: compact ? 32 : 48,
+                fontSize: compact ? 24 : 32,
                 fontWeight: FontWeight.w900,
-                letterSpacing: 2,
+                letterSpacing: compact ? 1.1 : 1.5,
               ),
               children: [
                 TextSpan(text: _now.hour.toString().padLeft(2, '0')),

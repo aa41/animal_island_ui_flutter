@@ -90,19 +90,19 @@ class _AnimalButtonState extends State<AnimalButton>
       AnimalButtonSize.small => _ButtonMetrics(
         height: AnimalIslandTokens.heightSm,
         horizontal: 16,
-        fontSize: 12,
+        fontSize: AnimalIslandTokens.fontCaption,
         radius: AnimalIslandTokens.radiusSm,
       ),
       AnimalButtonSize.middle => const _ButtonMetrics(
         height: 45,
         horizontal: 20,
-        fontSize: 14,
+        fontSize: AnimalIslandTokens.fontLabel,
         radius: AnimalIslandTokens.radiusPill,
       ),
       AnimalButtonSize.large => _ButtonMetrics(
         height: AnimalIslandTokens.heightLg,
         horizontal: 32,
-        fontSize: 16,
+        fontSize: AnimalIslandTokens.fontBody,
         radius: AnimalIslandTokens.radiusLg,
       ),
     };

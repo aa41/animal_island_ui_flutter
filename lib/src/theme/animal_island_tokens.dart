@@ -21,6 +21,19 @@ abstract final class AnimalIslandTokens {
   static const double heightMdButton = 45;
   static const double heightLg = 48;
 
+  static const double fontMicro = 10;
+  static const double fontCaption = 11;
+  static const double fontBodySm = 12;
+  static const double fontLabel = 13;
+  static const double fontBody = 14;
+  static const double fontBodyLg = 15;
+  static const double fontTitleSm = 16;
+  static const double fontTitle = 18;
+  static const double fontHeadlineSm = 20;
+  static const double fontHeadline = 24;
+  static const double fontDisplaySm = 30;
+  static const double fontDisplay = 36;
+
   static const Duration fast = Duration(milliseconds: 150);
   static const Duration base = Duration(milliseconds: 250);
   static const Duration slow = Duration(milliseconds: 350);

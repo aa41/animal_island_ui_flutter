@@ -101,7 +101,7 @@ class _AnimalSwitchState extends State<AnimalSwitch>
         widget.checkedChild != null || widget.uncheckedChild != null;
     final textStyle = Theme.of(context).textTheme.labelMedium!.copyWith(
       color: Colors.white.withValues(alpha: disabled ? 0.5 : 1),
-      fontSize: small ? 9 : 11,
+      fontSize: small ? 9 : AnimalIslandTokens.fontMicro,
       fontWeight: FontWeight.w700,
       letterSpacing: 0.22,
       height: 1,

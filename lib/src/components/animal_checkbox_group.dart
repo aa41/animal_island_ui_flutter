@@ -130,9 +130,9 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>> {
     final theme = context.animalIslandTheme;
     final disabled = !widget.enabled || widget.option.disabled;
     final metrics = switch (widget.size) {
-      AnimalCheckboxSize.small => (18.0, 12.0),
-      AnimalCheckboxSize.middle => (22.0, 14.0),
-      AnimalCheckboxSize.large => (28.0, 16.0),
+      AnimalCheckboxSize.small => (18.0, AnimalIslandTokens.fontCaption),
+      AnimalCheckboxSize.middle => (22.0, AnimalIslandTokens.fontLabel),
+      AnimalCheckboxSize.large => (28.0, AnimalIslandTokens.fontBody),
     };
 
     final box = metrics.$1;

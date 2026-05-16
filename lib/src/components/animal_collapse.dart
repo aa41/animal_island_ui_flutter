@@ -84,7 +84,7 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
-                            fontSize: 18,
+                            fontSize: 16,
                             height: 1,
                           ),
                         ),
@@ -94,7 +94,10 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                     Expanded(
                       child: DefaultTextStyle(
                         style: Theme.of(context).textTheme.titleMedium!
-                            .copyWith(fontSize: 16, color: theme.textPrimary),
+                            .copyWith(
+                              fontSize: AnimalIslandTokens.fontBodyLg,
+                              color: theme.textPrimary,
+                            ),
                         child: widget.question,
                       ),
                     ),

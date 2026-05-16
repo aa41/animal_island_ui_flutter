@@ -46,6 +46,9 @@ Flutter 包主入口：
 - 不要退化成默认 Material 3 平面风格
 - 不要用冷灰、蓝灰替代暖棕和奶油底色
 - 不要引入尖锐直角、细描边、过细字体
+- 默认按移动端优先控制字号，不要把组件默认尺寸做成平板或桌面观感
+- 中文 / 日文 / 韩文等东亚文案优先使用精致、小号、紧凑但可读的字号层级
+- 不要用“整体放大字体”来制造可爱感，游戏感优先通过留白、圆角、色板、阴影和局部强调来表达
 - 不要把夜间主题做成赛博紫或纯黑 AMOLED 风
 - 夜间主题必须仍然像动森，只是更安静、偏暮色、低照度
 - 所有新组件优先复用：
@@ -56,6 +59,7 @@ Flutter 包主入口：
 ## Flutter 实现约束
 
 - 默认使用 `buildAnimalIslandTheme(...)`
+- 先对齐 `AnimalIslandTokens` 中的 typography scale，再写组件内局部覆盖
 - 页面容器优先使用：
   - `AnimalCard`
   - `AnimalDivider`
@@ -66,6 +70,17 @@ Flutter 包主入口：
 - Example 页面要同时兼顾：
   - 移动端窄屏
   - Web / Desktop 宽屏
+
+## Typography 约束
+
+- 正文基线优先使用 `14`，长文默认不要超过 `15`
+- 辅助信息 / 标签优先使用 `10-13`
+- 按钮、输入框、checkbox、tabs 文本优先使用 `11-14`
+- 卡片标题、表单区标题优先使用 `15-16`
+- 区块标题、弹窗标题优先使用 `18-20`
+- 只有 Hero、时间、核心数字展示允许突破正文层级，但默认也要控制在 `24-36`
+- 避免在一个组件内同时出现过多大字号层级；移动端通常控制在 `2-3` 个文本层级内
+- East Asian 风格下优先保证行高克制、字重柔和、密度精致，不做英文海报式巨型标题泛滥
 
 ## 双主题策略
 
@@ -104,13 +119,13 @@ Flutter 包主入口：
 - `AnimalTypewriter`
 - `AnimalTabs`
 - `AnimalCodeBlock`
-- `AnimalBadge`（Flutter 增量补充）
-- `AnimalStatusView`（Flutter 增量补充）
-- `AnimalLoading`（Flutter 增量补充）
-- `AnimalErrorState`（Flutter 增量补充）
-- `AnimalEmptyState`（Flutter 增量补充）
-- `AnimalPullToRefresh`（Flutter 增量补充）
-- `AnimalLoadMoreFooter`（Flutter 增量补充）
+- `AnimalBadge`
+- `AnimalStatusView`
+- `AnimalLoading`
+- `AnimalErrorState`
+- `AnimalEmptyState`
+- `AnimalPullToRefresh`
+- `AnimalLoadMoreFooter`
 
 ## 页面开发规则
 
@@ -137,6 +152,7 @@ Flutter 包主入口：
 ## 新组件 Checklist
 
 - 是否复用现有 token？
+- 默认字号是否先按移动端 scale 收敛，而不是先放大再回调？
 - 是否保持暖色阴影和大圆角？
 - 是否定义 day / night 两种视觉结果？
 - hover / active 是否克制，不抖动、不花哨？

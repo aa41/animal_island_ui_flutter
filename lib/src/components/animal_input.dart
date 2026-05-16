@@ -104,7 +104,7 @@ class _AnimalInputState extends State<AnimalInput> {
       AnimalInputSize.small => _InputMetrics(
         height: AnimalIslandTokens.heightSm,
         horizontal: 14,
-        fontSize: 12,
+        fontSize: AnimalIslandTokens.fontCaption,
         radius: 40,
         borderWidth: 2.5,
         shadowDepth: 2,
@@ -112,7 +112,7 @@ class _AnimalInputState extends State<AnimalInput> {
       AnimalInputSize.middle => _InputMetrics(
         height: AnimalIslandTokens.heightBase,
         horizontal: 18,
-        fontSize: 14,
+        fontSize: AnimalIslandTokens.fontLabel,
         radius: 50,
         borderWidth: 2.5,
         shadowDepth: 3,
@@ -120,7 +120,7 @@ class _AnimalInputState extends State<AnimalInput> {
       AnimalInputSize.large => _InputMetrics(
         height: AnimalIslandTokens.heightLg,
         horizontal: 22,
-        fontSize: 16,
+        fontSize: AnimalIslandTokens.fontBody,
         radius: 50,
         borderWidth: 3,
         shadowDepth: 4,
@@ -225,7 +225,7 @@ class _AnimalInputState extends State<AnimalInput> {
                     '×',
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: _hovered ? theme.textBody : theme.textDisabled,
-                      fontSize: 13,
+                      fontSize: AnimalIslandTokens.fontBodySm,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

@@ -113,7 +113,9 @@ class AnimalStatusView extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
                       color: theme.textPrimary,
-                      fontSize: compact ? 16 : 18,
+                      fontSize: compact
+                          ? AnimalIslandTokens.fontBodyLg
+                          : AnimalIslandTokens.fontTitleSm,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -410,7 +412,7 @@ class _AnimalStatusMedallionState extends State<_AnimalStatusMedallion>
             '!',
             style: TextStyle(
               color: widget.foregroundColor,
-              fontSize: 36 * scale,
+              fontSize: 32 * scale,
               fontWeight: FontWeight.w900,
               height: 0.95,
             ),
@@ -445,10 +447,10 @@ class _AnimalStatusMedallionState extends State<_AnimalStatusMedallion>
               '...',
               style: TextStyle(
                 color: widget.foregroundColor,
-                fontSize: 18 * scale,
+                fontSize: 16 * scale,
                 fontWeight: FontWeight.w800,
                 height: 0.9,
-                letterSpacing: 1.4,
+                letterSpacing: 1.0,
               ),
             ),
           ),
