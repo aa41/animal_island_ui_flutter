@@ -1,18 +1,3 @@
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-demo-dist/
-
-# Vite
-*.local
-vite.config.*.local
-
-# TypeScript
-*.tsbuildinfo
-tsconfig.tsbuildinfo
-
 # IDE
 .vscode/
 .idea/
@@ -28,10 +13,6 @@ Desktop.ini
 
 # Logs
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
 
 # Environment
 .env
@@ -45,3 +26,18 @@ coverage/
 *.bak
 *.tmp
 *.temp
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.metadata
+build/
+.packages
+pubspec.lock
+example/.dart_tool/
+example/build/
+example/pubspec.lock
+example/ios/Pods/
+example/ios/.symlinks/
+example/android/.gradle/

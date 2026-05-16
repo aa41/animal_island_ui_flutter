@@ -1,128 +1,173 @@
-# 🏝 Animal-Island-UI
+# Animal Island UI Flutter
 
+纯 Flutter UI 组件库，完整复刻 Animal Island / 动森系设计语言，并扩展白天、夜晚双主题。
 
-<div align="center">
-    <img src="docs/img/readme-home.png" alt="animal-island-ui" style="border-radius: 12px; width: 40%; display: block; margin: 0 auto;" />    
-</div>
-<div align="center">
-一款参考《动物森友会》风格的 React UI 组件库
-</div>
-<br/>
-<div align="center">
-    <a href="https://github.com/guokaigdg/animal-island-ui/stargazers"><img src="https://img.shields.io/github/stars/guokaigdg/animal-island-ui?style=flat-square" alt="Stars"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square" alt="License"></a>
-    <a href="LICENSE"><img src="https://img.shields.io/npm/dm/animal-island-ui.svg?style=flat-square" alt=""></a>
-    <a href="https://github.com/guokaigdg/animal-island-ui/releases"><img src="https://img.shields.io/github/v/tag/guokaigdg/animal-island-ui?label=version&style=flat-square" alt="Version"></a>
-</div>
-<br/>
-<div align="center">
-    <a href="https://hellogithub.com/repository/guokaigdg/animal-island-ui" target="_blank"><img src="https://api.hellogithub.com/v1/widgets/recommend.svg?rid=98ecff41d142466d8d72694a6fadf9e9&claim_uid=pyGqTPIRMdo7fBS&theme=neutral" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
-</div>
-<br/>
-<p align="center">
-    简体中文 | <a href="./docs/README.en.md">English</a>
-</p>
+仓库现在只保留 Flutter 能力：
 
-## 介绍
+- 根目录是 Flutter library
+- `example/` 提供 Android / iOS / Web 调试与验收
+- `skill/flutter-animal-island-ui/` 提供可复制的 Codex / Claude Code 技能包
+- `tool/` 提供构建与技能复制脚本
 
-本项目是基于 React + TypeScript 实现的轻量 UI 组件库，设计风格灵感来源于任天堂《集合啦！动物森友会》游戏界面，用于个人前端技术练习与组件化开发学习。
+## 特性
 
-所有视觉元素、布局、图标、动画均为独立设计实现，未直接使用任何任天堂官方美术素材、代码或资源文件。
+- 纯 UI 组件库，不包含任何业务原生桥接代码
+- 保持统一的暖色、圆角、3D 压感、NookPhone 风格视觉语言
+- 支持 `AnimalIslandThemeMode.day` / `AnimalIslandThemeMode.night`
+- 提供完整 example，用于组件展示和跨平台测试
+- 支持将技能包复制到其他项目，方便安全接入 Codex 与 Claude Code
 
+## 组件能力
 
-## 预览
+当前库已包含：
 
-- 在线预览 (PC 端) [animal-island-ui-pc](https://guokaigdg.github.io/animal-island-ui/#/)
-- 在线预览（移动端）[animal-island-ui-mobile](https://guokaigdg.github.io/animal-island-ui/#/)
+- 基础交互：`AnimalButton`、`AnimalInput`、`AnimalSwitch`、`AnimalSlider`
+- 容器与反馈：`AnimalCard`、`AnimalCollapse`、`AnimalModal`、`showAnimalDialog`
+- 选择与导航：`AnimalSelect`、`AnimalCheckboxGroup`、`AnimalTabs`
+- 装饰与展示：`AnimalBadge`、`AnimalDivider`、`AnimalFooter`、`AnimalCodeBlock`
+- 游戏化组件：`AnimalIcon`、`AnimalCursor`、`AnimalPhone`、`AnimalTime`、`AnimalTypewriter`
+- 状态与列表：`AnimalLoading`、`AnimalErrorState`、`AnimalEmptyState`、`AnimalPullToRefresh`、`AnimalLoadMoreFooter`
 
-## 安装
+## 仓库结构
 
-```bash
-npm install animal-island-ui
+```text
+lib/                             Flutter library 入口与组件源码
+example/                         Android / iOS / Web 示例工程
+assets/animal_island/            组件使用的包内资源
+skill/flutter-animal-island-ui/  Flutter 技能包
+test/                            组件级测试
+tool/                            构建与技能复制脚本
 ```
 
+## 快速开始
 
+### 1. 通过 Git 依赖接入
 
-## 快速上手
+```yaml
+dependencies:
+  animal_island_ui_flutter:
+    git:
+      url: git@github.com:aa41/animal_island_ui_flutter.git
+```
 
-> ⚠️ **重要**: 请务必导入样式文件 `import 'animal-island-ui/style'`，否则组件将没有样式与字体!
+### 2. 或通过本地路径接入
 
-```tsx
-import { Button, Card } from 'animal-island-ui';
-import 'animal-island-ui/style';
+```yaml
+dependencies:
+  animal_island_ui_flutter:
+    path: ../animal_island_ui_flutter
+```
 
-function App() {
-    return (
-        <div>
-            <Button type="primary">开始冒险</Button>
-            <Card color="app-blue">
-                欢迎来到无人岛！
-            </Card>
-        </div>
+### 3. 应用主题
+
+```dart
+import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
+
+MaterialApp(
+  theme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.day),
+  darkTheme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.night),
+  home: const MyHomePage(),
+);
+```
+
+### 4. 使用组件
+
+```dart
+import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
+import 'package:flutter/material.dart';
+
+class DemoPage extends StatelessWidget {
+  const DemoPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AnimalButton(
+              type: AnimalButtonType.primary,
+              onPressed: () {},
+              child: const Text('开始岛屿生活'),
+            ),
+            const SizedBox(height: 16),
+            const AnimalCard(
+              child: Text('欢迎来到新的动物森友会风格 Flutter 组件库。'),
+            ),
+          ],
+        ),
+      ),
     );
+  }
 }
 ```
-
-## 文档
-面向不同场景的完整参考：
-
-| 文档 | 用途 |
-|---|---|
-| [`AI_USAGE.md`](./AI_USAGE.md) | 面向 AI 代码助手的使用手册，逐字收录全部组件 props、类型与默认值，附 19 条硬性规则与可复制样板，杜绝臆造 API。 |
-| [`DESIGN_PROMPT.md`](./DESIGN_PROMPT.md) | 一键复刻提示词，适配 v0 / Figma AI / Midjourney / DALL-E，含色板、字体、尺寸表、Modal clip-path 与禁用清单。 |
-| [`skill/SKILL.md`](./skill/SKILL.md) | 像素级样式规范 Skill，覆盖设计 token、全部组件精确 CSS、Demo 布局数值、CSS 变量模板与新组件开发 Checklist。 |
-| [`CONTRIBUTING.md`](./CONTRIBUTING.md) | 贡献指南 |
-
 
 ## 本地开发
 
 ```bash
-# 克隆仓库
-git clone https://github.com/guokaigdg/animal-island-ui.git
-cd animal-island-ui
+flutter pub get
+flutter analyze
+flutter test
 
-# 安装依赖
-npm install
-
-# 启动 Demo 开发服务器
-npm run dev
-
-# 构建组件库
-npm run build
-
-# 构建 Demo 站点
-npm run build:demo
+cd example
+flutter pub get
+flutter run -d chrome
 ```
 
+一键校验：
 
-## 案例
+```bash
+./tool/build_flutter_package.sh
+```
 
-|<a href="https://github.com/yunxinz/ac-site-template">ac-site-template</a>（动森主题个人网站模板）  |  <a href="https://github.com/xiaochong/hi-kid">HiKid</a>（儿童教育练习英语口语和听力） |
-| --- | --- |
-|  <img src="docs/img/ac-site-template.png" alt="ac-site-template" style="border-radius: 8px; width: 90%; display: block; margin: 0 auto;" /> | <img src="docs/img/hi-kid.png" alt="HiKid" style="border-radius: 8px; width: 90%; display: block; margin: 0 auto;" />| 
-|<a href="https://github.com/guokaigdg/animal-island-blog">animal-island-blog</a>（动森风格博客）  |   |
-|  <img src="docs/img/case-animal-blog.png" alt="ac-site-template" style="border-radius: 8px; width: 90%; display: block; margin: 0 auto;" /> | | 
+## Example 平台支持
 
+`example/` 当前保留以下测试能力：
 
+- Android
+- iOS
+- Web
 
-## 注意事项
+说明：
 
-- 本项目仅用于个人学习、研究与非商业展示，禁止任何形式的商业使用、二次售卖或盈利行为。
-- 不用于任何商业产品、企业项目、对外服务或付费模板。
-- 使用本组件库产生的任何风险由使用者自行承担。
+- 根库本身是纯 UI package
+- 平台目录只存在于 `example/` 中，用于运行和验证组件表现
 
-## 版权与免责声明
+## 技能包复制
 
-- 本项目并非任天堂官方产品，与任天堂株式会社无任何关联、授权或合作关系。
-- 项目名称中包含的游戏名称仅为风格描述性引用，不构成商标使用或品牌关联。
-- 所有界面风格仅为设计灵感参考，不构成对原作品的复制或侵权。
-- 若版权方认为相关内容存在侵权嫌疑，可通过邮箱联系，本人将在第一时间进行整改或删除处理。
+将 Flutter 技能包复制到其他项目，并同步安装到 Claude Code / Codex：
 
-## 联系方式
+```bash
+./tool/copy_animal_island_skill.sh \
+  --project /path/to/your-project \
+  --claude-project \
+  --codex-user
+```
 
-如有问题或版权相关沟通，请通过 Issue 或邮件联系。
+脚本会完成：
+
+- 复制 `skill/flutter-animal-island-ui/`
+- 写入项目级 `AGENTS.md`
+- 写入项目级 `CLAUDE.md`
+- 安装到 `~/.codex/skills/animal-island-ui-flutter/`
+
+## 文档
+
+- [README.flutter.md](./README.flutter.md)：快速接入速查
+- [docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md)：完整接入指南
+- [example/README.md](./example/README.md)：示例工程说明
+- [skill/flutter-animal-island-ui/SKILL.md](./skill/flutter-animal-island-ui/SKILL.md)：Flutter 设计技能
+- [CONTRIBUTING.md](./CONTRIBUTING.md)：贡献说明
+
+## 设计原则
+
+- 不退化成默认 Material 平面风格
+- 保持温暖自然配色、奶油底、木色文字和柔和阴影
+- 白天与夜晚主题属于同一世界观，而不是两套无关主题
+- 新组件优先复用现有 token、动画节奏和圆角体系
 
 ## License
 
 MIT
-本项目基于 MIT 开源协议发布，仅限学习使用，作者不对因使用本库导致的任何法律问题或损失承担责任。

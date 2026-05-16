@@ -1,0 +1,146 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+
+import '../theme/animal_island_theme.dart';
+import '../theme/animal_island_tokens.dart';
+
+class AnimalTime extends StatefulWidget {
+  const AnimalTime({super.key});
+
+  @override
+  State<AnimalTime> createState() => _AnimalTimeState();
+}
+
+class _AnimalTimeState extends State<AnimalTime> {
+  static const List<String> _weekdays = <String>[
+    'Sunday',
+    'Monday',
+    'Tuesday',
+    'Wednesday',
+    'Thursday',
+    'Friday',
+    'Saturday',
+  ];
+
+  static const List<String> _months = <String>[
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  late DateTime _now = DateTime.now();
+  Timer? _timer;
+  bool _showColon = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
+      setState(() {
+        _now = DateTime.now();
+        _showColon = !_showColon;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    final compact = MediaQuery.sizeOf(context).width < 768;
+
+    return AnimatedContainer(
+      duration: AnimalIslandTokens.base,
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 20 : 36,
+        vertical: compact ? 12 : 16,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: <Color>[
+            Colors.white.withValues(
+              alpha: theme.mode == AnimalIslandThemeMode.day ? 1 : 0.2,
+            ),
+            theme.surface,
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFD4CFC3), width: 3),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: EdgeInsets.only(right: compact ? 12 : 24),
+            margin: EdgeInsets.only(right: compact ? 12 : 24),
+            decoration: BoxDecoration(
+              border: Border(
+                right: BorderSide(
+                  color: theme.border.withValues(alpha: 0.35),
+                  width: 3,
+                ),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  _weekdays[_now.weekday % 7].toUpperCase(),
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: theme.success,
+                    fontWeight: FontWeight.w900,
+                    fontSize: compact ? 11 : 14,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                Text(
+                  '${_months[_now.month - 1]} ${_now.day}',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: const Color(0xFF8B7355),
+                    fontWeight: FontWeight.w800,
+                    fontSize: compact ? 16 : 22,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          RichText(
+            text: TextSpan(
+              style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                color: const Color(0xFF8B7355),
+                fontSize: compact ? 32 : 48,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 2,
+              ),
+              children: [
+                TextSpan(text: _now.hour.toString().padLeft(2, '0')),
+                TextSpan(
+                  text: _showColon ? ':' : ' ',
+                  style: const TextStyle(color: Color(0xFF8B7355)),
+                ),
+                TextSpan(text: _now.minute.toString().padLeft(2, '0')),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
