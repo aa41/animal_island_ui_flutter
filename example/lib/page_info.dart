@@ -18,6 +18,10 @@ pageInfo = <String, ({String title, String desc})>{
   'collapse': (title: 'Collapse 折叠面板', desc: '保持温暖、圆润的 FAQ 容器和叶子装饰。'),
   'cursor': (title: 'Cursor 光标', desc: 'Web 下提供游戏手指光标覆盖体验。'),
   'modal': (title: 'Modal 弹窗', desc: '带有 blob clip-path 轮廓与可选打字机效果。'),
+  'bottomsheet': (
+    title: 'BottomSheet 底部面板',
+    desc: '从 NookPhone 应用面板迁移出的底部弹出层，适合移动端操作与信息承载。',
+  ),
   'refresh': (title: 'Refresh 刷新与加载更多', desc: '游戏化下拉刷新与加载更多页脚，适合信息流与任务清单。'),
   'typewriter': (title: 'Typewriter 打字机', desc: '对文本按字符揭示，适合对话和介绍区块。'),
   'divider': (title: 'Divider 分割线', desc: '提供五种动森式分隔线资源。'),
@@ -44,6 +48,7 @@ const List<String> basicComponentKeys = <String>[
   'collapse',
   'cursor',
   'modal',
+  'bottomsheet',
   'refresh',
   'typewriter',
   'divider',

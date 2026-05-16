@@ -3,6 +3,7 @@ export 'src/theme/animal_island_theme.dart';
 export 'src/theme/animal_island_tokens.dart';
 export 'src/utils/animal_island_assets.dart';
 export 'src/components/animal_badge.dart';
+export 'src/components/animal_bottom_sheet.dart';
 export 'src/components/animal_button.dart';
 export 'src/components/animal_card.dart';
 export 'src/components/animal_checkbox_group.dart';

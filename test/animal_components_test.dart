@@ -72,6 +72,82 @@ void main() {
     expect(find.text('确定'), findsOneWidget);
   });
 
+  testWidgets('AnimalBottomSheet renders title, body, and custom footer', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        const Stack(
+          children: [
+            AnimalBottomSheet(
+              open: true,
+              title: Text('岛屿设置'),
+              footer: AnimalBottomSheetActionBar(
+                primaryLabel: '保存',
+                secondaryLabel: '返回',
+              ),
+              child: Text('这里可以调整公告板和岛歌设置。'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('岛屿设置'), findsOneWidget);
+    expect(find.text('这里可以调整公告板和岛歌设置。'), findsOneWidget);
+    expect(find.text('保存'), findsOneWidget);
+    expect(find.text('返回'), findsOneWidget);
+  });
+
+  testWidgets('AnimalBottomSheet hides close button when disabled', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        const Stack(
+          children: [
+            AnimalBottomSheet(
+              open: true,
+              showCloseButton: false,
+              child: Text('sheet body'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('×'), findsNothing);
+    expect(find.text('sheet body'), findsOneWidget);
+  });
+
+  testWidgets('AnimalBottomSheet drag gesture triggers close callback', (
+    tester,
+  ) async {
+    var closed = false;
+
+    await tester.pumpWidget(
+      wrap(
+        Stack(
+          children: [
+            AnimalBottomSheet(
+              open: true,
+              title: const Text('可拖拽面板'),
+              onClose: () {
+                closed = true;
+              },
+              child: const Text('drag body'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    await tester.drag(find.text('可拖拽面板'), const Offset(0, 160));
+    await tester.pump();
+
+    expect(closed, isTrue);
+  });
+
   testWidgets('AnimalPullToRefresh triggers callback after pull', (
     tester,
   ) async {

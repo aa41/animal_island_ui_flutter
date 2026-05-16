@@ -106,6 +106,8 @@ Flutter 包主入口：
 - `AnimalSlider`
 - `AnimalModal`
 - `showAnimalDialog`
+- `AnimalBottomSheet`
+- `showAnimalBottomSheet`
 - `AnimalCard`
 - `AnimalCollapse`
 - `AnimalSelect`
@@ -177,6 +179,7 @@ Flutter 包主入口：
 
 - 允许增加通用辅助组件
 - 但必须在 `references/components.md` 中登记设计边界
+- Bottom sheet 若要新增或改造，优先从 `NookPhone` / 岛上应用面板的暖色容器语言迁移，不要直接照搬系统原生 Material bottom sheet
 
 ## 输出风格
 

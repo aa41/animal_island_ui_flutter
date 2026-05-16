@@ -93,6 +93,8 @@ class ComponentPage extends StatelessWidget {
         return [_cursorDemo(context)];
       case 'modal':
         return [_modalDemo(context)];
+      case 'bottomsheet':
+        return [_bottomSheetDemo(context)];
       case 'refresh':
         return [_refreshDemo(context)];
       case 'typewriter':
@@ -500,6 +502,10 @@ class ComponentPage extends StatelessWidget {
 
   Widget _modalDemo(BuildContext context) {
     return const _ModalDemoSection();
+  }
+
+  Widget _bottomSheetDemo(BuildContext context) {
+    return const _BottomSheetDemoSection();
   }
 
   Widget _refreshDemo(BuildContext context) {
@@ -946,6 +952,184 @@ class _ModalDemoSectionState extends State<_ModalDemoSection> {
         ),
         const DemoCodeBlock(
           "showAnimalDialog<void>(\n  context: context,\n  title: const Text('博物馆捐赠'),\n  child: const Text('欢迎来到无人岛！'),\n);",
+        ),
+      ],
+    );
+  }
+}
+
+class _BottomSheetDemoSection extends StatefulWidget {
+  const _BottomSheetDemoSection();
+
+  @override
+  State<_BottomSheetDemoSection> createState() =>
+      _BottomSheetDemoSectionState();
+}
+
+class _BottomSheetDemoSectionState extends State<_BottomSheetDemoSection> {
+  @override
+  Widget build(BuildContext context) {
+    return DemoSection(
+      title: 'BottomSheet',
+      tag: 'mobile-first',
+      description:
+          '不是直接套用系统原生样式，而是从 NookPhone 的应用面板、任务说明与暖色菜单容器里提炼出一套更适合移动端的底部弹出层。',
+      children: [
+        const DemoLabel('基础调用'),
+        Wrap(
+          spacing: 16,
+          runSpacing: 16,
+          children: [
+            AnimalButton(
+              type: AnimalButtonType.primary,
+              onPressed: () {
+                showAnimalBottomSheet<void>(
+                  context: context,
+                  title: const Text('岛屿广播'),
+                  child: const Text(
+                    '狸克已经把今天的广播整理好了。现在海风正好，适合出门钓鱼、摘果子，或者去看看商店有没有新货。',
+                  ),
+                );
+              },
+              child: const Text('基础 BottomSheet'),
+            ),
+            AnimalButton(
+              type: AnimalButtonType.defaultType,
+              onPressed: () {
+                showAnimalBottomSheet<void>(
+                  context: context,
+                  title: const Text('岛屿设置'),
+                  footer: AnimalBottomSheetActionBar(
+                    primaryLabel: '保存设置',
+                    secondaryLabel: '返回',
+                    onPrimaryPressed: () =>
+                        Navigator.of(context, rootNavigator: true).maybePop(),
+                    onSecondaryPressed: () =>
+                        Navigator.of(context, rootNavigator: true).maybePop(),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: const [
+                      Text('• 公告板：向岛民显示活动通知'),
+                      SizedBox(height: 8),
+                      Text('• 岛歌：切换为傍晚版旋律'),
+                      SizedBox(height: 8),
+                      Text('• 访客权限：允许好友来访'),
+                    ],
+                  ),
+                );
+              },
+              child: const Text('带操作区'),
+            ),
+            AnimalButton(
+              type: AnimalButtonType.dashed,
+              onPressed: () {
+                showAnimalBottomSheet<void>(
+                  context: context,
+                  title: const Text('岛民委托'),
+                  maxHeightRatio: 0.68,
+                  typewriter: true,
+                  child: const Text(
+                    '麻烦帮我把这封信带给住在海边的邻居吧。听说他今天一早就在收拾花园，现在应该正好能找到他。',
+                  ),
+                );
+              },
+              child: const Text('带打字机效果'),
+            ),
+          ],
+        ),
+        const DemoLabel('嵌入式预览'),
+        const DemoBox(
+          child: SizedBox(
+            height: 360,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Align(
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 18),
+                      child: Text('用于移动端操作与信息承载的底部浮层预览'),
+                    ),
+                  ),
+                ),
+                AnimalBottomSheet(
+                  open: true,
+                  title: Text('出海准备清单'),
+                  showCloseButton: false,
+                  footer: AnimalBottomSheetActionBar(
+                    primaryLabel: '开始出发',
+                    secondaryLabel: '稍后再说',
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('已经帮你准备好了钓竿、捕虫网和应急水果。'),
+                      SizedBox(height: 12),
+                      AnimalDivider(),
+                      SizedBox(height: 12),
+                      Text('• 钓竿耐久：良好'),
+                      SizedBox(height: 6),
+                      Text('• 捕虫网耐久：良好'),
+                      SizedBox(height: 6),
+                      Text('• 口袋剩余空位：12'),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        const DemoBox(
+          child: Text(
+            '建议把它用于移动端操作确认、轻量信息面板、任务说明、选择列表，而不是直接回退到系统原生的 Material bottom sheet 外观。',
+          ),
+        ),
+        const DemoCodeBlock(
+          "showAnimalBottomSheet<void>(\n  context: context,\n  title: const Text('岛屿广播'),\n  footer: AnimalBottomSheetActionBar(\n    primaryLabel: '知道了',\n    secondaryLabel: '稍后查看',\n  ),\n  child: const Text('今天的海风很舒服，适合出门逛逛。'),\n);",
+        ),
+        const DemoApiTable(
+          rows: [
+            DemoApiRow(prop: 'title', desc: '标题区内容', type: 'Widget?'),
+            DemoApiRow(
+              prop: 'footer',
+              desc: '底部操作区，可传入自定义按钮组',
+              type: 'Widget?',
+            ),
+            DemoApiRow(
+              prop: 'maxWidth',
+              desc: '面板最大宽度',
+              type: 'double',
+              defaultValue: '560',
+            ),
+            DemoApiRow(
+              prop: 'maxHeightRatio',
+              desc: '相对屏幕高度上限',
+              type: 'double',
+              defaultValue: '0.82',
+            ),
+            DemoApiRow(
+              prop: 'showHandle',
+              desc: '是否显示叶片把手',
+              type: 'bool',
+              defaultValue: 'true',
+            ),
+            DemoApiRow(
+              prop: 'showCloseButton',
+              desc: '是否显示右上角关闭按钮',
+              type: 'bool',
+              defaultValue: 'true',
+            ),
+            DemoApiRow(
+              prop: 'typewriter',
+              desc: '正文是否启用打字机效果',
+              type: 'bool',
+              defaultValue: 'false',
+            ),
+          ],
         ),
       ],
     );

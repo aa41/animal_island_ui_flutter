@@ -10,6 +10,7 @@
 | `Slider` | `AnimalSlider` |
 | `Modal` | `AnimalModal` |
 | `showDialog` 风格展示 | `showAnimalDialog` |
+| `Bottom Sheet` | `AnimalBottomSheet` / `showAnimalBottomSheet` |
 | `Card` | `AnimalCard` |
 | `Collapse` | `AnimalCollapse` |
 | `Select` | `AnimalSelect` |
@@ -55,6 +56,23 @@
 - 中心视觉优先使用岛屿徽章 / 叶子 / 圆形轨道语义
 - 操作按钮继续沿用现有按钮风格，不切回系统弹窗态
 - 标题优先 `15-16`，说明文优先 `14-15`，避免空状态文案像弹窗大标题
+
+### `AnimalBottomSheet`
+
+适用场景：
+
+- 移动端操作确认
+- 轻量任务说明
+- 列表筛选 / 选择菜单
+- 从底部进入的上下文信息面板
+
+视觉规则：
+
+- 不是系统默认 `Material bottom sheet`，而是“从 NookPhone app 面板迁移出的底部浮层”
+- 保持暖色块面、厚描边、柔和阴影、叶片把手与大圆角顶部轮廓
+- 标题优先 `18` 左右，正文优先 `14-15`
+- 默认用于移动端，不要做成桌面抽屉或企业后台侧滑面板
+- 如果内容很多，优先让内容区滚动，不要无限增高到压迫整屏
 
 ### `AnimalSlider`
 
@@ -105,6 +123,7 @@
 
 - `AnimalButton` / `AnimalInput` / `AnimalCheckboxGroup` / `AnimalTabs` 默认使用紧凑交互字号，通常不超过 `14`
 - `AnimalModal` 标题与正文必须明显收敛于移动端尺度，避免 `28+` 或大段 `18+` 文本
+- `AnimalBottomSheet` 与 `AnimalModal` 应共享同一套色板与字级，但底部锚定、轮廓和操作布局要更偏移动端
 - `AnimalTime` / `AnimalPhone` 虽然允许展示型数字，但仍需保留“掌机 UI”感，不做桌面大屏信息牌
 
 ## 缺省优先级
