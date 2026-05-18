@@ -245,6 +245,36 @@ void main() {
     expect(activeId, 'bug');
   });
 
+  testWidgets('AnimalTabs uses start alignment for scrollable tabs', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        SizedBox(
+          width: 320,
+          child: AnimalTabs(
+            leafAnimation: false,
+            items: const [
+              AnimalTabItem(
+                id: 'fish',
+                label: Text('鱼类'),
+                child: SizedBox(height: 120, child: Text('fish body')),
+              ),
+              AnimalTabItem(
+                id: 'bug',
+                label: Text('昆虫'),
+                child: SizedBox(height: 180, child: Text('bug body')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    final tabBar = tester.widget<TabBar>(find.byType(TabBar));
+    expect(tabBar.tabAlignment, TabAlignment.start);
+  });
+
   testWidgets('AnimalLoading and AnimalEmptyState render default content', (
     tester,
   ) async {

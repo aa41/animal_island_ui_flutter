@@ -184,6 +184,7 @@ class _AnimalTabsState extends State<AnimalTabs>
             child: TabBar(
               controller: _tabController,
               isScrollable: true,
+              tabAlignment: TabAlignment.start,
               padding: EdgeInsets.zero,
               labelPadding: const EdgeInsets.only(
                 right: AnimalIslandTokens.spacingXs,
