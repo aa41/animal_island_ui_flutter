@@ -201,6 +201,50 @@ void main() {
     expect(find.text('高'), findsOneWidget);
   });
 
+  testWidgets('AnimalTabs supports horizontal swipe and change callback', (
+    tester,
+  ) async {
+    var activeId = 'fish';
+
+    await tester.pumpWidget(
+      wrap(
+        SizedBox(
+          width: 320,
+          child: AnimalTabs(
+            leafAnimation: false,
+            onChanged: (id) {
+              activeId = id;
+            },
+            items: const [
+              AnimalTabItem(
+                id: 'fish',
+                label: Text('鱼类'),
+                child: SizedBox(height: 120, child: Text('fish body')),
+              ),
+              AnimalTabItem(
+                id: 'bug',
+                label: Text('昆虫'),
+                child: SizedBox(height: 180, child: Text('bug body')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('fish body'), findsOneWidget);
+    expect(find.text('bug body'), findsNothing);
+
+    await tester.drag(find.byType(TabBarView), const Offset(-240, 0));
+    await tester.pumpAndSettle();
+
+    expect(find.text('fish body'), findsNothing);
+    expect(find.text('bug body'), findsOneWidget);
+    expect(activeId, 'bug');
+  });
+
   testWidgets('AnimalLoading and AnimalEmptyState render default content', (
     tester,
   ) async {
