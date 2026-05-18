@@ -28,6 +28,8 @@ enum AnimalLoadMoreState { idle, loading, noMore, error }
 
 enum AnimalStatusTone { loading, error, empty }
 
+enum AnimalDateTimePickerMode { date, time, dateTime }
+
 enum AnimalIconName {
   miles,
   camera,

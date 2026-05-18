@@ -11,6 +11,7 @@ export 'src/components/animal_code_block.dart';
 export 'src/components/animal_collapse.dart';
 export 'src/components/animal_cursor.dart';
 export 'src/components/animal_divider.dart';
+export 'src/components/animal_date_time_picker.dart';
 export 'src/components/animal_footer.dart';
 export 'src/components/animal_icon.dart';
 export 'src/components/animal_input.dart';

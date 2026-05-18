@@ -32,6 +32,10 @@ pageInfo = <String, ({String title, String desc})>{
   'footer': (title: 'Footer 页脚', desc: '支持 sea / tree 两种页脚装饰。'),
   'codeblock': (title: 'CodeBlock 代码高亮', desc: '保留原版暖棕深色主题的代码展示组件。'),
   'time': (title: 'Time 时间', desc: '实时 HUD 风格时间卡片。'),
+  'datetime': (
+    title: 'DateTime 日期时间',
+    desc: 'NookPhone 风格日期时间选择器，支持日历、时间、快捷预设和弹出式选择。',
+  ),
   'phone': (title: 'Phone 手机', desc: '完整 NookPhone 3×3 应用桌面与状态图标。'),
   'badge': (title: 'Badge 标签', desc: '根据统一设计语言补充的辅助标签组件。'),
   'loading': (title: 'Loading 加载态', desc: '统一的岛屿风格加载占位，可用于页面、列表或局部容器。'),
@@ -64,4 +68,4 @@ const List<String> basicComponentKeys = <String>[
   'empty',
 ];
 
-const List<String> complexComponentKeys = <String>['time', 'phone'];
+const List<String> complexComponentKeys = <String>['time', 'datetime', 'phone'];

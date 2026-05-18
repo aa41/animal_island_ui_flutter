@@ -115,6 +115,8 @@ class ComponentPage extends StatelessWidget {
         return [_codeblockDemo(context)];
       case 'time':
         return [_timeDemo(context)];
+      case 'datetime':
+        return [_dateTimeDemo(context)];
       case 'phone':
         return [_phoneDemo(context)];
       case 'badge':
@@ -678,6 +680,102 @@ class ComponentPage extends StatelessWidget {
 
   Widget _emptyDemo(BuildContext context) {
     return const _EmptyDemoSection();
+  }
+
+  Widget _dateTimeDemo(BuildContext context) {
+    return const _DateTimeDemoSection();
+  }
+}
+
+class _DateTimeDemoSection extends StatefulWidget {
+  const _DateTimeDemoSection();
+
+  @override
+  State<_DateTimeDemoSection> createState() => _DateTimeDemoSectionState();
+}
+
+class _DateTimeDemoSectionState extends State<_DateTimeDemoSection> {
+  DateTime selected = DateTime(2026, 5, 18, 18, 30);
+
+  String get summary =>
+      '${selected.year}-${selected.month.toString().padLeft(2, '0')}-${selected.day.toString().padLeft(2, '0')} '
+      '${selected.hour.toString().padLeft(2, '0')}:${selected.minute.toString().padLeft(2, '0')}';
+
+  Future<void> _openPicker(AnimalDateTimePickerMode mode) async {
+    final result = await showAnimalDateTimePicker(
+      context: context,
+      mode: mode,
+      initialValue: selected,
+      firstDate: DateTime(2025, 1, 1, 0, 0),
+      lastDate: DateTime(2027, 12, 31, 23, 59),
+      minuteStep: 5,
+    );
+
+    if (result != null) {
+      setState(() => selected = result);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DemoSection(
+      title: 'DateTime',
+      tag: 'planner',
+      description: '基于 NookPhone 小工具语言构建的日期时间选择器，支持月历、时间、快捷预设和弹出式调用。',
+      children: [
+        DemoBox(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  const AnimalBadge(label: 'Inline'),
+                  AnimalBadge(
+                    label: summary,
+                    backgroundColor: const Color(0xFFE6F9F6),
+                    foregroundColor: const Color(0xFF127F76),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              AnimalDateTimePicker(
+                value: selected,
+                firstDate: DateTime(2025, 1, 1, 0, 0),
+                lastDate: DateTime(2027, 12, 31, 23, 59),
+                minuteStep: 5,
+                onChanged: (value) => setState(() => selected = value),
+              ),
+            ],
+          ),
+        ),
+        const DemoLabel('弹出式选择'),
+        DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                onPressed: () => _openPicker(AnimalDateTimePickerMode.dateTime),
+                child: const Text('日期 + 时间'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () => _openPicker(AnimalDateTimePickerMode.date),
+                child: const Text('仅日期'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () => _openPicker(AnimalDateTimePickerMode.time),
+                child: const Text('仅时间'),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
 

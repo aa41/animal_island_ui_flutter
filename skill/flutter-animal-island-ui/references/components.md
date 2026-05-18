@@ -17,6 +17,7 @@
 | `Checkbox` | `AnimalCheckboxGroup` |
 | `Icon` | `AnimalIcon` |
 | `Time` | `AnimalTime` |
+| `Date / Time Picker` | `AnimalDateTimePicker` / `showAnimalDateTimePicker` |
 | `Phone` | `AnimalPhone` |
 | `Footer` | `AnimalFooter` |
 | `Divider` | `AnimalDivider` |
@@ -73,6 +74,22 @@
 - 标题优先 `18` 左右，正文优先 `14-15`
 - 默认用于移动端，不要做成桌面抽屉或企业后台侧滑面板
 - 如果内容很多，优先让内容区滚动，不要无限增高到压迫整屏
+
+### `AnimalDateTimePicker`
+
+适用场景：
+
+- 岛屿活动排期
+- 日期与时间联合录入
+- 适合移动端的预约 / 提醒 / 计划设定
+
+视觉规则：
+
+- 不直接照搬系统 `showDatePicker` / `showTimePicker`
+- 优先表现为 `NookPhone` 小工具或岛上日程面板，而不是企业表单控件
+- 日历、时间列、快捷预设都要保持暖色块面、大圆角、轻 3D 阴影
+- 默认正文与操作字号优先 `11-14`，标题与摘要优先 `15-18`
+- 允许使用快捷日期与时段预设提升便捷性，但不要堆成复杂后台排班面板
 
 ### `AnimalSlider`
 
