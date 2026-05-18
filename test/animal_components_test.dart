@@ -201,6 +201,46 @@ void main() {
     expect(find.text('高'), findsOneWidget);
   });
 
+  testWidgets('AnimalDateTimePicker hour wheel supports multi-step fling', (
+    tester,
+  ) async {
+    var selected = DateTime(2026, 5, 18, 10, 0);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAnimalIslandTheme(),
+        home: StatefulBuilder(
+          builder: (context, setState) {
+            return Scaffold(
+              body: Center(
+                child: SizedBox(
+                  width: 320,
+                  child: AnimalDateTimePicker(
+                    mode: AnimalDateTimePickerMode.time,
+                    value: selected,
+                    onChanged: (value) {
+                      setState(() => selected = value);
+                    },
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+    await tester.fling(
+      find.byType(ListWheelScrollView).first,
+      const Offset(0, -320),
+      2400,
+    );
+    await tester.pumpAndSettle();
+
+    expect((selected.hour - 10).abs(), greaterThan(1));
+  });
+
   testWidgets('AnimalTabs supports horizontal swipe and change callback', (
     tester,
   ) async {

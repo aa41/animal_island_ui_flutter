@@ -160,21 +160,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
     if (!_isSameMonth(oldWidget.value, widget.value)) {
       _displayMonth = _monthStart(widget.value);
     }
-    if (oldWidget.value.hour != widget.value.hour &&
-        _hourController.hasClients) {
-      _hourController.jumpToItem(widget.value.hour);
-    }
-    final oldMinuteIndex = _closestMinuteIndex(
-      oldWidget.value.minute,
-      oldWidget.minuteStep,
-    );
-    final newMinuteIndex = _closestMinuteIndex(
-      widget.value.minute,
-      widget.minuteStep,
-    );
-    if (oldMinuteIndex != newMinuteIndex && _minuteController.hasClients) {
-      _minuteController.jumpToItem(newMinuteIndex);
-    }
+    _scheduleWheelSync();
   }
 
   @override
@@ -237,6 +223,32 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
       return;
     }
     setState(() => _displayMonth = next);
+  }
+
+  void _scheduleWheelSync() {
+    final hour = widget.value.hour;
+    final minuteIndex = _closestMinuteIndex(
+      widget.value.minute,
+      widget.minuteStep,
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) {
+        return;
+      }
+      _jumpWheelIfNeeded(_hourController, hour);
+      _jumpWheelIfNeeded(_minuteController, minuteIndex);
+    });
+  }
+
+  void _jumpWheelIfNeeded(
+    FixedExtentScrollController controller,
+    int targetItem,
+  ) {
+    if (!controller.hasClients || controller.selectedItem == targetItem) {
+      return;
+    }
+    controller.jumpToItem(targetItem);
   }
 
   @override
