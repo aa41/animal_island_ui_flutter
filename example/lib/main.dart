@@ -20,6 +20,7 @@ class AnimalIslandExampleApp extends StatefulWidget {
 
 class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
   AnimalIslandThemeMode _mode = AnimalIslandThemeMode.day;
+  AnimalIslandGameStyle _gameStyle = AnimalIslandGameStyle.animalIsland;
   String _activeKey = 'home';
 
   @override
@@ -27,7 +28,7 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
     return MaterialApp(
       title: 'Animal Island UI Flutter',
       debugShowCheckedModeBanner: false,
-      theme: buildAnimalIslandTheme(mode: _mode),
+      theme: buildAnimalIslandTheme(mode: _mode, gameStyle: _gameStyle),
       home: AnimalCursor(
         child: Builder(
           builder: (context) {
@@ -84,7 +85,9 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
                           _Sidebar(
                             activeKey: _activeKey,
                             mode: _mode,
+                            gameStyle: _gameStyle,
                             onToggleMode: _toggleMode,
+                            onToggleGameStyle: _toggleGameStyle,
                             onNavigate: _navigate,
                           ),
                         Expanded(
@@ -92,7 +95,9 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
                             child: ComponentPage(
                               activeKey: _activeKey,
                               mode: _mode,
+                              gameStyle: _gameStyle,
                               onToggleMode: _toggleMode,
+                              onToggleGameStyle: _toggleGameStyle,
                               onNavigate: _navigate,
                             ),
                           ),
@@ -120,7 +125,9 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
                       child: _Sidebar(
                         activeKey: _activeKey,
                         mode: _mode,
+                        gameStyle: _gameStyle,
                         onToggleMode: _toggleMode,
+                        onToggleGameStyle: _toggleGameStyle,
                         onNavigate: (key) {
                           Navigator.of(context).pop();
                           _navigate(key);
@@ -136,6 +143,14 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
                         icon: const Icon(Icons.arrow_back),
                       ),
                       actions: [
+                        IconButton(
+                          onPressed: _toggleGameStyle,
+                          icon: Icon(
+                            _gameStyle == AnimalIslandGameStyle.animalIsland
+                                ? Icons.videogame_asset_outlined
+                                : Icons.park_outlined,
+                          ),
+                        ),
                         IconButton(
                           onPressed: _toggleMode,
                           icon: Icon(
@@ -168,6 +183,14 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
     });
   }
 
+  void _toggleGameStyle() {
+    setState(() {
+      _gameStyle = _gameStyle == AnimalIslandGameStyle.animalIsland
+          ? AnimalIslandGameStyle.nes8Bit
+          : AnimalIslandGameStyle.animalIsland;
+    });
+  }
+
   void _navigate(String key) {
     setState(() => _activeKey = key);
   }
@@ -177,13 +200,17 @@ class _Sidebar extends StatelessWidget {
   const _Sidebar({
     required this.activeKey,
     required this.mode,
+    required this.gameStyle,
     required this.onToggleMode,
+    required this.onToggleGameStyle,
     required this.onNavigate,
   });
 
   final String activeKey;
   final AnimalIslandThemeMode mode;
+  final AnimalIslandGameStyle gameStyle;
   final VoidCallback onToggleMode;
+  final VoidCallback onToggleGameStyle;
   final ValueChanged<String> onNavigate;
 
   @override
@@ -238,6 +265,16 @@ class _Sidebar extends StatelessWidget {
                               mode == AnimalIslandThemeMode.day
                                   ? Icons.dark_mode_outlined
                                   : Icons.wb_sunny_outlined,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: onToggleGameStyle,
+                            iconSize: 18,
+                            visualDensity: VisualDensity.compact,
+                            icon: Icon(
+                              gameStyle == AnimalIslandGameStyle.animalIsland
+                                  ? Icons.videogame_asset_outlined
+                                  : Icons.park_outlined,
                             ),
                           ),
                         ],

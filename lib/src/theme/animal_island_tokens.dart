@@ -13,8 +13,13 @@ abstract final class AnimalIslandTokens {
   static const double radiusLg = 24;
   static const double radiusPill = 50;
 
+  static const double pixelRadiusSm = 0;
+  static const double pixelRadiusBase = 2;
+  static const double pixelRadiusLg = 4;
+
   static const double borderWidth = 2;
   static const double inputBorderWidth = 2.5;
+  static const double pixelBorderWidth = 3;
 
   static const double heightSm = 32;
   static const double heightBase = 40;
@@ -37,9 +42,11 @@ abstract final class AnimalIslandTokens {
   static const Duration fast = Duration(milliseconds: 150);
   static const Duration base = Duration(milliseconds: 250);
   static const Duration slow = Duration(milliseconds: 350);
+  static const Duration pixelStep = Duration(milliseconds: 90);
 
   static const Curve motionCurve = Cubic(0.4, 0.0, 0.2, 1.0);
   static const Curve softCurve = Curves.easeInOut;
+  static const Curve pixelCurve = Curves.linear;
 }
 
 abstract final class AnimalIslandShadows {

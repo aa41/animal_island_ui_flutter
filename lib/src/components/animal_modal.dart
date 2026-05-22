@@ -186,60 +186,85 @@ class _AnimalModalPanel extends StatelessWidget {
       ],
     );
 
+    final panel = DecoratedBox(
+      decoration: BoxDecoration(
+        color: theme.surfaceRaised,
+        borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusBase : 0),
+        border: theme.isNes
+            ? Border.all(color: theme.border, width: theme.borderWidth)
+            : null,
+        boxShadow: theme.isNes
+            ? [
+                BoxShadow(
+                  color: theme.buttonShadow,
+                  blurRadius: 0,
+                  offset: const Offset(0, 6),
+                ),
+              ]
+            : null,
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(
+          theme.isNes ? 24 : 36,
+          theme.isNes ? 24 : 36,
+          theme.isNes ? 24 : 36,
+          theme.isNes ? 22 : 28,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title != null) ...[
+              DefaultTextStyle(
+                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                  color: theme.textBody,
+                  fontSize: theme.isNes
+                      ? AnimalIslandTokens.fontBody
+                      : AnimalIslandTokens.fontHeadlineSm,
+                ),
+                child: title!,
+              ),
+              const SizedBox(height: 15),
+            ],
+            Flexible(
+              child: SingleChildScrollView(
+                child: DefaultTextStyle(
+                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                    color: theme.textMuted,
+                    fontSize: theme.isNes
+                        ? AnimalIslandTokens.fontBodySm
+                        : AnimalIslandTokens.fontBodyLg,
+                    fontWeight: FontWeight.w600,
+                    height: theme.isNes ? 1.8 : 1.55,
+                  ),
+                  child: _AnimalModalBody(
+                    typeSpeed: typeSpeed,
+                    typewriter: typewriter,
+                    child: child,
+                  ),
+                ),
+              ),
+            ),
+            if (showFooter) ...[
+              const SizedBox(height: 20),
+              Align(
+                alignment: Alignment.centerRight,
+                child: useDefaultFooter ? defaultFooter : customFooter,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: math.min(MediaQuery.sizeOf(context).width - 32, width),
         maxHeight: MediaQuery.sizeOf(context).height - 64,
       ),
-      child: ClipPath(
-        clipper: _AnimalModalClipper(),
-        child: DecoratedBox(
-          decoration: BoxDecoration(color: theme.surfaceRaised),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(36, 36, 36, 28),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (title != null) ...[
-                  DefaultTextStyle(
-                    style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                      color: theme.textBody,
-                      fontSize: AnimalIslandTokens.fontHeadlineSm,
-                    ),
-                    child: title!,
-                  ),
-                  const SizedBox(height: 15),
-                ],
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: DefaultTextStyle(
-                      style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                        color: theme.textMuted,
-                        fontSize: AnimalIslandTokens.fontBodyLg,
-                        fontWeight: FontWeight.w600,
-                        height: 1.55,
-                      ),
-                      child: _AnimalModalBody(
-                        typeSpeed: typeSpeed,
-                        typewriter: typewriter,
-                        child: child,
-                      ),
-                    ),
-                  ),
-                ),
-                if (showFooter) ...[
-                  const SizedBox(height: 20),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: useDefaultFooter ? defaultFooter : customFooter,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
+      child: theme.isNes
+          ? panel
+          : ClipPath(clipper: _AnimalModalClipper(), child: panel),
     );
   }
 }

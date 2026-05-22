@@ -34,8 +34,8 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: theme.surface,
-          borderRadius: BorderRadius.circular(AnimalIslandTokens.radiusBase),
-          border: Border.all(color: theme.border, width: 2),
+          borderRadius: BorderRadius.circular(theme.radiusBase),
+          border: Border.all(color: theme.border, width: theme.borderWidth),
         ),
         child: Column(
           children: [
@@ -43,9 +43,7 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
               onTap: widget.enabled
                   ? () => setState(() => _expanded = !_expanded)
                   : null,
-              borderRadius: BorderRadius.circular(
-                AnimalIslandTokens.radiusBase,
-              ),
+              borderRadius: BorderRadius.circular(theme.radiusBase),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: AnimalIslandTokens.spacingXl,
@@ -54,12 +52,22 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                 child: Row(
                   children: [
                     AnimatedContainer(
-                      duration: AnimalIslandTokens.base,
+                      duration: theme.isNes
+                          ? AnimalIslandTokens.pixelStep
+                          : AnimalIslandTokens.base,
                       width: 28,
                       height: 28,
                       decoration: BoxDecoration(
                         color: _expanded ? theme.primaryActive : theme.primary,
-                        shape: BoxShape.circle,
+                        shape: theme.isNes
+                            ? BoxShape.rectangle
+                            : BoxShape.circle,
+                        borderRadius: theme.isNes
+                            ? BorderRadius.circular(theme.radiusSm)
+                            : null,
+                        border: theme.isNes
+                            ? Border.all(color: theme.border, width: 2)
+                            : null,
                         boxShadow: [
                           BoxShadow(
                             color: theme.primary.withValues(alpha: 0.3),
@@ -101,19 +109,20 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                         child: widget.question,
                       ),
                     ),
-                    AnimatedRotation(
-                      turns: _expanded ? 0.125 : 0,
-                      duration: AnimalIslandTokens.base,
-                      child: Image.asset(
-                        AnimalIslandAssets.iconLeaf,
-                        package: AnimalIslandAssets.package,
-                        width: 18,
-                        height: 18,
-                        opacity: AlwaysStoppedAnimation<double>(
-                          _expanded ? 1 : 0.5,
+                    if (!theme.isNes)
+                      AnimatedRotation(
+                        turns: _expanded ? 0.125 : 0,
+                        duration: AnimalIslandTokens.base,
+                        child: Image.asset(
+                          AnimalIslandAssets.iconLeaf,
+                          package: AnimalIslandAssets.package,
+                          width: 18,
+                          height: 18,
+                          opacity: AlwaysStoppedAnimation<double>(
+                            _expanded ? 1 : 0.5,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
               ),

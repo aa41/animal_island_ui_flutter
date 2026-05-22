@@ -1,6 +1,6 @@
 # Integration Guide
 
-本文档面向业务项目接入 `animal_island_ui_flutter` 的场景。
+本文档面向业务项目接入 `animal_island_ui_flutter` 的场景。当前组件库支持 Animal Island / 动森风格与 NES 八位机像素风格，并保留统一 `Animal*` 组件 API。
 
 ## 1. 选择接入方式
 
@@ -31,8 +31,14 @@ dependencies:
 
 ```dart
 MaterialApp(
-  theme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.day),
-  darkTheme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.night),
+  theme: buildAnimalIslandTheme(
+    mode: AnimalIslandThemeMode.day,
+    gameStyle: AnimalIslandGameStyle.animalIsland,
+  ),
+  darkTheme: buildAnimalIslandTheme(
+    mode: AnimalIslandThemeMode.night,
+    gameStyle: AnimalIslandGameStyle.animalIsland,
+  ),
   themeMode: ThemeMode.system,
   home: const HomePage(),
 );
@@ -44,11 +50,25 @@ MaterialApp(
 final mode = isNight
     ? AnimalIslandThemeMode.night
     : AnimalIslandThemeMode.day;
+final gameStyle = useNes
+    ? AnimalIslandGameStyle.nes8Bit
+    : AnimalIslandGameStyle.animalIsland;
 
 MaterialApp(
-  theme: buildAnimalIslandTheme(mode: mode),
+  theme: buildAnimalIslandTheme(mode: mode, gameStyle: gameStyle),
   home: const HomePage(),
 );
+```
+
+内置游戏风格：
+
+- `AnimalIslandGameStyle.animalIsland`：动森系自然 UI，大圆角、暖色、NookPhone 氛围
+- `AnimalIslandGameStyle.nes8Bit`：NES 八位机像素 UI，像素字体、粗描边、硬阴影、低帧率动效
+
+如果业务希望显式使用 NES 入口：
+
+```dart
+import 'package:animal_island_ui_flutter/nes_ui_flutter.dart';
 ```
 
 ## 3. 推荐起步组件
@@ -95,8 +115,10 @@ showAnimalDialog<void>(
 ## 5. 页面设计约束
 
 - 不要退化成默认 Material 3 平面 UI
-- 不要用冷灰和纯黑替代暖色系统
-- 夜间模式不是黑底霓虹，而是“夜里的岛”
+- 动森主题不要用冷灰和纯黑替代暖色系统
+- 动森夜间模式不是黑底霓虹，而是“夜里的岛”
+- NES 主题不要混入动森叶子、圆形奖章、柔光阴影和大圆角 pill 作为核心视觉
+- NES loading / empty / error / switch loading 等反馈应使用像素块、点阵或硬边 painter
 - 交互状态保持克制，避免抖动和夸张发光
 
 ## 6. AI 技能接入
@@ -143,5 +165,6 @@ flutter run -d chrome
 
 - 组件资源已封装在 package 内，无需业务侧手动复制 asset
 - 主题请从 `buildAnimalIslandTheme(...)` 开始，不建议混用大量默认 `ThemeData`
-- 若新增组件，请同步维护 day / night 两套结果
+- 若新增组件，请同步维护 day / night 与 animalIsland / nes8Bit 的结果
 - 若需要 AI 代理持续稳定产出，请优先让其读取 `skill/flutter-animal-island-ui/SKILL.md`
+- NES 设计依据和实现映射可参考 `docs/NES_8BIT_UI_RESEARCH.md`

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../theme/animal_island_theme.dart';
-import '../theme/animal_island_tokens.dart';
 
 class AnimalBadge extends StatelessWidget {
   const AnimalBadge({
@@ -24,7 +23,10 @@ class AnimalBadge extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: backgroundColor ?? theme.surfaceSoft,
-        borderRadius: BorderRadius.circular(AnimalIslandTokens.radiusPill),
+        borderRadius: BorderRadius.circular(theme.radiusPill),
+        border: theme.isNes
+            ? Border.all(color: theme.border, width: theme.borderWidth)
+            : null,
       ),
       child: Padding(
         padding: padding,

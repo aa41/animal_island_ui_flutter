@@ -89,21 +89,21 @@ class _AnimalButtonState extends State<AnimalButton>
     final metrics = switch (widget.size) {
       AnimalButtonSize.small => _ButtonMetrics(
         height: AnimalIslandTokens.heightSm,
-        horizontal: 16,
+        horizontal: theme.isNes ? 14 : 16,
         fontSize: AnimalIslandTokens.fontCaption,
-        radius: AnimalIslandTokens.radiusSm,
+        radius: theme.radiusSm,
       ),
-      AnimalButtonSize.middle => const _ButtonMetrics(
-        height: 45,
-        horizontal: 20,
+      AnimalButtonSize.middle => _ButtonMetrics(
+        height: AnimalIslandTokens.heightMdButton,
+        horizontal: theme.isNes ? 18 : 20,
         fontSize: AnimalIslandTokens.fontLabel,
-        radius: AnimalIslandTokens.radiusPill,
+        radius: theme.radiusPill,
       ),
       AnimalButtonSize.large => _ButtonMetrics(
         height: AnimalIslandTokens.heightLg,
-        horizontal: 32,
+        horizontal: theme.isNes ? 24 : 32,
         fontSize: AnimalIslandTokens.fontBody,
-        radius: AnimalIslandTokens.radiusLg,
+        radius: theme.radiusLg,
       ),
     };
 
@@ -113,14 +113,14 @@ class _AnimalButtonState extends State<AnimalButton>
         : _pressed
         ? 1.0
         : _hovered
-        ? 6.0
-        : 5.0;
+        ? (theme.isNes ? 4.0 : 6.0)
+        : (theme.isNes ? 4.0 : 5.0);
     final offsetY = widget.loading
         ? 0.0
         : _pressed
-        ? 2.0
+        ? (theme.isNes ? 3.0 : 2.0)
         : _hovered
-        ? -1.0
+        ? (theme.isNes ? 0.0 : -1.0)
         : 0.0;
 
     final content = DefaultTextStyle(
@@ -129,7 +129,7 @@ class _AnimalButtonState extends State<AnimalButton>
         color: enabled
             ? colors.foreground
             : colors.foreground.withValues(alpha: 0.5),
-        letterSpacing: 0.28,
+        letterSpacing: theme.isNes ? 0 : 0.28,
       ),
       child: Row(
         mainAxisSize: widget.block ? MainAxisSize.max : MainAxisSize.min,
@@ -151,16 +151,13 @@ class _AnimalButtonState extends State<AnimalButton>
       children: [
         Positioned.fill(
           child: AnimatedContainer(
-            duration: AnimalIslandTokens.fast,
+            duration: theme.interactionDuration,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(metrics.radius),
               color: colors.background,
               border: showDashedBorder
                   ? null
-                  : Border.all(
-                      color: colors.border,
-                      width: AnimalIslandTokens.borderWidth,
-                    ),
+                  : Border.all(color: colors.border, width: theme.borderWidth),
               boxShadow: shadowDepth == 0
                   ? null
                   : [
@@ -180,7 +177,7 @@ class _AnimalButtonState extends State<AnimalButton>
                 painter: AnimalDashedOutlinePainter(
                   color: colors.border,
                   radius: metrics.radius,
-                  strokeWidth: AnimalIslandTokens.borderWidth,
+                  strokeWidth: theme.borderWidth,
                 ),
               ),
             ),
@@ -190,12 +187,18 @@ class _AnimalButtonState extends State<AnimalButton>
             child: AnimatedBuilder(
               animation: _loadingController,
               builder: (context, child) => CustomPaint(
-                painter: _StripePainter(
-                  progress: _loadingController.value,
-                  base: const Color(0xFF0EC4B6),
-                  stripe: const Color(0xFF01B0A7),
-                  radius: metrics.radius,
-                ),
+                painter: theme.isNes
+                    ? _PixelLoadingPainter(
+                        progress: _loadingController.value,
+                        base: theme.primary,
+                        stripe: theme.focusYellow,
+                      )
+                    : _StripePainter(
+                        progress: _loadingController.value,
+                        base: const Color(0xFF0EC4B6),
+                        stripe: const Color(0xFF01B0A7),
+                        radius: metrics.radius,
+                      ),
               ),
             ),
           ),
@@ -210,7 +213,7 @@ class _AnimalButtonState extends State<AnimalButton>
     );
 
     final child = AnimatedContainer(
-      duration: AnimalIslandTokens.fast,
+      duration: theme.interactionDuration,
       transform: Matrix4.translationValues(0, offsetY, 0),
       height: metrics.height,
       width: widget.block ? double.infinity : null,
@@ -237,9 +240,9 @@ class _AnimalButtonState extends State<AnimalButton>
 
   _ButtonColors _resolveColors(AnimalIslandThemeData theme) {
     if (widget.loading) {
-      return const _ButtonColors(
-        background: Color(0xFF0EC4B6),
-        border: Color(0xFF4DE2DA),
+      return _ButtonColors(
+        background: theme.isNes ? theme.primary : const Color(0xFF0EC4B6),
+        border: theme.isNes ? theme.border : const Color(0xFF4DE2DA),
         foreground: Colors.white,
         shadow: Colors.transparent,
       );
@@ -276,9 +279,15 @@ class _AnimalButtonState extends State<AnimalButton>
     switch (widget.type) {
       case AnimalButtonType.primary:
         return _ButtonColors(
-          background: widget.ghost ? Colors.transparent : theme.surface,
-          border: widget.ghost ? theme.primary : theme.surface,
-          foreground: widget.ghost ? theme.primary : const Color(0xFF794F27),
+          background: widget.ghost
+              ? Colors.transparent
+              : (theme.isNes ? theme.primary : theme.surface),
+          border: widget.ghost
+              ? theme.primary
+              : (theme.isNes ? theme.border : theme.surface),
+          foreground: widget.ghost
+              ? theme.primary
+              : (theme.isNes ? Colors.white : const Color(0xFF794F27)),
           shadow: widget.ghost ? Colors.transparent : theme.buttonShadow,
         );
       case AnimalButtonType.defaultType:
@@ -389,6 +398,36 @@ class _StripePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _StripePainter other) {
+    return other.progress != progress ||
+        other.base != base ||
+        other.stripe != stripe;
+  }
+}
+
+class _PixelLoadingPainter extends CustomPainter {
+  const _PixelLoadingPainter({
+    required this.progress,
+    required this.base,
+    required this.stripe,
+  });
+
+  final double progress;
+  final Color base;
+  final Color stripe;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.drawRect(Offset.zero & size, Paint()..color = base);
+    final paint = Paint()..color = stripe.withValues(alpha: 0.72);
+    const block = 8.0;
+    final offset = (progress * block * 4) % (block * 2);
+    for (var x = -block * 2 + offset; x < size.width + block; x += block * 2) {
+      canvas.drawRect(Rect.fromLTWH(x, 0, block, size.height), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _PixelLoadingPainter other) {
     return other.progress != progress ||
         other.base != base ||
         other.stripe != stripe;

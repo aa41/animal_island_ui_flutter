@@ -1,6 +1,6 @@
 # Animal Island UI Flutter
 
-纯 Flutter UI 组件库，完整复刻 Animal Island / 动森系设计语言，并扩展白天、夜晚双主题。
+纯 Flutter UI 组件库，完整复刻 Animal Island / 动森系设计语言，并新增 NES 八位机像素风主题。组件 API 保持统一，可在动森风格、NES 八位机风格以及后续更多游戏风格之间动态切换。
 
 仓库现在只保留 Flutter 能力：
 
@@ -12,10 +12,28 @@
 ## 特性
 
 - 纯 UI 组件库，不包含任何业务原生桥接代码
-- 保持统一的暖色、圆角、3D 压感、NookPhone 风格视觉语言
+- 动森主题保持暖色、圆角、3D 压感、NookPhone 风格视觉语言
+- NES 八位机主题提供像素字体、硬边轮廓、粗描边、零模糊阴影、低帧率像素动效
+- 支持 `AnimalIslandGameStyle.animalIsland` / `AnimalIslandGameStyle.nes8Bit`
 - 支持 `AnimalIslandThemeMode.day` / `AnimalIslandThemeMode.night`
+- 同一批 `Animal*` 组件 API 支持跨游戏风格动态切换
 - 提供完整 example，用于组件展示和跨平台测试
 - 支持将技能包复制到其他项目，方便安全接入 Codex 与 Claude Code
+
+## 游戏风格主题
+
+当前内置两套完整游戏风格：
+
+- `AnimalIslandGameStyle.animalIsland`
+  - 动森系自然 UI
+  - 奶油底、木色文字、草地/海岛氛围
+  - 大圆角、柔和阴影、轻量 hover / active 动效
+- `AnimalIslandGameStyle.nes8Bit`
+  - NES 八位机像素 UI
+  - 高对比有限色板、Press Start 2P 像素字体
+  - 方形/小圆角、粗描边、硬阴影、像素 loading / empty / error 状态
+
+两套风格都支持 day / night，并共享同一套组件能力。业务层只需要切换 `gameStyle`，不需要替换组件。
 
 ## 组件能力
 
@@ -26,15 +44,21 @@
 - 选择与导航：`AnimalSelect`、`AnimalCheckboxGroup`、`AnimalTabs`
 - 装饰与展示：`AnimalBadge`、`AnimalDivider`、`AnimalFooter`、`AnimalCodeBlock`
 - 游戏化组件：`AnimalIcon`、`AnimalCursor`、`AnimalPhone`、`AnimalTime`、`AnimalTypewriter`
-- 状态与列表：`AnimalLoading`、`AnimalErrorState`、`AnimalEmptyState`、`AnimalPullToRefresh`、`AnimalLoadMoreFooter`
+- 状态与列表：`AnimalLoading`、`AnimalErrorState`、`AnimalEmptyState`、`AnimalStatusView`、`AnimalPullToRefresh`、`AnimalLoadMoreFooter`
+
+NES 八位机主题已覆盖上述组件，不是单独封装一批割裂 API。包括 `Switch.loading`、虚线卡片、`Loading / Empty / Error` 等反馈组件都使用像素化视觉与动效。
 
 ## 仓库结构
 
 ```text
 lib/                             Flutter library 入口与组件源码
+lib/animal_island_ui_flutter.dart 兼容主入口，导出全部组件能力
+lib/animal_game_ui_flutter.dart   多游戏风格入口，面向后续主题扩展
+lib/nes_ui_flutter.dart           NES 八位机主题入口
 example/                         Android / iOS / Web 示例工程
 assets/animal_island/            组件使用的包内资源
 skill/flutter-animal-island-ui/  Flutter 技能包
+docs/NES_8BIT_UI_RESEARCH.md     NES 八位机 UI 调研与实现映射
 test/                            组件级测试
 tool/                            构建与技能复制脚本
 ```
@@ -64,13 +88,39 @@ dependencies:
 import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
 
 MaterialApp(
-  theme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.day),
-  darkTheme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.night),
+  theme: buildAnimalIslandTheme(
+    mode: AnimalIslandThemeMode.day,
+    gameStyle: AnimalIslandGameStyle.animalIsland,
+  ),
+  darkTheme: buildAnimalIslandTheme(
+    mode: AnimalIslandThemeMode.night,
+    gameStyle: AnimalIslandGameStyle.animalIsland,
+  ),
   home: const MyHomePage(),
 );
 ```
 
-### 4. 使用组件
+### 4. 动态切换游戏风格
+
+```dart
+AnimalIslandThemeMode mode = AnimalIslandThemeMode.day;
+AnimalIslandGameStyle gameStyle = AnimalIslandGameStyle.animalIsland;
+
+void toggleGameStyle() {
+  setState(() {
+    gameStyle = gameStyle == AnimalIslandGameStyle.animalIsland
+        ? AnimalIslandGameStyle.nes8Bit
+        : AnimalIslandGameStyle.animalIsland;
+  });
+}
+
+MaterialApp(
+  theme: buildAnimalIslandTheme(mode: mode, gameStyle: gameStyle),
+  home: const MyHomePage(),
+);
+```
+
+### 5. 使用组件
 
 ```dart
 import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
@@ -157,6 +207,7 @@ flutter run -d chrome
 
 - [README.flutter.md](./README.flutter.md)：快速接入速查
 - [docs/INTEGRATION_GUIDE.md](./docs/INTEGRATION_GUIDE.md)：完整接入指南
+- [docs/NES_8BIT_UI_RESEARCH.md](./docs/NES_8BIT_UI_RESEARCH.md)：NES 八位机 UI 调研与实现映射
 - [example/README.md](./example/README.md)：示例工程说明
 - [skill/flutter-animal-island-ui/SKILL.md](./skill/flutter-animal-island-ui/SKILL.md)：Flutter 设计技能
 - [CONTRIBUTING.md](./CONTRIBUTING.md)：贡献说明
@@ -164,9 +215,11 @@ flutter run -d chrome
 ## 设计原则
 
 - 不退化成默认 Material 平面风格
-- 保持温暖自然配色、奶油底、木色文字和柔和阴影
-- 白天与夜晚主题属于同一世界观，而不是两套无关主题
-- 新组件优先复用现有 token、动画节奏和圆角体系
+- 动森风格保持温暖自然配色、奶油底、木色文字和柔和阴影
+- NES 风格保持像素网格、有限色板、粗边框、硬阴影和低帧率反馈
+- 白天与夜晚主题属于同一游戏风格下的明暗扩展，而不是两套无关主题
+- 新组件优先复用现有 token、动画节奏、圆角/像素边框体系
+- 新游戏风格优先扩展 `AnimalIslandGameStyle` 与主题 token，不复制一套不兼容组件 API
 
 ## License
 

@@ -61,8 +61,8 @@ class AnimalLoadMoreFooter extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: BoxDecoration(
         color: theme.surface.withValues(alpha: 0.88),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: theme.borderLight, width: 2),
+        borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusSm : 24),
+        border: Border.all(color: theme.borderLight, width: theme.borderWidth),
       ),
       child: Wrap(
         alignment: WrapAlignment.center,
@@ -75,16 +75,34 @@ class AnimalLoadMoreFooter extends StatelessWidget {
             height: 42,
             decoration: BoxDecoration(
               color: theme.surfaceRaised,
-              shape: BoxShape.circle,
-              border: Border.all(color: theme.borderLight, width: 1.5),
+              shape: theme.isNes ? BoxShape.rectangle : BoxShape.circle,
+              borderRadius: theme.isNes
+                  ? BorderRadius.circular(theme.radiusSm)
+                  : null,
+              border: Border.all(
+                color: theme.borderLight,
+                width: theme.isNes ? theme.borderWidth : 1.5,
+              ),
             ),
             alignment: Alignment.center,
-            child: Image.asset(
-              AnimalIslandAssets.iconLeaf,
-              package: AnimalIslandAssets.package,
-              width: 18,
-              height: 18,
-            ),
+            child: theme.isNes
+                ? Text(
+                    switch (state) {
+                      AnimalLoadMoreState.loading => '...',
+                      AnimalLoadMoreState.noMore => 'OK',
+                      AnimalLoadMoreState.error => '!',
+                      AnimalLoadMoreState.idle => '>',
+                    },
+                    style: Theme.of(
+                      context,
+                    ).textTheme.labelMedium?.copyWith(color: theme.textPrimary),
+                  )
+                : Image.asset(
+                    AnimalIslandAssets.iconLeaf,
+                    package: AnimalIslandAssets.package,
+                    width: 18,
+                    height: 18,
+                  ),
           ),
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 260),

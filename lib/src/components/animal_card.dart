@@ -34,24 +34,29 @@ class _AnimalCardState extends State<AnimalCard> {
     final background = theme.cardColors[widget.color] ?? theme.surfaceRaised;
     final foreground = theme.cardForeground(widget.color);
 
-    final radius = switch (widget.type) {
-      AnimalCardType.title => const BorderRadius.only(
-        topLeft: Radius.circular(40),
-        topRight: Radius.circular(35),
-        bottomLeft: Radius.circular(38),
-        bottomRight: Radius.circular(45),
-      ),
-      _ => BorderRadius.circular(20),
-    };
+    final radius = theme.isNes
+        ? BorderRadius.circular(theme.radiusBase)
+        : switch (widget.type) {
+            AnimalCardType.title => const BorderRadius.only(
+              topLeft: Radius.circular(40),
+              topRight: Radius.circular(35),
+              bottomLeft: Radius.circular(38),
+              bottomRight: Radius.circular(45),
+            ),
+            _ => BorderRadius.circular(20),
+          };
 
     final padding =
         widget.padding ??
         switch (widget.type) {
-          AnimalCardType.title => const EdgeInsets.symmetric(
-            horizontal: 32,
+          AnimalCardType.title => EdgeInsets.symmetric(
+            horizontal: theme.isNes ? 22 : 32,
             vertical: 12,
           ),
-          _ => const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          _ => EdgeInsets.symmetric(
+            horizontal: theme.isNes ? 16 : 24,
+            vertical: 16,
+          ),
         };
 
     final dashedBorderColor = theme.borderLight.withValues(
@@ -61,11 +66,15 @@ class _AnimalCardState extends State<AnimalCard> {
     final card = Stack(
       children: [
         AnimatedContainer(
-          duration: AnimalIslandTokens.base,
-          curve: AnimalIslandTokens.motionCurve,
+          duration: theme.isNes
+              ? AnimalIslandTokens.pixelStep
+              : AnimalIslandTokens.base,
+          curve: theme.interactionCurve,
           transform: Matrix4.translationValues(
             0,
-            _hovered && widget.type != AnimalCardType.dashed ? -4 : 0,
+            _hovered && widget.type != AnimalCardType.dashed && !theme.isNes
+                ? -4
+                : 0,
             0,
           ),
           padding: padding,
@@ -74,18 +83,23 @@ class _AnimalCardState extends State<AnimalCard> {
                 ? theme.surface.withValues(alpha: 0.92)
                 : background,
             borderRadius: radius,
+            border: theme.isNes
+                ? Border.all(color: theme.border, width: theme.borderWidth)
+                : null,
             boxShadow: widget.type == AnimalCardType.dashed
                 ? null
                 : [
                     BoxShadow(
-                      color: const Color.fromRGBO(
-                        107,
-                        92,
-                        67,
-                        0.42,
-                      ).withValues(alpha: _hovered ? 0.34 : 0.24),
-                      blurRadius: _hovered ? 20 : 10,
-                      offset: Offset(0, _hovered ? 8 : 4),
+                      color: theme.isNes
+                          ? theme.buttonShadow
+                          : const Color.fromRGBO(
+                              107,
+                              92,
+                              67,
+                              0.42,
+                            ).withValues(alpha: _hovered ? 0.34 : 0.24),
+                      blurRadius: theme.isNes ? 0 : (_hovered ? 20 : 10),
+                      offset: Offset(0, theme.isNes ? 4 : (_hovered ? 8 : 4)),
                     ),
                   ],
           ),
@@ -100,7 +114,13 @@ class _AnimalCardState extends State<AnimalCard> {
                   ? FontWeight.w600
                   : FontWeight.w500,
             ),
-            child: widget.child ?? const SizedBox.shrink(),
+            child: widget.type == AnimalCardType.dashed
+                ? Center(
+                    widthFactor: widget.child == null ? 1 : null,
+                    heightFactor: widget.child == null ? 1 : null,
+                    child: widget.child ?? const SizedBox.shrink(),
+                  )
+                : widget.child ?? const SizedBox.shrink(),
           ),
         ),
         if (widget.type == AnimalCardType.dashed)
@@ -110,9 +130,9 @@ class _AnimalCardState extends State<AnimalCard> {
                 painter: AnimalDashedOutlinePainter(
                   color: dashedBorderColor,
                   radius: 20,
-                  strokeWidth: 2,
-                  dashLength: 7,
-                  gapLength: 5,
+                  strokeWidth: theme.borderWidth,
+                  dashLength: theme.isNes ? 4 : 7,
+                  gapLength: theme.isNes ? 4 : 5,
                 ),
               ),
             ),

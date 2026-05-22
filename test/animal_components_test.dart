@@ -10,6 +10,13 @@ void main() {
     );
   }
 
+  Widget wrapNes(Widget child) {
+    return MaterialApp(
+      theme: buildAnimalIslandTheme(gameStyle: AnimalIslandGameStyle.nes8Bit),
+      home: Scaffold(body: Center(child: child)),
+    );
+  }
+
   testWidgets('AnimalSwitch checked children do not expand to full width', (
     tester,
   ) async {
@@ -28,6 +35,35 @@ void main() {
 
     expect(switchSize.width, greaterThan(textSize.width));
     expect(switchSize.width, lessThan(90));
+  });
+
+  testWidgets('NES switch loading avoids Material circular spinner', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapNes(const AnimalSwitch(initialValue: true, loading: true)),
+    );
+
+    expect(find.byType(CircularProgressIndicator), findsNothing);
+    expect(find.byType(CustomPaint), findsWidgets);
+  });
+
+  testWidgets('Dashed card centers its child content', (tester) async {
+    await tester.pumpWidget(
+      wrapNes(
+        const SizedBox(
+          width: 240,
+          height: 120,
+          child: AnimalCard(type: AnimalCardType.dashed, child: Text('居中')),
+        ),
+      ),
+    );
+
+    final cardCenter = tester.getCenter(find.byType(AnimalCard));
+    final textCenter = tester.getCenter(find.text('居中'));
+
+    expect((cardCenter.dx - textCenter.dx).abs(), lessThan(1));
+    expect((cardCenter.dy - textCenter.dy).abs(), lessThan(1));
   });
 
   testWidgets('AnimalModal hides footer when footer is null', (tester) async {
@@ -335,5 +371,29 @@ void main() {
 
     expect(find.text('正在准备'), findsOneWidget);
     expect(find.text('暂时空白'), findsOneWidget);
+  });
+
+  testWidgets('NES status states use pixel painters instead of image assets', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapNes(
+        const SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimalLoading(compact: true),
+              SizedBox(height: 12),
+              AnimalEmptyState(compact: true),
+              SizedBox(height: 12),
+              AnimalErrorState(compact: true),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(Image), findsNothing);
+    expect(find.byType(CustomPaint), findsWidgets);
   });
 }

@@ -93,7 +93,7 @@ class _AnimalSwitchState extends State<AnimalSwitch>
     final small = widget.size == AnimalSwitchSize.small;
     final minWidth = small ? 38.0 : 52.0;
     final height = small ? 20.0 : 28.0;
-    final knob = small ? 14.0 : 21.0;
+    final knob = theme.isNes ? (small ? 14.0 : 20.0) : (small ? 14.0 : 21.0);
     final disabled = !widget.enabled;
     final knobPadding = small ? 20.0 : 28.0;
     final horizontalTextPadding = small ? 6.0 : 8.0;
@@ -121,21 +121,23 @@ class _AnimalSwitchState extends State<AnimalSwitch>
         opacity: disabled ? 0.5 : 1,
         child: IntrinsicWidth(
           child: AnimatedContainer(
-            duration: AnimalIslandTokens.base,
-            curve: AnimalIslandTokens.motionCurve,
+            duration: theme.isNes
+                ? AnimalIslandTokens.pixelStep
+                : AnimalIslandTokens.base,
+            curve: theme.interactionCurve,
             constraints: BoxConstraints(minWidth: minWidth),
             height: height,
             padding: const EdgeInsets.symmetric(horizontal: 2),
             decoration: BoxDecoration(
               color: checked
-                  ? const Color(0xFF86D67A)
-                  : const Color(0xFFD4C9B4),
-              borderRadius: BorderRadius.circular(
-                AnimalIslandTokens.radiusPill,
-              ),
+                  ? (theme.isNes ? theme.success : const Color(0xFF86D67A))
+                  : (theme.isNes
+                        ? theme.surfaceMuted
+                        : const Color(0xFFD4C9B4)),
+              borderRadius: BorderRadius.circular(theme.radiusPill),
               border: Border.all(
-                color: checked ? theme.success : theme.borderLight,
-                width: 2.5,
+                color: checked ? theme.success : theme.border,
+                width: theme.inputBorderWidth,
               ),
               boxShadow: [
                 BoxShadow(
@@ -173,8 +175,10 @@ class _AnimalSwitchState extends State<AnimalSwitch>
                     ),
                   ),
                 AnimatedPositioned(
-                  duration: AnimalIslandTokens.base,
-                  curve: AnimalIslandTokens.motionCurve,
+                  duration: theme.isNes
+                      ? AnimalIslandTokens.pixelStep
+                      : AnimalIslandTokens.base,
+                  curve: theme.interactionCurve,
                   left: checked ? null : 0,
                   right: checked ? 0 : null,
                   top: small ? 1 : 2,
@@ -185,10 +189,15 @@ class _AnimalSwitchState extends State<AnimalSwitch>
                       height: knob,
                       decoration: BoxDecoration(
                         color: theme.surfaceRaised,
-                        shape: BoxShape.circle,
+                        shape: theme.isNes
+                            ? BoxShape.rectangle
+                            : BoxShape.circle,
+                        borderRadius: theme.isNes
+                            ? BorderRadius.circular(theme.radiusSm)
+                            : null,
                         border: Border.all(
                           color: checked ? theme.success : theme.borderLight,
-                          width: 2.0,
+                          width: theme.isNes ? 3.0 : 2.0,
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -202,19 +211,26 @@ class _AnimalSwitchState extends State<AnimalSwitch>
                       ),
                       child: Center(
                         child: widget.loading
-                            ? RotationTransition(
-                                turns: _controller,
-                                child: SizedBox(
-                                  width: 11,
-                                  height: 11,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: checked
-                                        ? theme.success
-                                        : theme.textSecondary,
-                                  ),
-                                ),
-                              )
+                            ? (theme.isNes
+                                  ? _NesSwitchLoading(
+                                      controller: _controller,
+                                      color: checked
+                                          ? theme.success
+                                          : theme.textSecondary,
+                                    )
+                                  : RotationTransition(
+                                      turns: _controller,
+                                      child: SizedBox(
+                                        width: 11,
+                                        height: 11,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: checked
+                                              ? theme.success
+                                              : theme.textSecondary,
+                                        ),
+                                      ),
+                                    ))
                             : const SizedBox.shrink(),
                       ),
                     ),
@@ -226,5 +242,65 @@ class _AnimalSwitchState extends State<AnimalSwitch>
         ),
       ),
     );
+  }
+}
+
+class _NesSwitchLoading extends StatelessWidget {
+  const _NesSwitchLoading({required this.controller, required this.color});
+
+  final Animation<double> controller;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        final frame = (controller.value * 4).floor() % 4;
+        return SizedBox(
+          width: 12,
+          height: 12,
+          child: CustomPaint(
+            painter: _NesSwitchLoadingPainter(frame: frame, color: color),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _NesSwitchLoadingPainter extends CustomPainter {
+  const _NesSwitchLoadingPainter({required this.frame, required this.color});
+
+  final int frame;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()..color = color;
+    const block = 4.0;
+    final positions = <Offset>[
+      const Offset(4, 0),
+      const Offset(8, 4),
+      const Offset(4, 8),
+      const Offset(0, 4),
+    ];
+    for (var i = 0; i < positions.length; i += 1) {
+      final active = i == frame;
+      canvas.drawRect(
+        Rect.fromLTWH(
+          positions[i].dx,
+          positions[i].dy,
+          active ? block : block - 1,
+          active ? block : block - 1,
+        ),
+        paint..color = color.withValues(alpha: active ? 1 : 0.35),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _NesSwitchLoadingPainter oldDelegate) {
+    return oldDelegate.frame != frame || oldDelegate.color != color;
   }
 }

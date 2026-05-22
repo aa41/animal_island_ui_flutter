@@ -55,6 +55,7 @@ class _AnimalSelectState extends State<AnimalSelect> {
   }
 
   void _openMenu() {
+    final theme = context.animalIslandTheme;
     final overlay = Overlay.of(context);
     final box = context.findRenderObject() as RenderBox;
     final origin = box.localToGlobal(Offset.zero);
@@ -99,8 +100,27 @@ class _AnimalSelectState extends State<AnimalSelect> {
                         width: menuWidth,
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFFEEA0),
-                          borderRadius: BorderRadius.circular(28),
+                          color: theme.isNes
+                              ? theme.surfaceRaised
+                              : const Color(0xFFFFEEA0),
+                          borderRadius: BorderRadius.circular(
+                            theme.isNes ? theme.radiusBase : 28,
+                          ),
+                          border: theme.isNes
+                              ? Border.all(
+                                  color: theme.border,
+                                  width: theme.borderWidth,
+                                )
+                              : null,
+                          boxShadow: theme.isNes
+                              ? [
+                                  BoxShadow(
+                                    color: theme.buttonShadow,
+                                    blurRadius: 0,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ]
+                              : null,
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -149,7 +169,7 @@ class _AnimalSelectState extends State<AnimalSelect> {
                                             ),
                                           ),
                                         ),
-                                      if (hovered)
+                                      if (hovered && !theme.isNes)
                                         Positioned(
                                           left: -12,
                                           child: SvgPicture.asset(
@@ -165,14 +185,18 @@ class _AnimalSelectState extends State<AnimalSelect> {
                                         children: [
                                           const SizedBox(width: 16),
                                           Text(
-                                            option.label,
+                                            theme.isNes && hovered
+                                                ? '> ${option.label}'
+                                                : option.label,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyMedium
                                                 ?.copyWith(
-                                                  color: const Color(
-                                                    0xFF725D42,
-                                                  ),
+                                                  color: theme.isNes
+                                                      ? (selected || hovered
+                                                            ? theme.primary
+                                                            : theme.textBody)
+                                                      : const Color(0xFF725D42),
                                                   fontWeight:
                                                       selected || hovered
                                                       ? FontWeight.w700
@@ -227,9 +251,23 @@ class _AnimalSelectState extends State<AnimalSelect> {
             constraints: const BoxConstraints(minWidth: 140),
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE8DCC8), width: 2),
+              color: theme.isNes ? theme.surface : Colors.white,
+              borderRadius: BorderRadius.circular(
+                theme.isNes ? theme.radiusSm : 12,
+              ),
+              border: Border.all(
+                color: theme.isNes ? theme.border : const Color(0xFFE8DCC8),
+                width: theme.isNes ? theme.borderWidth : 2,
+              ),
+              boxShadow: theme.isNes && _open
+                  ? [
+                      BoxShadow(
+                        color: theme.buttonShadow,
+                        blurRadius: 0,
+                        offset: const Offset(0, 3),
+                      ),
+                    ]
+                  : null,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -239,8 +277,12 @@ class _AnimalSelectState extends State<AnimalSelect> {
                     label.keyId.isEmpty ? widget.placeholder : label.label,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: label.keyId.isEmpty
-                          ? const Color(0xFFA09080)
-                          : const Color(0xFF725D42),
+                          ? (theme.isNes
+                                ? theme.textDisabled
+                                : const Color(0xFFA09080))
+                          : (theme.isNes
+                                ? theme.textBody
+                                : const Color(0xFF725D42)),
                       fontWeight: label.keyId.isEmpty
                           ? FontWeight.w500
                           : FontWeight.w600,
@@ -249,7 +291,9 @@ class _AnimalSelectState extends State<AnimalSelect> {
                 ),
                 const SizedBox(width: 12),
                 AnimatedRotation(
-                  duration: AnimalIslandTokens.base,
+                  duration: theme.isNes
+                      ? AnimalIslandTokens.pixelStep
+                      : AnimalIslandTokens.base,
                   turns: _open ? 0.5 : 0,
                   child: Icon(
                     Icons.keyboard_arrow_down_rounded,

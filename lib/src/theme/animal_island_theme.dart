@@ -5,9 +5,12 @@ import 'animal_island_tokens.dart';
 
 enum AnimalIslandThemeMode { day, night }
 
+enum AnimalIslandGameStyle { animalIsland, nes8Bit }
+
 @immutable
 class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
   const AnimalIslandThemeData({
+    this.gameStyle = AnimalIslandGameStyle.animalIsland,
     required this.mode,
     required this.primary,
     required this.primaryHover,
@@ -46,6 +49,7 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
     required this.codeDefault,
   });
 
+  final AnimalIslandGameStyle gameStyle;
   final AnimalIslandThemeMode mode;
   final Color primary;
   final Color primaryHover;
@@ -83,7 +87,32 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
   final Color codeBorder;
   final Color codeDefault;
 
+  bool get isNes => gameStyle == AnimalIslandGameStyle.nes8Bit;
+
+  double get radiusSm =>
+      isNes ? AnimalIslandTokens.pixelRadiusSm : AnimalIslandTokens.radiusSm;
+  double get radiusBase => isNes
+      ? AnimalIslandTokens.pixelRadiusBase
+      : AnimalIslandTokens.radiusBase;
+  double get radiusLg =>
+      isNes ? AnimalIslandTokens.pixelRadiusLg : AnimalIslandTokens.radiusLg;
+  double get radiusPill => isNes
+      ? AnimalIslandTokens.pixelRadiusBase
+      : AnimalIslandTokens.radiusPill;
+  double get borderWidth => isNes
+      ? AnimalIslandTokens.pixelBorderWidth
+      : AnimalIslandTokens.borderWidth;
+  double get inputBorderWidth => isNes
+      ? AnimalIslandTokens.pixelBorderWidth
+      : AnimalIslandTokens.inputBorderWidth;
+
+  Curve get interactionCurve =>
+      isNes ? AnimalIslandTokens.pixelCurve : AnimalIslandTokens.motionCurve;
+  Duration get interactionDuration =>
+      isNes ? AnimalIslandTokens.pixelStep : AnimalIslandTokens.fast;
+
   static const AnimalIslandThemeData day = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.animalIsland,
     mode: AnimalIslandThemeMode.day,
     primary: Color(0xFF19C8B9),
     primaryHover: Color(0xFF3DD4C6),
@@ -123,6 +152,7 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
   );
 
   static const AnimalIslandThemeData night = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.animalIsland,
     mode: AnimalIslandThemeMode.night,
     primary: Color(0xFF61D9CD),
     primaryHover: Color(0xFF7EE6DB),
@@ -161,20 +191,116 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
     codeDefault: Color(0xFFE8D5BC),
   );
 
+  static const AnimalIslandThemeData nesDay = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.nes8Bit,
+    mode: AnimalIslandThemeMode.day,
+    primary: Color(0xFF0050F8),
+    primaryHover: Color(0xFF3C78FF),
+    primaryActive: Color(0xFF002E8A),
+    primarySoft: Color(0xFFDCE8FF),
+    textPrimary: Color(0xFF101018),
+    textBody: Color(0xFF1F2430),
+    textSecondary: Color(0xFF4B5563),
+    textMuted: Color(0xFF697386),
+    textDisabled: Color(0xFF9CA3AF),
+    border: Color(0xFF101018),
+    borderLight: Color(0xFF2B2F3A),
+    borderHover: Color(0xFF0050F8),
+    surface: Color(0xFFF8F8F8),
+    surfaceRaised: Color(0xFFFFFFFF),
+    surfaceSoft: Color(0xFFE8ECF8),
+    surfaceMuted: Color(0xFFD8DCE8),
+    pageBackground: Color(0xFFD6E6FF),
+    pageBackgroundAlt: Color(0xFFB8D0F8),
+    success: Color(0xFF00A800),
+    successActive: Color(0xFF006800),
+    warning: Color(0xFFF8D800),
+    warningActive: Color(0xFFC88000),
+    error: Color(0xFFE00000),
+    errorActive: Color(0xFF8A0000),
+    focusYellow: Color(0xFFFFF000),
+    focusYellowDark: Color(0xFFC88000),
+    sidebarActive: Color(0xFF0050F8),
+    sidebarHover: Color(0xFFB8D0F8),
+    buttonShadow: Color(0xFF101018),
+    inputShadow: Color(0xFF101018),
+    heroGradientStart: Color(0xFF5C94FC),
+    heroGradientEnd: Color(0xFFB8D0F8),
+    codeBackground: Color(0xFF101018),
+    codeBorder: Color(0xFFFFFFFF),
+    codeDefault: Color(0xFFFFFFFF),
+  );
+
+  static const AnimalIslandThemeData nesNight = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.nes8Bit,
+    mode: AnimalIslandThemeMode.night,
+    primary: Color(0xFF3CBCFC),
+    primaryHover: Color(0xFF8CE8FF),
+    primaryActive: Color(0xFF0050F8),
+    primarySoft: Color(0xFF102C54),
+    textPrimary: Color(0xFFFFFFFF),
+    textBody: Color(0xFFF8F8F8),
+    textSecondary: Color(0xFFD8DCE8),
+    textMuted: Color(0xFFB8C0D0),
+    textDisabled: Color(0xFF707890),
+    border: Color(0xFFFFFFFF),
+    borderLight: Color(0xFFD8DCE8),
+    borderHover: Color(0xFF3CBCFC),
+    surface: Color(0xFF181828),
+    surfaceRaised: Color(0xFF24243C),
+    surfaceSoft: Color(0xFF303850),
+    surfaceMuted: Color(0xFF101018),
+    pageBackground: Color(0xFF080814),
+    pageBackgroundAlt: Color(0xFF101838),
+    success: Color(0xFF58D854),
+    successActive: Color(0xFF00A800),
+    warning: Color(0xFFF8D800),
+    warningActive: Color(0xFFC88000),
+    error: Color(0xFFFF3838),
+    errorActive: Color(0xFFE00000),
+    focusYellow: Color(0xFFFFF000),
+    focusYellowDark: Color(0xFFC88000),
+    sidebarActive: Color(0xFF0050F8),
+    sidebarHover: Color(0xFF303850),
+    buttonShadow: Color(0xFF000000),
+    inputShadow: Color(0xFF000000),
+    heroGradientStart: Color(0xFF101838),
+    heroGradientEnd: Color(0xFF080814),
+    codeBackground: Color(0xFF000000),
+    codeBorder: Color(0xFFFFFFFF),
+    codeDefault: Color(0xFFFFFFFF),
+  );
+
   Map<String, Color> get cardColors => {
-    'default': surfaceRaised,
-    'app-pink': const Color(0xFFF8A6B2),
-    'purple': const Color(0xFFB77DEE),
-    'app-blue': const Color(0xFF889DF0),
-    'app-yellow': const Color(0xFFF7CD67),
-    'app-orange': const Color(0xFFE59266),
-    'app-teal': const Color(0xFF82D5BB),
-    'app-green': const Color(0xFF8AC68A),
-    'app-red': const Color(0xFFFC736D),
-    'lime-green': const Color(0xFFD1DA49),
-    'yellow-green': const Color(0xFFECDF52),
-    'brown': const Color(0xFF9A835A),
-    'warm-peach-pink': const Color(0xFFE18C6F),
+    if (isNes) ...{
+      'default': surfaceRaised,
+      'app-pink': const Color(0xFFFF77A8),
+      'purple': const Color(0xFF8854F8),
+      'app-blue': const Color(0xFF0050F8),
+      'app-yellow': const Color(0xFFF8D800),
+      'app-orange': const Color(0xFFF87800),
+      'app-teal': const Color(0xFF00A8A8),
+      'app-green': const Color(0xFF00A800),
+      'app-red': const Color(0xFFE00000),
+      'lime-green': const Color(0xFF58D854),
+      'yellow-green': const Color(0xFFA8E000),
+      'brown': const Color(0xFF887000),
+      'warm-peach-pink': const Color(0xFFF8A878),
+    } else ...{
+      'default': surfaceRaised,
+      'app-pink': const Color(0xFFF8A6B2),
+      'purple': const Color(0xFFB77DEE),
+      'app-blue': const Color(0xFF889DF0),
+      'app-yellow': const Color(0xFFF7CD67),
+      'app-orange': const Color(0xFFE59266),
+      'app-teal': const Color(0xFF82D5BB),
+      'app-green': const Color(0xFF8AC68A),
+      'app-red': const Color(0xFFFC736D),
+      'lime-green': const Color(0xFFD1DA49),
+      'yellow-green': const Color(0xFFECDF52),
+      'brown': const Color(0xFF9A835A),
+      'warm-peach-pink': const Color(0xFFE18C6F),
+    },
   };
 
   Color cardForeground(String key) {
@@ -192,6 +318,7 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
 
   @override
   AnimalIslandThemeData copyWith({
+    AnimalIslandGameStyle? gameStyle,
     AnimalIslandThemeMode? mode,
     Color? primary,
     Color? primaryHover,
@@ -230,6 +357,7 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
     Color? codeDefault,
   }) {
     return AnimalIslandThemeData(
+      gameStyle: gameStyle ?? this.gameStyle,
       mode: mode ?? this.mode,
       primary: primary ?? this.primary,
       primaryHover: primaryHover ?? this.primaryHover,
@@ -279,6 +407,7 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
     }
 
     return AnimalIslandThemeData(
+      gameStyle: t < 0.5 ? gameStyle : other.gameStyle,
       mode: t < 0.5 ? mode : other.mode,
       primary: Color.lerp(primary, other.primary, t)!,
       primaryHover: Color.lerp(primaryHover, other.primaryHover, t)!,
@@ -329,10 +458,16 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
 
 ThemeData buildAnimalIslandTheme({
   AnimalIslandThemeMode mode = AnimalIslandThemeMode.day,
+  AnimalIslandGameStyle gameStyle = AnimalIslandGameStyle.animalIsland,
 }) {
-  final palette = mode == AnimalIslandThemeMode.day
-      ? AnimalIslandThemeData.day
-      : AnimalIslandThemeData.night;
+  final palette = switch ((gameStyle, mode)) {
+    (AnimalIslandGameStyle.nes8Bit, AnimalIslandThemeMode.day) =>
+      AnimalIslandThemeData.nesDay,
+    (AnimalIslandGameStyle.nes8Bit, AnimalIslandThemeMode.night) =>
+      AnimalIslandThemeData.nesNight,
+    (_, AnimalIslandThemeMode.day) => AnimalIslandThemeData.day,
+    (_, AnimalIslandThemeMode.night) => AnimalIslandThemeData.night,
+  };
 
   final base = ThemeData(
     useMaterial3: true,
@@ -366,62 +501,71 @@ ThemeData buildAnimalIslandTheme({
     ),
   );
 
-  final rounded = GoogleFonts.nunitoTextTheme(base.textTheme).copyWith(
-    displayLarge: GoogleFonts.nunito(
+  final baseTextTheme = gameStyle == AnimalIslandGameStyle.nes8Bit
+      ? GoogleFonts.pressStart2pTextTheme(base.textTheme)
+      : GoogleFonts.nunitoTextTheme(base.textTheme);
+  final textFont = gameStyle == AnimalIslandGameStyle.nes8Bit
+      ? GoogleFonts.pressStart2p
+      : GoogleFonts.nunito;
+  final bodyHeight = gameStyle == AnimalIslandGameStyle.nes8Bit ? 1.75 : 1.55;
+  final labelSpacing = gameStyle == AnimalIslandGameStyle.nes8Bit ? 0.0 : 0.18;
+
+  final rounded = baseTextTheme.copyWith(
+    displayLarge: textFont(
       fontSize: AnimalIslandTokens.fontDisplay,
       fontWeight: FontWeight.w800,
       color: palette.textPrimary,
     ),
-    displayMedium: GoogleFonts.nunito(
+    displayMedium: textFont(
       fontSize: AnimalIslandTokens.fontDisplaySm,
       fontWeight: FontWeight.w800,
       color: palette.textPrimary,
     ),
-    headlineLarge: GoogleFonts.nunito(
+    headlineLarge: textFont(
       fontSize: AnimalIslandTokens.fontHeadline,
       fontWeight: FontWeight.w700,
       color: palette.textPrimary,
     ),
-    headlineMedium: GoogleFonts.nunito(
+    headlineMedium: textFont(
       fontSize: AnimalIslandTokens.fontHeadlineSm,
       fontWeight: FontWeight.w700,
       color: palette.textPrimary,
     ),
-    titleLarge: GoogleFonts.nunito(
+    titleLarge: textFont(
       fontSize: AnimalIslandTokens.fontTitle,
       fontWeight: FontWeight.w700,
       color: palette.textPrimary,
     ),
-    titleMedium: GoogleFonts.nunito(
+    titleMedium: textFont(
       fontSize: AnimalIslandTokens.fontTitleSm,
       fontWeight: FontWeight.w700,
       color: palette.textBody,
     ),
-    bodyLarge: GoogleFonts.nunito(
+    bodyLarge: textFont(
       fontSize: AnimalIslandTokens.fontBodyLg,
       fontWeight: FontWeight.w500,
-      height: 1.55,
+      height: bodyHeight,
       color: palette.textBody,
     ),
-    bodyMedium: GoogleFonts.nunito(
+    bodyMedium: textFont(
       fontSize: AnimalIslandTokens.fontBody,
       fontWeight: FontWeight.w500,
-      height: 1.55,
+      height: bodyHeight,
       color: palette.textBody,
     ),
-    bodySmall: GoogleFonts.nunito(
+    bodySmall: textFont(
       fontSize: AnimalIslandTokens.fontBodySm,
       fontWeight: FontWeight.w500,
-      height: 1.45,
+      height: gameStyle == AnimalIslandGameStyle.nes8Bit ? 1.65 : 1.45,
       color: palette.textSecondary,
     ),
-    labelLarge: GoogleFonts.nunito(
+    labelLarge: textFont(
       fontSize: AnimalIslandTokens.fontLabel,
       fontWeight: FontWeight.w700,
-      letterSpacing: 0.18,
+      letterSpacing: labelSpacing,
       color: palette.textPrimary,
     ),
-    labelMedium: GoogleFonts.nunito(
+    labelMedium: textFont(
       fontSize: AnimalIslandTokens.fontCaption,
       fontWeight: FontWeight.w700,
       color: palette.textSecondary,

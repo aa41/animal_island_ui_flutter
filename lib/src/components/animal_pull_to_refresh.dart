@@ -290,8 +290,8 @@ class _AnimalRefreshIndicator extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.surfaceRaised,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: theme.border, width: 2),
+        borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusSm : 32),
+        border: Border.all(color: theme.border, width: theme.borderWidth),
         boxShadow: [
           BoxShadow(
             color: theme.buttonShadow.withValues(alpha: 0.28),
@@ -310,18 +310,30 @@ class _AnimalRefreshIndicator extends StatelessWidget {
               height: 34,
               decoration: BoxDecoration(
                 color: theme.surface,
-                shape: BoxShape.circle,
-                border: Border.all(color: theme.borderLight, width: 1.5),
+                shape: theme.isNes ? BoxShape.rectangle : BoxShape.circle,
+                borderRadius: theme.isNes
+                    ? BorderRadius.circular(theme.radiusSm)
+                    : null,
+                border: Border.all(
+                  color: theme.borderLight,
+                  width: theme.isNes ? theme.borderWidth : 1.5,
+                ),
               ),
               alignment: Alignment.center,
               child: Transform.scale(
                 scale: iconScale,
-                child: Image.asset(
-                  AnimalIslandAssets.iconLeaf,
-                  package: AnimalIslandAssets.package,
-                  width: 18,
-                  height: 18,
-                ),
+                child: theme.isNes
+                    ? Text(
+                        stage == _AnimalRefreshStage.done ? 'OK' : '>',
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(color: theme.textPrimary),
+                      )
+                    : Image.asset(
+                        AnimalIslandAssets.iconLeaf,
+                        package: AnimalIslandAssets.package,
+                        width: 18,
+                        height: 18,
+                      ),
               ),
             ),
             const SizedBox(width: AnimalIslandTokens.spacingMd),

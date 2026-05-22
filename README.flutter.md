@@ -37,8 +37,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.day),
-      darkTheme: buildAnimalIslandTheme(mode: AnimalIslandThemeMode.night),
+      theme: buildAnimalIslandTheme(
+        mode: AnimalIslandThemeMode.day,
+        gameStyle: AnimalIslandGameStyle.animalIsland,
+      ),
+      darkTheme: buildAnimalIslandTheme(
+        mode: AnimalIslandThemeMode.night,
+        gameStyle: AnimalIslandGameStyle.nes8Bit,
+      ),
       home: const HomePage(),
     );
   }
@@ -54,9 +60,28 @@ import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
 主入口：
 
 - `lib/animal_island_ui_flutter.dart`
+- `lib/animal_game_ui_flutter.dart`
+- `lib/nes_ui_flutter.dart`
 - `buildAnimalIslandTheme(...)`
+- `AnimalIslandGameStyle.animalIsland`
+- `AnimalIslandGameStyle.nes8Bit`
 - `AnimalIslandThemeMode.day`
 - `AnimalIslandThemeMode.night`
+
+## 动态切换游戏风格
+
+```dart
+setState(() {
+  gameStyle = gameStyle == AnimalIslandGameStyle.animalIsland
+      ? AnimalIslandGameStyle.nes8Bit
+      : AnimalIslandGameStyle.animalIsland;
+});
+
+MaterialApp(
+  theme: buildAnimalIslandTheme(mode: mode, gameStyle: gameStyle),
+  home: const HomePage(),
+);
+```
 
 ## 常用组件
 

@@ -149,7 +149,9 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
-                duration: AnimalIslandTokens.base,
+                duration: theme.isNes
+                    ? AnimalIslandTokens.pixelStep
+                    : AnimalIslandTokens.base,
                 width: box,
                 height: box,
                 decoration: BoxDecoration(
@@ -157,13 +159,15 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>> {
                       ? (_hovered ? theme.primaryHover : theme.primary)
                       : (disabled ? theme.surfaceMuted : theme.surfaceRaised),
                   borderRadius: BorderRadius.circular(
-                    widget.size == AnimalCheckboxSize.large ? 12 : 8,
+                    theme.isNes
+                        ? theme.radiusSm
+                        : (widget.size == AnimalCheckboxSize.large ? 12 : 8),
                   ),
                   border: Border.all(
                     color: widget.checked
                         ? (_hovered ? theme.primary : theme.primaryActive)
                         : (_hovered ? theme.primary : theme.borderLight),
-                    width: 2.5,
+                    width: theme.inputBorderWidth,
                   ),
                 ),
                 alignment: Alignment.center,

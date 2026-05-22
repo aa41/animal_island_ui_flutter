@@ -10,13 +10,17 @@ class ComponentPage extends StatelessWidget {
     super.key,
     required this.activeKey,
     required this.mode,
+    required this.gameStyle,
     required this.onToggleMode,
+    required this.onToggleGameStyle,
     required this.onNavigate,
   });
 
   final String activeKey;
   final AnimalIslandThemeMode mode;
+  final AnimalIslandGameStyle gameStyle;
   final VoidCallback onToggleMode;
+  final VoidCallback onToggleGameStyle;
   final ValueChanged<String> onNavigate;
 
   @override
@@ -57,13 +61,29 @@ class ComponentPage extends StatelessWidget {
                   ),
                 ),
                 if (!isMobile)
-                  AnimalButton(
-                    type: AnimalButtonType.primary,
-                    size: AnimalButtonSize.small,
-                    onPressed: onToggleMode,
-                    child: Text(
-                      mode == AnimalIslandThemeMode.day ? '夜晚模式' : '白天模式',
-                    ),
+                  Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: [
+                      AnimalButton(
+                        type: AnimalButtonType.defaultType,
+                        size: AnimalButtonSize.small,
+                        onPressed: onToggleGameStyle,
+                        child: Text(
+                          gameStyle == AnimalIslandGameStyle.animalIsland
+                              ? 'NES 八位机'
+                              : '动森风格',
+                        ),
+                      ),
+                      AnimalButton(
+                        type: AnimalButtonType.primary,
+                        size: AnimalButtonSize.small,
+                        onPressed: onToggleMode,
+                        child: Text(
+                          mode == AnimalIslandThemeMode.day ? '夜晚模式' : '白天模式',
+                        ),
+                      ),
+                    ],
                   ),
               ],
             ),

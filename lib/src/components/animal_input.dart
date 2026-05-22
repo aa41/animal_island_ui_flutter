@@ -103,26 +103,26 @@ class _AnimalInputState extends State<AnimalInput> {
     final metrics = switch (widget.size) {
       AnimalInputSize.small => _InputMetrics(
         height: AnimalIslandTokens.heightSm,
-        horizontal: 14,
+        horizontal: theme.isNes ? 10 : 14,
         fontSize: AnimalIslandTokens.fontCaption,
-        radius: 40,
-        borderWidth: 2.5,
-        shadowDepth: 2,
+        radius: theme.isNes ? theme.radiusSm : 40,
+        borderWidth: theme.inputBorderWidth,
+        shadowDepth: theme.isNes ? 3 : 2,
       ),
       AnimalInputSize.middle => _InputMetrics(
         height: AnimalIslandTokens.heightBase,
-        horizontal: 18,
+        horizontal: theme.isNes ? 12 : 18,
         fontSize: AnimalIslandTokens.fontLabel,
-        radius: 50,
-        borderWidth: 2.5,
+        radius: theme.isNes ? theme.radiusBase : 50,
+        borderWidth: theme.inputBorderWidth,
         shadowDepth: 3,
       ),
       AnimalInputSize.large => _InputMetrics(
         height: AnimalIslandTokens.heightLg,
-        horizontal: 22,
+        horizontal: theme.isNes ? 14 : 22,
         fontSize: AnimalIslandTokens.fontBody,
-        radius: 50,
-        borderWidth: 3,
+        radius: theme.isNes ? theme.radiusLg : 50,
+        borderWidth: theme.inputBorderWidth,
         shadowDepth: 4,
       ),
     };
@@ -154,12 +154,16 @@ class _AnimalInputState extends State<AnimalInput> {
       onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
       onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
       child: AnimatedContainer(
-        duration: AnimalIslandTokens.base,
-        curve: AnimalIslandTokens.motionCurve,
+        duration: theme.isNes
+            ? AnimalIslandTokens.pixelStep
+            : AnimalIslandTokens.base,
+        curve: theme.interactionCurve,
         height: metrics.height,
         padding: EdgeInsets.symmetric(horizontal: metrics.horizontal),
         decoration: BoxDecoration(
-          color: widget.enabled ? theme.surfaceRaised : theme.surfaceMuted,
+          color: widget.enabled
+              ? (theme.isNes ? theme.surface : theme.surfaceRaised)
+              : theme.surfaceMuted,
           borderRadius: BorderRadius.circular(metrics.radius),
           border: Border.all(color: borderColor, width: metrics.borderWidth),
           boxShadow: !widget.shadow && widget.status == null && !focused
@@ -193,6 +197,7 @@ class _AnimalInputState extends State<AnimalInput> {
                   fontSize: metrics.fontSize,
                   color: widget.enabled ? theme.textBody : theme.textDisabled,
                   letterSpacing: 0.14,
+                  fontFamily: theme.isNes ? 'Press Start 2P' : null,
                 ),
                 decoration: InputDecoration(
                   isCollapsed: true,

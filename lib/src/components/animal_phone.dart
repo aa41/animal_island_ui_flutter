@@ -80,14 +80,25 @@ class _AnimalPhoneState extends State<AnimalPhone> {
     final minutes = _now.minute.toString().padLeft(2, '0');
     final ampm = hours >= 12 ? 'PM' : 'AM';
     final displayHours = (hours % 12 == 0 ? 12 : hours % 12).toString();
+    final isNes = theme.isNes;
 
     return SizedBox(
       width: 527,
       height: 788,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: const Color(0xFFF8F4E8),
-          borderRadius: BorderRadius.circular(136),
+          color: isNes ? theme.surfaceRaised : const Color(0xFFF8F4E8),
+          borderRadius: BorderRadius.circular(isNes ? theme.radiusLg : 136),
+          border: isNes ? Border.all(color: theme.border, width: 8) : null,
+          boxShadow: isNes
+              ? [
+                  BoxShadow(
+                    color: theme.buttonShadow,
+                    blurRadius: 0,
+                    offset: const Offset(0, 10),
+                  ),
+                ]
+              : null,
         ),
         child: Column(
           children: [
@@ -98,12 +109,18 @@ class _AnimalPhoneState extends State<AnimalPhone> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SvgPicture.asset(
-                        AnimalIslandAssets.iconWifi,
-                        package: AnimalIslandAssets.package,
-                        width: 79,
-                        height: 29,
-                      ),
+                      isNes
+                          ? Text(
+                              'HP',
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(color: theme.primary),
+                            )
+                          : SvgPicture.asset(
+                              AnimalIslandAssets.iconWifi,
+                              package: AnimalIslandAssets.package,
+                              width: 79,
+                              height: 29,
+                            ),
                       RichText(
                         text: TextSpan(
                           style: Theme.of(context).textTheme.headlineLarge
@@ -111,7 +128,9 @@ class _AnimalPhoneState extends State<AnimalPhone> {
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,
                                 letterSpacing: 1.4,
-                                color: const Color(0xFFDDDBCC),
+                                color: isNes
+                                    ? theme.textPrimary
+                                    : const Color(0xFFDDDBCC),
                               ),
                           children: [
                             TextSpan(text: displayHours),
@@ -121,12 +140,18 @@ class _AnimalPhoneState extends State<AnimalPhone> {
                           ],
                         ),
                       ),
-                      SvgPicture.asset(
-                        AnimalIslandAssets.iconLocation,
-                        package: AnimalIslandAssets.package,
-                        width: 36,
-                        height: 36,
-                      ),
+                      isNes
+                          ? Text(
+                              'LV1',
+                              style: Theme.of(context).textTheme.labelLarge
+                                  ?.copyWith(color: theme.warningActive),
+                            )
+                          : SvgPicture.asset(
+                              AnimalIslandAssets.iconLocation,
+                              package: AnimalIslandAssets.package,
+                              width: 36,
+                              height: 36,
+                            ),
                     ],
                   ),
                   const SizedBox(height: 20),
@@ -135,10 +160,12 @@ class _AnimalPhoneState extends State<AnimalPhone> {
                         ? 'Welcome!'
                         : 'Good evening!',
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontSize: 34,
+                      fontSize: isNes ? 18 : 34,
                       fontWeight: FontWeight.w800,
-                      color: const Color(0xFF725C4E),
-                      letterSpacing: 1.2,
+                      color: isNes
+                          ? theme.textPrimary
+                          : const Color(0xFF725C4E),
+                      letterSpacing: isNes ? 0 : 1.2,
                     ),
                   ),
                 ],
@@ -163,12 +190,19 @@ class _AnimalPhoneState extends State<AnimalPhone> {
             ),
             Padding(
               padding: const EdgeInsets.only(bottom: 74),
-              child: SvgPicture.asset(
-                AnimalIslandAssets.iconPage,
-                package: AnimalIslandAssets.package,
-                width: 65,
-                height: 32,
-              ),
+              child: isNes
+                  ? Text(
+                      'SELECT START',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: theme.textSecondary,
+                      ),
+                    )
+                  : SvgPicture.asset(
+                      AnimalIslandAssets.iconPage,
+                      package: AnimalIslandAssets.package,
+                      width: 65,
+                      height: 32,
+                    ),
             ),
           ],
         ),
@@ -192,6 +226,7 @@ class _PhoneTileState extends State<_PhoneTile> {
   @override
   Widget build(BuildContext context) {
     final iconPath = AnimalIslandAssets.iconMap[widget.app.asset]!;
+    final theme = context.animalIslandTheme;
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -199,7 +234,12 @@ class _PhoneTileState extends State<_PhoneTile> {
       child: Container(
         decoration: BoxDecoration(
           color: widget.app.color,
-          borderRadius: BorderRadius.circular(45),
+          borderRadius: BorderRadius.circular(
+            theme.isNes ? theme.radiusBase : 45,
+          ),
+          border: theme.isNes
+              ? Border.all(color: theme.border, width: 4)
+              : null,
         ),
         child: Stack(
           children: [
@@ -212,7 +252,10 @@ class _PhoneTileState extends State<_PhoneTile> {
                   height: 28,
                   decoration: BoxDecoration(
                     color: const Color(0xFFFF544A),
-                    shape: BoxShape.circle,
+                    shape: theme.isNes ? BoxShape.rectangle : BoxShape.circle,
+                    borderRadius: theme.isNes
+                        ? BorderRadius.circular(theme.radiusSm)
+                        : null,
                     border: Border.all(
                       color: const Color(0xFFF8F4E8),
                       width: 5,
@@ -231,12 +274,18 @@ class _PhoneTileState extends State<_PhoneTile> {
                     scale: _hovered ? 1.1 : 1,
                     duration: AnimalIslandTokens.base,
                     curve: AnimalIslandTokens.motionCurve,
-                    child: SvgPicture.asset(
-                      iconPath,
-                      package: AnimalIslandAssets.package,
-                      width: 123 * widget.app.widthFactor,
-                      height: 123 * widget.app.widthFactor,
-                    ),
+                    child: theme.isNes
+                        ? Text(
+                            widget.app.id.substring(0, 1).toUpperCase(),
+                            style: Theme.of(context).textTheme.displayMedium
+                                ?.copyWith(color: Colors.white, fontSize: 28),
+                          )
+                        : SvgPicture.asset(
+                            iconPath,
+                            package: AnimalIslandAssets.package,
+                            width: 123 * widget.app.widthFactor,
+                            height: 123 * widget.app.widthFactor,
+                          ),
                   ),
                 ),
               ),

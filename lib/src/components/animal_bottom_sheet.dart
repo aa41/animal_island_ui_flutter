@@ -262,71 +262,87 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
             maxHeight: size.height * widget.maxHeightRatio,
           ),
           child: PhysicalShape(
-            clipper: const _AnimalBottomSheetClipper(),
+            clipper: theme.isNes
+                ? const ShapeBorderClipper(shape: RoundedRectangleBorder())
+                : const _AnimalBottomSheetClipper(),
             color: theme.borderLight,
             shadowColor: theme.buttonShadow.withValues(alpha: 0.34),
-            elevation: 12,
+            elevation: theme.isNes ? 0 : 12,
             child: Padding(
-              padding: const EdgeInsets.all(2.5),
+              padding: EdgeInsets.all(theme.isNes ? theme.borderWidth : 2.5),
               child: ClipPath(
-                clipper: const _AnimalBottomSheetClipper(),
+                clipper: theme.isNes
+                    ? const ShapeBorderClipper(shape: RoundedRectangleBorder())
+                    : const _AnimalBottomSheetClipper(),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: <Color>[theme.surfaceRaised, theme.surface],
-                    ),
+                    color: theme.isNes ? theme.surfaceRaised : null,
+                    gradient: theme.isNes
+                        ? null
+                        : LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: <Color>[theme.surfaceRaised, theme.surface],
+                          ),
                   ),
                   child: Stack(
                     children: [
-                      Positioned.fill(
-                        child: IgnorePointer(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AnimalIslandAssets.raster(
-                                  AnimalIslandAssets.demoGuideLine,
+                      if (!theme.isNes)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                image: DecorationImage(
+                                  image: AnimalIslandAssets.raster(
+                                    AnimalIslandAssets.demoGuideLine,
+                                  ),
+                                  fit: BoxFit.cover,
+                                  opacity:
+                                      theme.mode == AnimalIslandThemeMode.day
+                                      ? 0.06
+                                      : 0.04,
                                 ),
-                                fit: BoxFit.cover,
-                                opacity: theme.mode == AnimalIslandThemeMode.day
-                                    ? 0.06
-                                    : 0.04,
                               ),
                             ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        left: 18,
-                        top: 22,
-                        child: Container(
-                          width: 56,
-                          height: 56,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.14),
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(24),
-                              topRight: Radius.circular(16),
-                              bottomLeft: Radius.circular(20),
-                              bottomRight: Radius.circular(28),
+                      if (!theme.isNes)
+                        Positioned(
+                          left: 18,
+                          top: 22,
+                          child: Container(
+                            width: 56,
+                            height: 56,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.14),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                topRight: Radius.circular(16),
+                                bottomLeft: Radius.circular(20),
+                                bottomRight: Radius.circular(28),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      Positioned(
-                        right: 24,
-                        top: 18,
-                        child: Image.asset(
-                          AnimalIslandAssets.iconLeaf,
-                          package: AnimalIslandAssets.package,
-                          width: 20,
-                          height: 20,
-                          opacity: const AlwaysStoppedAnimation<double>(0.18),
+                      if (!theme.isNes)
+                        Positioned(
+                          right: 24,
+                          top: 18,
+                          child: Image.asset(
+                            AnimalIslandAssets.iconLeaf,
+                            package: AnimalIslandAssets.package,
+                            width: 20,
+                            height: 20,
+                            opacity: const AlwaysStoppedAnimation<double>(0.18),
+                          ),
                         ),
-                      ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(24, 18, 24, 22),
+                        padding: EdgeInsets.fromLTRB(
+                          theme.isNes ? 18 : 24,
+                          theme.isNes ? 14 : 18,
+                          theme.isNes ? 18 : 24,
+                          theme.isNes ? 18 : 22,
+                        ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,8 +380,11 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
                                                           .titleLarge!
                                                           .copyWith(
                                                             fontSize:
-                                                                AnimalIslandTokens
-                                                                    .fontTitle,
+                                                                theme.isNes
+                                                                ? AnimalIslandTokens
+                                                                      .fontBody
+                                                                : AnimalIslandTokens
+                                                                      .fontTitle,
                                                             color: theme
                                                                 .textPrimary,
                                                           ),
@@ -393,9 +412,11 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
                                 child: DefaultTextStyle(
                                   style: Theme.of(context).textTheme.bodyLarge!
                                       .copyWith(
-                                        fontSize: AnimalIslandTokens.fontBodyLg,
+                                        fontSize: theme.isNes
+                                            ? AnimalIslandTokens.fontBodySm
+                                            : AnimalIslandTokens.fontBodyLg,
                                         color: theme.textBody,
-                                        height: 1.55,
+                                        height: theme.isNes ? 1.8 : 1.55,
                                         fontWeight: FontWeight.w600,
                                       ),
                                   child: _AnimalBottomSheetBody(
@@ -480,13 +501,18 @@ class _AnimalBottomSheetCloseButton extends StatelessWidget {
         height: 28,
         decoration: BoxDecoration(
           color: theme.surfaceSoft,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(16),
-            topRight: Radius.circular(14),
-            bottomLeft: Radius.circular(14),
-            bottomRight: Radius.circular(18),
+          borderRadius: theme.isNes
+              ? BorderRadius.circular(theme.radiusSm)
+              : const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(14),
+                  bottomLeft: Radius.circular(14),
+                  bottomRight: Radius.circular(18),
+                ),
+          border: Border.all(
+            color: theme.borderLight,
+            width: theme.borderWidth,
           ),
-          border: Border.all(color: theme.borderLight, width: 2),
           boxShadow: [
             BoxShadow(
               color: theme.inputShadow.withValues(alpha: 0.6),
@@ -498,17 +524,18 @@ class _AnimalBottomSheetCloseButton extends StatelessWidget {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            Positioned(
-              left: 7,
-              top: 7,
-              child: Image.asset(
-                AnimalIslandAssets.iconLeaf,
-                package: AnimalIslandAssets.package,
-                width: 10,
-                height: 10,
-                opacity: const AlwaysStoppedAnimation<double>(0.62),
+            if (!theme.isNes)
+              Positioned(
+                left: 7,
+                top: 7,
+                child: Image.asset(
+                  AnimalIslandAssets.iconLeaf,
+                  package: AnimalIslandAssets.package,
+                  width: 10,
+                  height: 10,
+                  opacity: const AlwaysStoppedAnimation<double>(0.62),
+                ),
               ),
-            ),
             Text(
               '×',
               style: Theme.of(context).textTheme.labelLarge?.copyWith(

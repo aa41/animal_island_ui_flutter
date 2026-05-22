@@ -98,13 +98,17 @@ class _AnimalSliderState extends State<AnimalSlider> {
               ),
             SliderTheme(
               data: SliderTheme.of(context).copyWith(
-                trackHeight: 12,
+                trackHeight: theme.isNes ? 14 : 12,
                 activeTrackColor: theme.primary,
                 inactiveTrackColor: theme.surfaceSoft,
                 disabledActiveTrackColor: theme.primary.withValues(alpha: 0.35),
                 disabledInactiveTrackColor: theme.surfaceMuted,
-                trackShape: const RoundedRectSliderTrackShape(),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 18),
+                trackShape: theme.isNes
+                    ? const RectangularSliderTrackShape()
+                    : const RoundedRectSliderTrackShape(),
+                overlayShape: theme.isNes
+                    ? SliderComponentShape.noOverlay
+                    : const RoundSliderOverlayShape(overlayRadius: 18),
                 overlayColor: theme.primary.withValues(alpha: 0.14),
                 thumbShape: _AnimalSliderThumbShape(theme: theme),
                 activeTickMarkColor: Colors.transparent,
@@ -173,6 +177,26 @@ class _AnimalSliderThumbShape extends SliderComponentShape {
     required Size sizeWithOverflow,
   }) {
     final canvas = context.canvas;
+    if (theme.isNes) {
+      final rect = Rect.fromCenter(center: center, width: 20, height: 22);
+      canvas.drawRect(
+        rect.translate(0, 4),
+        Paint()..color = theme.buttonShadow,
+      );
+      canvas.drawRect(rect, Paint()..color = theme.surfaceRaised);
+      canvas.drawRect(
+        rect,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 3
+          ..color = theme.border,
+      );
+      canvas.drawRect(
+        Rect.fromCenter(center: center, width: 8, height: 8),
+        Paint()..color = theme.primary,
+      );
+      return;
+    }
     canvas.drawCircle(
       center + const Offset(0, 3),
       10,

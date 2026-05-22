@@ -34,8 +34,11 @@ class AnimalCodeBlock extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.codeBackground,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: theme.codeBorder),
+        borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusSm : 20),
+        border: Border.all(
+          color: theme.codeBorder,
+          width: theme.isNes ? theme.borderWidth : 1,
+        ),
       ),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
@@ -45,7 +48,9 @@ class AnimalCodeBlock extends StatelessWidget {
             style: TextStyle(
               color: _colors['default'],
               fontFamily: 'monospace',
-              fontSize: AnimalIslandTokens.fontLabel,
+              fontSize: theme.isNes
+                  ? AnimalIslandTokens.fontCaption
+                  : AnimalIslandTokens.fontLabel,
               fontWeight: FontWeight.w600,
               height: 1.6,
             ),

@@ -31,19 +31,45 @@ class AnimalStatusView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
     final config = _configFor(theme);
+    final statusBody = theme.isNes
+        ? _NesStatusBody(
+            tone: tone,
+            title: title ?? config.title,
+            message: message ?? config.message,
+            badge: config.badge,
+            action: action,
+            compact: compact,
+            config: config,
+          )
+        : _AnimalStatusBody(
+            tone: tone,
+            title: title ?? config.title,
+            message: message ?? config.message,
+            action: action,
+            icon: icon,
+            compact: compact,
+            config: config,
+          );
 
     return DecoratedBox(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [theme.surfaceRaised, theme.surface],
+        color: theme.isNes ? theme.surfaceRaised : null,
+        gradient: theme.isNes
+            ? null
+            : LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [theme.surfaceRaised, theme.surface],
+              ),
+        borderRadius: BorderRadius.circular(
+          theme.isNes ? theme.radiusBase : (compact ? 26 : 34),
         ),
-        borderRadius: BorderRadius.circular(compact ? 26 : 34),
-        border: Border.all(color: config.border, width: 2.5),
+        border: Border.all(color: config.border, width: theme.inputBorderWidth),
         boxShadow: [
           BoxShadow(
-            color: config.shadow.withValues(alpha: 0.26),
+            color: theme.isNes
+                ? theme.buttonShadow
+                : config.shadow.withValues(alpha: 0.26),
             blurRadius: 0,
             offset: const Offset(0, 5),
           ),
@@ -58,88 +84,22 @@ class AnimalStatusView extends StatelessWidget {
           compact ? 18 : 22,
         ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(compact ? 24 : 32),
-          image: DecorationImage(
-            image: AnimalIslandAssets.raster(
-              AnimalIslandAssets.demoHomeBackground,
-            ),
-            fit: BoxFit.cover,
-            opacity: theme.mode == AnimalIslandThemeMode.day ? 0.08 : 0.05,
+          borderRadius: BorderRadius.circular(
+            theme.isNes ? theme.radiusBase : (compact ? 24 : 32),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Align(
-              child: AnimalBadge(
-                label: config.badge,
-                backgroundColor: config.badgeColor,
-                foregroundColor: config.badgeForeground,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                  vertical: 6,
-                ),
-              ),
-            ),
-            const SizedBox(height: AnimalIslandTokens.spacingMd),
-            _AnimalStatusMedallion(
-              tone: tone,
-              fillColor: config.fill,
-              accentColor: config.accent,
-              foregroundColor: config.foreground,
-              icon: icon,
-              compact: compact,
-            ),
-            const SizedBox(height: AnimalIslandTokens.spacingLg),
-            Container(
-              width: double.infinity,
-              constraints: const BoxConstraints(maxWidth: 460),
-              padding: EdgeInsets.symmetric(
-                horizontal: compact ? 16 : 20,
-                vertical: compact ? 16 : 18,
-              ),
-              decoration: BoxDecoration(
-                color: theme.surface.withValues(alpha: 0.88),
-                borderRadius: BorderRadius.circular(22),
-                border: Border.all(
-                  color: theme.borderLight.withValues(alpha: 0.88),
-                  width: 1.5,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    title ?? config.title,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: theme.textPrimary,
-                      fontSize: compact
-                          ? AnimalIslandTokens.fontBodyLg
-                          : AnimalIslandTokens.fontTitleSm,
-                      fontWeight: FontWeight.w800,
-                    ),
+          image: theme.isNes
+              ? null
+              : DecorationImage(
+                  image: AnimalIslandAssets.raster(
+                    AnimalIslandAssets.demoHomeBackground,
                   ),
-                  if ((message ?? config.message).isNotEmpty) ...[
-                    const SizedBox(height: AnimalIslandTokens.spacingSm),
-                    Text(
-                      message ?? config.message,
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: theme.textBody,
-                        height: 1.65,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            if (action != null) ...[
-              const SizedBox(height: AnimalIslandTokens.spacingLg),
-              action!,
-            ],
-          ],
+                  fit: BoxFit.cover,
+                  opacity: theme.mode == AnimalIslandThemeMode.day
+                      ? 0.08
+                      : 0.05,
+                ),
         ),
+        child: statusBody,
       ),
     );
   }
@@ -183,6 +143,316 @@ class AnimalStatusView extends StatelessWidget {
         badgeForeground: theme.textBody,
       ),
     };
+  }
+}
+
+class _AnimalStatusBody extends StatelessWidget {
+  const _AnimalStatusBody({
+    required this.tone,
+    required this.title,
+    required this.message,
+    required this.action,
+    required this.icon,
+    required this.compact,
+    required this.config,
+  });
+
+  final AnimalStatusTone tone;
+  final String title;
+  final String message;
+  final Widget? action;
+  final Widget? icon;
+  final bool compact;
+  final _AnimalStatusConfig config;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Align(
+          child: AnimalBadge(
+            label: config.badge,
+            backgroundColor: config.badgeColor,
+            foregroundColor: config.badgeForeground,
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          ),
+        ),
+        const SizedBox(height: AnimalIslandTokens.spacingMd),
+        _AnimalStatusMedallion(
+          tone: tone,
+          fillColor: config.fill,
+          accentColor: config.accent,
+          foregroundColor: config.foreground,
+          icon: icon,
+          compact: compact,
+        ),
+        const SizedBox(height: AnimalIslandTokens.spacingLg),
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 460),
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 16 : 20,
+            vertical: compact ? 16 : 18,
+          ),
+          decoration: BoxDecoration(
+            color: theme.surface.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: theme.borderLight.withValues(alpha: 0.88),
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: theme.textPrimary,
+                  fontSize: compact
+                      ? AnimalIslandTokens.fontBodyLg
+                      : AnimalIslandTokens.fontTitleSm,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              if (message.isNotEmpty) ...[
+                const SizedBox(height: AnimalIslandTokens.spacingSm),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: theme.textBody,
+                    height: 1.65,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (action != null) ...[
+          const SizedBox(height: AnimalIslandTokens.spacingLg),
+          action!,
+        ],
+      ],
+    );
+  }
+}
+
+class _NesStatusBody extends StatefulWidget {
+  const _NesStatusBody({
+    required this.tone,
+    required this.title,
+    required this.message,
+    required this.badge,
+    required this.action,
+    required this.compact,
+    required this.config,
+  });
+
+  final AnimalStatusTone tone;
+  final String title;
+  final String message;
+  final String badge;
+  final Widget? action;
+  final bool compact;
+  final _AnimalStatusConfig config;
+
+  @override
+  State<_NesStatusBody> createState() => _NesStatusBodyState();
+}
+
+class _NesStatusBodyState extends State<_NesStatusBody>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 720),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _NesStatusIcon(
+              tone: widget.tone,
+              controller: _controller,
+              color: widget.config.foreground,
+              border: theme.border,
+              surface: theme.surface,
+              compact: widget.compact,
+            ),
+            const SizedBox(width: AnimalIslandTokens.spacingMd),
+            AnimalBadge(
+              label: widget.badge,
+              backgroundColor: widget.config.badgeColor,
+              foregroundColor: widget.config.badgeForeground,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            ),
+          ],
+        ),
+        const SizedBox(height: AnimalIslandTokens.spacingLg),
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 520),
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.compact ? 14 : 18,
+            vertical: widget.compact ? 14 : 18,
+          ),
+          decoration: BoxDecoration(
+            color: theme.surface,
+            borderRadius: BorderRadius.circular(theme.radiusSm),
+            border: Border.all(color: theme.border, width: theme.borderWidth),
+          ),
+          child: Column(
+            children: [
+              Text(
+                widget.title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: theme.textPrimary,
+                  fontSize: widget.compact
+                      ? AnimalIslandTokens.fontBodySm
+                      : AnimalIslandTokens.fontBody,
+                  height: 1.8,
+                ),
+              ),
+              if (widget.message.isNotEmpty) ...[
+                const SizedBox(height: AnimalIslandTokens.spacingMd),
+                Text(
+                  widget.message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: theme.textBody,
+                    height: 1.8,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (widget.action != null) ...[
+          const SizedBox(height: AnimalIslandTokens.spacingLg),
+          widget.action!,
+        ],
+      ],
+    );
+  }
+}
+
+class _NesStatusIcon extends StatelessWidget {
+  const _NesStatusIcon({
+    required this.tone,
+    required this.controller,
+    required this.color,
+    required this.border,
+    required this.surface,
+    required this.compact,
+  });
+
+  final AnimalStatusTone tone;
+  final Animation<double> controller;
+  final Color color;
+  final Color border;
+  final Color surface;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final size = compact ? 56.0 : 72.0;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        return SizedBox.square(
+          dimension: size,
+          child: CustomPaint(
+            painter: _NesStatusIconPainter(
+              tone: tone,
+              frame: (controller.value * 4).floor() % 4,
+              color: color,
+              border: border,
+              surface: surface,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _NesStatusIconPainter extends CustomPainter {
+  const _NesStatusIconPainter({
+    required this.tone,
+    required this.frame,
+    required this.color,
+    required this.border,
+    required this.surface,
+  });
+
+  final AnimalStatusTone tone;
+  final int frame;
+  final Color color;
+  final Color border;
+  final Color surface;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final unit = size.width / 8;
+    final edge = Paint()..color = border;
+    final fill = Paint()..color = surface;
+    final accent = Paint()..color = color;
+
+    void block(num x, num y, num w, num h, Paint paint) {
+      canvas.drawRect(
+        Rect.fromLTWH(x * unit, y * unit, w * unit, h * unit),
+        paint,
+      );
+    }
+
+    block(1, 1, 6, 6, edge);
+    block(2, 2, 4, 4, fill);
+
+    switch (tone) {
+      case AnimalStatusTone.loading:
+        final positions = <Offset>[
+          const Offset(3, 2),
+          const Offset(5, 3),
+          const Offset(4, 5),
+          const Offset(2, 4),
+        ];
+        for (var i = 0; i < positions.length; i += 1) {
+          final active = i == frame;
+          accent.color = color.withValues(alpha: active ? 1 : 0.32);
+          block(positions[i].dx, positions[i].dy, 1, 1, accent);
+        }
+      case AnimalStatusTone.error:
+        block(3, 2, 2, 3, accent);
+        block(3, 6, 2, 1, accent);
+      case AnimalStatusTone.empty:
+        block(2, 3, 4, 1, accent);
+        block(2, 5, 4, 1, accent);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _NesStatusIconPainter oldDelegate) {
+    return oldDelegate.tone != tone ||
+        oldDelegate.frame != frame ||
+        oldDelegate.color != color ||
+        oldDelegate.border != border ||
+        oldDelegate.surface != surface;
   }
 }
 
@@ -332,12 +602,14 @@ class _AnimalStatusMedallionState extends State<_AnimalStatusMedallion>
         height: height,
         decoration: BoxDecoration(
           color: widget.fillColor,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(widget.compact ? 42 : 52),
-            topRight: Radius.circular(widget.compact ? 34 : 42),
-            bottomLeft: Radius.circular(widget.compact ? 34 : 42),
-            bottomRight: Radius.circular(widget.compact ? 46 : 58),
-          ),
+          borderRadius: theme.isNes
+              ? BorderRadius.circular(theme.radiusBase)
+              : BorderRadius.only(
+                  topLeft: Radius.circular(widget.compact ? 42 : 52),
+                  topRight: Radius.circular(widget.compact ? 34 : 42),
+                  bottomLeft: Radius.circular(widget.compact ? 34 : 42),
+                  bottomRight: Radius.circular(widget.compact ? 46 : 58),
+                ),
           border: Border.all(color: widget.accentColor, width: 3),
           boxShadow: [
             BoxShadow(
@@ -352,26 +624,30 @@ class _AnimalStatusMedallionState extends State<_AnimalStatusMedallion>
             Positioned(
               left: 14,
               top: 12,
-              child: Container(
-                width: widget.compact ? 34 : 40,
-                height: widget.compact ? 34 : 40,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.44),
-                  shape: BoxShape.circle,
-                ),
-              ),
+              child: theme.isNes
+                  ? const SizedBox.shrink()
+                  : Container(
+                      width: widget.compact ? 34 : 40,
+                      height: widget.compact ? 34 : 40,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.44),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
             ),
             Positioned(
               right: 18,
               bottom: 16,
-              child: Container(
-                width: widget.compact ? 18 : 22,
-                height: widget.compact ? 18 : 22,
-                decoration: BoxDecoration(
-                  color: theme.surface.withValues(alpha: 0.52),
-                  shape: BoxShape.circle,
-                ),
-              ),
+              child: theme.isNes
+                  ? const SizedBox.shrink()
+                  : Container(
+                      width: widget.compact ? 18 : 22,
+                      height: widget.compact ? 18 : 22,
+                      decoration: BoxDecoration(
+                        color: theme.surface.withValues(alpha: 0.52),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
             ),
             Center(child: widget.icon ?? _defaultIcon(theme)),
           ],
