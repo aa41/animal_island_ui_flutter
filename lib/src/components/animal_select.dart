@@ -5,7 +5,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
-import '../theme/animal_island_tokens.dart';
 import '../utils/animal_island_assets.dart';
 
 class AnimalSelect extends StatefulWidget {
@@ -99,29 +98,7 @@ class _AnimalSelectState extends State<AnimalSelect> {
                       return Container(
                         width: menuWidth,
                         padding: const EdgeInsets.symmetric(vertical: 12),
-                        decoration: BoxDecoration(
-                          color: theme.isNes
-                              ? theme.surfaceRaised
-                              : const Color(0xFFFFEEA0),
-                          borderRadius: BorderRadius.circular(
-                            theme.isNes ? theme.radiusBase : 28,
-                          ),
-                          border: theme.isNes
-                              ? Border.all(
-                                  color: theme.border,
-                                  width: theme.borderWidth,
-                                )
-                              : null,
-                          boxShadow: theme.isNes
-                              ? [
-                                  BoxShadow(
-                                    color: theme.buttonShadow,
-                                    blurRadius: 0,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ]
-                              : null,
-                        ),
+                        decoration: _menuDecoration(theme),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: widget.options.map((option) {
@@ -152,24 +129,11 @@ class _AnimalSelectState extends State<AnimalSelect> {
                                     children: [
                                       if (selected)
                                         Positioned.fill(
-                                          child: Center(
-                                            child: Container(
-                                              height: 14,
-                                              margin:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 20.0,
-                                                  ),
-                                              decoration: BoxDecoration(
-                                                color: const Color(
-                                                  0xFFFFCC00,
-                                                ).withValues(alpha: 0.3),
-                                                borderRadius:
-                                                    BorderRadius.circular(7),
-                                              ),
-                                            ),
+                                          child: _SelectedOptionMark(
+                                            theme: theme,
                                           ),
                                         ),
-                                      if (hovered && !theme.isNes)
+                                      if (hovered && theme.spec.isOrganic)
                                         Positioned(
                                           left: -12,
                                           child: SvgPicture.asset(
@@ -187,21 +151,28 @@ class _AnimalSelectState extends State<AnimalSelect> {
                                           Text(
                                             theme.isNes && hovered
                                                 ? '> ${option.label}'
+                                                : theme.isWestworld
+                                                ? option.label.toUpperCase()
                                                 : option.label,
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .bodyMedium
                                                 ?.copyWith(
-                                                  color: theme.isNes
-                                                      ? (selected || hovered
-                                                            ? theme.primary
-                                                            : theme.textBody)
-                                                      : const Color(0xFF725D42),
+                                                  color: _optionTextColor(
+                                                    theme,
+                                                    selected: selected,
+                                                    hovered: hovered,
+                                                  ),
+                                                  letterSpacing:
+                                                      theme.isWestworld
+                                                      ? 0.9
+                                                      : null,
                                                   fontWeight:
                                                       selected || hovered
                                                       ? FontWeight.w700
                                                       : FontWeight.w500,
                                                 ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ],
                                       ),
@@ -250,25 +221,7 @@ class _AnimalSelectState extends State<AnimalSelect> {
           child: Container(
             constraints: const BoxConstraints(minWidth: 140),
             padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-            decoration: BoxDecoration(
-              color: theme.isNes ? theme.surface : Colors.white,
-              borderRadius: BorderRadius.circular(
-                theme.isNes ? theme.radiusSm : 12,
-              ),
-              border: Border.all(
-                color: theme.isNes ? theme.border : const Color(0xFFE8DCC8),
-                width: theme.isNes ? theme.borderWidth : 2,
-              ),
-              boxShadow: theme.isNes && _open
-                  ? [
-                      BoxShadow(
-                        color: theme.buttonShadow,
-                        blurRadius: 0,
-                        offset: const Offset(0, 3),
-                      ),
-                    ]
-                  : null,
-            ),
+            decoration: _triggerDecoration(theme),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -277,27 +230,27 @@ class _AnimalSelectState extends State<AnimalSelect> {
                     label.keyId.isEmpty ? widget.placeholder : label.label,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: label.keyId.isEmpty
-                          ? (theme.isNes
-                                ? theme.textDisabled
-                                : const Color(0xFFA09080))
-                          : (theme.isNes
-                                ? theme.textBody
-                                : const Color(0xFF725D42)),
+                          ? theme.textDisabled
+                          : theme.isWestworld
+                          ? theme.textPrimary
+                          : theme.isNes
+                          ? theme.textBody
+                          : const Color(0xFF725D42),
+                      letterSpacing: theme.isWestworld ? 0.7 : null,
                       fontWeight: label.keyId.isEmpty
                           ? FontWeight.w500
                           : FontWeight.w600,
                     ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 12),
                 AnimatedRotation(
-                  duration: theme.isNes
-                      ? AnimalIslandTokens.pixelStep
-                      : AnimalIslandTokens.base,
+                  duration: theme.interactionDuration,
                   turns: _open ? 0.5 : 0,
                   child: Icon(
                     Icons.keyboard_arrow_down_rounded,
-                    color: _open ? theme.primary : const Color(0xFFA09080),
+                    color: _open ? theme.primary : theme.textMuted,
                     size: 18,
                   ),
                 ),
@@ -305,6 +258,105 @@ class _AnimalSelectState extends State<AnimalSelect> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  BoxDecoration _menuDecoration(AnimalIslandThemeData theme) {
+    if (theme.isWestworld) {
+      return theme.westworldPanelDecoration(emphasized: true);
+    }
+
+    return BoxDecoration(
+      color: theme.isNes ? theme.surfaceRaised : const Color(0xFFFFEEA0),
+      borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusBase : 28),
+      border: theme.isNes
+          ? Border.all(color: theme.border, width: theme.borderWidth)
+          : null,
+      boxShadow: theme.isNes
+          ? [
+              BoxShadow(
+                color: theme.buttonShadow,
+                blurRadius: 0,
+                offset: const Offset(0, 4),
+              ),
+            ]
+          : null,
+    );
+  }
+
+  BoxDecoration _triggerDecoration(AnimalIslandThemeData theme) {
+    if (theme.isWestworld) {
+      return theme.westworldPanelDecoration(
+        color: theme.surfaceRaised,
+        hovered: _open,
+        emphasized: _open,
+      );
+    }
+
+    return BoxDecoration(
+      color: theme.isNes ? theme.surface : Colors.white,
+      borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusSm : 12),
+      border: Border.all(
+        color: theme.isNes ? theme.border : const Color(0xFFE8DCC8),
+        width: theme.isNes ? theme.borderWidth : 2,
+      ),
+      boxShadow: theme.isNes && _open
+          ? [
+              BoxShadow(
+                color: theme.buttonShadow,
+                blurRadius: 0,
+                offset: const Offset(0, 3),
+              ),
+            ]
+          : null,
+    );
+  }
+
+  Color _optionTextColor(
+    AnimalIslandThemeData theme, {
+    required bool selected,
+    required bool hovered,
+  }) {
+    if (theme.isWestworld) {
+      return selected || hovered ? theme.textPrimary : theme.textSecondary;
+    }
+
+    if (theme.isNes) {
+      return selected || hovered ? theme.primary : theme.textBody;
+    }
+
+    return const Color(0xFF725D42);
+  }
+}
+
+class _SelectedOptionMark extends StatelessWidget {
+  const _SelectedOptionMark({required this.theme});
+
+  final AnimalIslandThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!theme.isWestworld) {
+      return Center(
+        child: Container(
+          height: 14,
+          margin: const EdgeInsets.symmetric(horizontal: 20.0),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFCC00).withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(7),
+          ),
+        ),
+      );
+    }
+
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(
+          left: BorderSide(color: theme.primary.withValues(alpha: 0.86)),
+          right: BorderSide(color: theme.primary.withValues(alpha: 0.34)),
+        ),
+        color: theme.primary.withValues(alpha: 0.06),
       ),
     );
   }

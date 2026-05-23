@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:math' as math;
 
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
@@ -74,6 +75,26 @@ class _AnimalIconState extends State<AnimalIcon> {
       );
     }
 
+    if (theme.isWestworld) {
+      return MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: AnimatedScale(
+          scale: widget.bounce && _hovered ? 1.06 : 1,
+          duration: theme.interactionDuration,
+          curve: theme.interactionCurve,
+          child: CustomPaint(
+            size: Size.square(widget.size),
+            painter: _WestworldIconPainter(
+              name: widget.name,
+              color: widget.color ?? theme.textPrimary,
+              muted: theme.panelLineColor(hovered: _hovered),
+            ),
+          ),
+        ),
+      );
+    }
+
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
@@ -100,6 +121,129 @@ class _AnimalIconState extends State<AnimalIcon> {
         ),
       ),
     );
+  }
+}
+
+class _WestworldIconPainter extends CustomPainter {
+  const _WestworldIconPainter({
+    required this.name,
+    required this.color,
+    required this.muted,
+  });
+
+  final AnimalIconName name;
+  final Color color;
+  final Color muted;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+
+    final stroke = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(1, size.width / 28)
+      ..strokeCap = StrokeCap.square;
+    final mutedStroke = Paint()
+      ..color = muted
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    final fill = Paint()..color = color.withValues(alpha: 0.08);
+    final center = size.center(Offset.zero);
+    final r = size.shortestSide / 2;
+
+    canvas.drawCircle(center, r * 0.46, mutedStroke);
+    canvas.drawLine(
+      Offset(r * 0.22, center.dy),
+      Offset(r * 0.48, center.dy),
+      mutedStroke,
+    );
+    canvas.drawLine(
+      Offset(size.width - r * 0.48, center.dy),
+      Offset(size.width - r * 0.22, center.dy),
+      mutedStroke,
+    );
+
+    switch (name) {
+      case AnimalIconName.camera:
+        canvas.drawRect(
+          Rect.fromCenter(center: center, width: r * 1.0, height: r * 0.72),
+          stroke,
+        );
+        canvas.drawCircle(center, r * 0.22, stroke);
+      case AnimalIconName.chat:
+        final rect = Rect.fromCenter(
+          center: center,
+          width: r * 1.1,
+          height: r * 0.72,
+        );
+        canvas.drawRect(rect, stroke);
+        canvas.drawLine(
+          rect.bottomLeft,
+          rect.bottomLeft + Offset(r * 0.22, r * 0.2),
+          stroke,
+        );
+      case AnimalIconName.map:
+        canvas.drawLine(
+          Offset(r * 0.62, r * 0.5),
+          Offset(r * 0.62, r * 1.5),
+          stroke,
+        );
+        canvas.drawLine(Offset(r, r * 0.38), Offset(r, r * 1.62), stroke);
+        canvas.drawLine(
+          Offset(r * 1.38, r * 0.5),
+          Offset(r * 1.38, r * 1.5),
+          stroke,
+        );
+        canvas.drawRect(
+          Rect.fromLTWH(r * 0.42, r * 0.48, r * 1.16, r * 1.04),
+          mutedStroke,
+        );
+      case AnimalIconName.shopping:
+        canvas.drawRect(
+          Rect.fromLTWH(r * 0.48, r * 0.74, r * 1.04, r * 0.78),
+          stroke,
+        );
+        canvas.drawArc(
+          Rect.fromLTWH(r * 0.72, r * 0.42, r * 0.56, r * 0.6),
+          math.pi,
+          math.pi,
+          false,
+          stroke,
+        );
+      case AnimalIconName.helicopter:
+        canvas.drawLine(
+          Offset(r * 0.42, r * 0.62),
+          Offset(r * 1.58, r * 0.62),
+          stroke,
+        );
+        canvas.drawOval(
+          Rect.fromCenter(center: center, width: r * 0.92, height: r * 0.38),
+          stroke,
+        );
+        canvas.drawLine(Offset(r * 1.3, r), Offset(r * 1.66, r * 1.2), stroke);
+      case AnimalIconName.miles:
+        canvas.drawCircle(center, r * 0.36, stroke);
+        canvas.drawLine(center, Offset(center.dx, r * 0.28), stroke);
+        canvas.drawLine(center, Offset(r * 1.24, r * 1.26), stroke);
+      default:
+        final path = Path()
+          ..moveTo(center.dx, r * 0.36)
+          ..lineTo(r * 1.46, r * 1.46)
+          ..lineTo(r * 0.54, r * 1.46)
+          ..close();
+        canvas.drawPath(path, fill);
+        canvas.drawPath(path, stroke);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldIconPainter oldDelegate) {
+    return oldDelegate.name != name ||
+        oldDelegate.color != color ||
+        oldDelegate.muted != muted;
   }
 }
 

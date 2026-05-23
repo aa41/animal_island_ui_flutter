@@ -261,26 +261,36 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
       child: AnimatedContainer(
         duration: AnimalIslandTokens.base,
         curve: AnimalIslandTokens.motionCurve,
-        padding: EdgeInsets.all(compact ? 14 : 18),
-        decoration: BoxDecoration(
-          color: theme.surfaceRaised,
-          borderRadius: BorderRadius.circular(compact ? 26 : 30),
-          border: Border.all(color: theme.borderLight, width: 2.5),
-          boxShadow: [
-            BoxShadow(
-              color: theme.inputShadow.withValues(alpha: 0.42),
-              blurRadius: 0,
-              offset: const Offset(0, 5),
-            ),
-          ],
+        padding: EdgeInsets.all(
+          theme.isWestworld
+              ? compact
+                    ? 10
+                    : 12
+              : compact
+              ? 14
+              : 18,
         ),
+        decoration: theme.isWestworld
+            ? theme.westworldPanelDecoration(emphasized: true)
+            : BoxDecoration(
+                color: theme.surfaceRaised,
+                borderRadius: BorderRadius.circular(compact ? 26 : 30),
+                border: Border.all(color: theme.borderLight, width: 2.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.inputShadow.withValues(alpha: 0.42),
+                    blurRadius: 0,
+                    offset: const Offset(0, 5),
+                  ),
+                ],
+              ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_showsDate) _buildCalendar(context),
             if (_showsTime) ...[
-              if (_showsDate) const SizedBox(height: 14),
+              if (_showsDate) SizedBox(height: theme.isWestworld ? 8 : 14),
               _buildTimePanel(context),
             ],
           ],
@@ -323,24 +333,23 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
     }
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
-      decoration: BoxDecoration(
-        color: theme.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.borderLight.withValues(alpha: 0.75),
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: theme.inputShadow.withValues(alpha: 0.16),
-            blurRadius: 0,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      padding: EdgeInsets.fromLTRB(
+        12,
+        theme.isWestworld ? 8 : 10,
+        12,
+        theme.isWestworld ? 10 : 12,
       ),
+      decoration: _pickerPanelDecoration(theme),
       child: Column(
         children: [
+          if (theme.isWestworld) ...[
+            _WestworldPickerHeader(
+              label: 'CALENDAR VECTOR',
+              value:
+                  '${_displayMonth.year}.${_displayMonth.month.toString().padLeft(2, '0')}',
+            ),
+            const SizedBox(height: 6),
+          ],
           Row(
             children: [
               _RoundActionButton(
@@ -360,6 +369,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
                     color: theme.textPrimary,
                     fontSize: AnimalIslandTokens.fontBody,
                     fontWeight: FontWeight.w800,
+                    letterSpacing: theme.isWestworld ? 1.2 : null,
                   ),
                 ),
               ),
@@ -374,7 +384,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: theme.isWestworld ? 6 : 10),
           Row(
             children: _weekdayLabels
                 .map(
@@ -387,6 +397,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
                               fontSize: AnimalIslandTokens.fontCaption,
                               color: theme.textMuted,
                               fontWeight: FontWeight.w800,
+                              letterSpacing: theme.isWestworld ? 1.0 : null,
                             ),
                       ),
                     ),
@@ -394,14 +405,14 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
                 )
                 .toList(),
           ),
-          const SizedBox(height: 6),
+          SizedBox(height: theme.isWestworld ? 4 : 6),
           GridView.count(
             crossAxisCount: 7,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 4,
-            crossAxisSpacing: 4,
-            childAspectRatio: 1.06,
+            mainAxisSpacing: theme.isWestworld ? 3 : 4,
+            crossAxisSpacing: theme.isWestworld ? 3 : 4,
+            childAspectRatio: theme.isWestworld ? 1.18 : 1.06,
             children: cells,
           ),
         ],
@@ -417,60 +428,96 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
     );
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
-      decoration: BoxDecoration(
-        color: theme.surface,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: theme.borderLight.withValues(alpha: 0.75),
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: theme.inputShadow.withValues(alpha: 0.16),
-            blurRadius: 0,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      padding: EdgeInsets.fromLTRB(
+        12,
+        theme.isWestworld ? 8 : 12,
+        12,
+        theme.isWestworld ? 10 : 14,
       ),
+      decoration: _pickerPanelDecoration(theme),
       child: SizedBox(
-        height: compact ? 196 : 208,
-        child: Row(
+        height: theme.isWestworld
+            ? compact
+                  ? 150
+                  : 160
+            : compact
+            ? 196
+            : 208,
+        child: Column(
           children: [
-            Expanded(
-              child: _WheelPicker(
-                controller: _hourController,
-                values: List<int>.generate(24, (index) => index),
-                selectedValue: widget.value.hour,
-                enabled: widget.enabled,
-                formatter: (value) => value.toString().padLeft(2, '0'),
-                onSelected: _setHour,
+            if (theme.isWestworld) ...[
+              _WestworldPickerHeader(
+                label: 'TIME WINDOW',
+                value:
+                    '${widget.value.hour.toString().padLeft(2, '0')}:${widget.value.minute.toString().padLeft(2, '0')}',
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6),
-              child: Text(
-                ':',
-                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  color: theme.textPrimary,
-                  fontSize: compact ? 28 : 32,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-            ),
+              const SizedBox(height: 6),
+            ],
             Expanded(
-              child: _WheelPicker(
-                controller: _minuteController,
-                values: minuteValues,
-                selectedValue: widget.value.minute,
-                enabled: widget.enabled,
-                formatter: (value) => value.toString().padLeft(2, '0'),
-                onSelected: _setMinute,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _WheelPicker(
+                      controller: _hourController,
+                      values: List<int>.generate(24, (index) => index),
+                      selectedValue: widget.value.hour,
+                      enabled: widget.enabled,
+                      formatter: (value) => value.toString().padLeft(2, '0'),
+                      onSelected: _setHour,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Text(
+                      ':',
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(
+                            color: theme.textPrimary,
+                            fontSize: compact ? 28 : 32,
+                            fontWeight: theme.isWestworld
+                                ? FontWeight.w400
+                                : FontWeight.w900,
+                          ),
+                    ),
+                  ),
+                  Expanded(
+                    child: _WheelPicker(
+                      controller: _minuteController,
+                      values: minuteValues,
+                      selectedValue: widget.value.minute,
+                      enabled: widget.enabled,
+                      formatter: (value) => value.toString().padLeft(2, '0'),
+                      onSelected: _setMinute,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  BoxDecoration _pickerPanelDecoration(AnimalIslandThemeData theme) {
+    if (theme.isWestworld) {
+      return theme.westworldPanelDecoration(color: theme.surface);
+    }
+
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.circular(24),
+      border: Border.all(
+        color: theme.borderLight.withValues(alpha: 0.75),
+        width: 2,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: theme.inputShadow.withValues(alpha: 0.16),
+          blurRadius: 0,
+          offset: const Offset(0, 2),
+        ),
+      ],
     );
   }
 
@@ -485,6 +532,44 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
       return false;
     }
     return true;
+  }
+}
+
+class _WestworldPickerHeader extends StatelessWidget {
+  const _WestworldPickerHeader({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: theme.textMuted,
+              letterSpacing: 1.8,
+            ),
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+          decoration: BoxDecoration(
+            border: Border.all(color: theme.panelLineColor()),
+          ),
+          child: Text(
+            value,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: theme.textPrimary,
+              letterSpacing: 1.1,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -512,25 +597,41 @@ class _CalendarCell extends StatelessWidget {
       child: AnimatedContainer(
         duration: AnimalIslandTokens.fast,
         curve: AnimalIslandTokens.motionCurve,
-        decoration: BoxDecoration(
-          color: selected
-              ? theme.focusYellow
-              : today
-              ? theme.primarySoft
-              : theme.surfaceRaised,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: selected
-                ? theme.focusYellowDark
-                : today
-                ? theme.primary
-                : theme.borderLight.withValues(alpha: 0.28),
-            width: selected ? 2.4 : 1.5,
-          ),
-        ),
+        decoration: theme.isWestworld
+            ? BoxDecoration(
+                color: selected
+                    ? theme.primary.withValues(alpha: 0.12)
+                    : today
+                    ? theme.textMuted.withValues(alpha: 0.08)
+                    : theme.surfaceRaised.withValues(alpha: 0.36),
+                border: Border.all(
+                  color: selected
+                      ? theme.primary
+                      : today
+                      ? theme.textMuted.withValues(alpha: 0.52)
+                      : theme.panelLineColor(),
+                  width: selected ? 1.4 : 1,
+                ),
+              )
+            : BoxDecoration(
+                color: selected
+                    ? theme.focusYellow
+                    : today
+                    ? theme.primarySoft
+                    : theme.surfaceRaised,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: selected
+                      ? theme.focusYellowDark
+                      : today
+                      ? theme.primary
+                      : theme.borderLight.withValues(alpha: 0.28),
+                  width: selected ? 2.4 : 1.5,
+                ),
+              ),
         alignment: Alignment.center,
         child: Text(
-          '$day',
+          theme.isWestworld ? day.toString().padLeft(2, '0') : '$day',
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
             fontSize: AnimalIslandTokens.fontCaption,
             color: disabled
@@ -538,7 +639,8 @@ class _CalendarCell extends StatelessWidget {
                 : selected
                 ? theme.textPrimary
                 : theme.textBody,
-            fontWeight: FontWeight.w800,
+            fontWeight: theme.isWestworld ? FontWeight.w500 : FontWeight.w800,
+            letterSpacing: theme.isWestworld ? 0.8 : null,
           ),
         ),
       ),
@@ -568,21 +670,23 @@ class _WheelPicker extends StatelessWidget {
     final theme = context.animalIslandTheme;
 
     return Container(
-      decoration: BoxDecoration(
-        color: theme.surfaceRaised,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: theme.borderLight.withValues(alpha: 0.75),
-          width: 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: theme.inputShadow.withValues(alpha: 0.16),
-            blurRadius: 0,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      decoration: theme.isWestworld
+          ? theme.westworldPanelDecoration(color: theme.surfaceRaised)
+          : BoxDecoration(
+              color: theme.surfaceRaised,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: theme.borderLight.withValues(alpha: 0.75),
+                width: 2,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.inputShadow.withValues(alpha: 0.16),
+                  blurRadius: 0,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -593,11 +697,17 @@ class _WheelPicker extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: BoxDecoration(
-                  color: theme.focusYellow.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(14),
+                  color: theme.isWestworld
+                      ? theme.primary.withValues(alpha: 0.08)
+                      : theme.focusYellow.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(
+                    theme.isWestworld ? 0 : 14,
+                  ),
                   border: Border.all(
-                    color: theme.focusYellow.withValues(alpha: 0.58),
-                    width: 1.8,
+                    color: theme.isWestworld
+                        ? theme.primary.withValues(alpha: 0.6)
+                        : theme.focusYellow.withValues(alpha: 0.58),
+                    width: theme.isWestworld ? 1 : 1.8,
                   ),
                 ),
               ),
@@ -624,8 +734,15 @@ class _WheelPicker extends StatelessWidget {
                     curve: AnimalIslandTokens.motionCurve,
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                       color: selected ? theme.textPrimary : theme.textMuted,
-                      fontSize: selected ? 28 : 20,
-                      fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
+                      fontSize: selected
+                          ? (theme.isWestworld ? 30 : 28)
+                          : (theme.isWestworld ? 19 : 20),
+                      fontWeight: theme.isWestworld
+                          ? FontWeight.w400
+                          : selected
+                          ? FontWeight.w900
+                          : FontWeight.w700,
+                      letterSpacing: theme.isWestworld ? 1.2 : null,
                     ),
                     child: Text(formatter(value)),
                   ),
@@ -636,15 +753,19 @@ class _WheelPicker extends StatelessWidget {
           IgnorePointer(
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(theme.isWestworld ? 0 : 22),
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    theme.surfaceRaised,
+                    theme.surfaceRaised.withValues(
+                      alpha: theme.isWestworld ? 0.96 : 1,
+                    ),
                     theme.surfaceRaised.withValues(alpha: 0),
                     theme.surfaceRaised.withValues(alpha: 0),
-                    theme.surfaceRaised,
+                    theme.surfaceRaised.withValues(
+                      alpha: theme.isWestworld ? 0.96 : 1,
+                    ),
                   ],
                   stops: const [0, 0.16, 0.84, 1],
                 ),

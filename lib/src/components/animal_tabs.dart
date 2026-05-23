@@ -171,11 +171,16 @@ class _AnimalTabsState extends State<AnimalTabs>
     final activeBodyHeight = _bodyHeights[_activeId];
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.surfaceRaised,
-        borderRadius: BorderRadius.circular(theme.radiusLg),
-        border: Border.all(color: theme.borderLight, width: theme.borderWidth),
-      ),
+      decoration: theme.isWestworld
+          ? theme.westworldPanelDecoration()
+          : BoxDecoration(
+              color: theme.surfaceRaised,
+              borderRadius: BorderRadius.circular(theme.radiusLg),
+              border: Border.all(
+                color: theme.borderLight,
+                width: theme.borderWidth,
+              ),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -209,7 +214,7 @@ class _AnimalTabsState extends State<AnimalTabs>
           Divider(
             height: 0,
             thickness: theme.borderWidth,
-            color: theme.borderLight,
+            color: theme.panelLineColor(),
           ),
           Offstage(
             offstage: true,
@@ -308,25 +313,29 @@ class _TabChipState extends State<_TabChip>
       onExit: (_) => setState(() => _hovered = false),
       cursor: SystemMouseCursors.click,
       child: AnimatedContainer(
-        duration: theme.isNes
-            ? AnimalIslandTokens.pixelStep
-            : AnimalIslandTokens.base,
+        duration: theme.interactionDuration,
         curve: theme.interactionCurve,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         decoration: BoxDecoration(
           color: widget.active
-              ? (theme.isNes ? theme.primary : const Color(0xFF0CC0B5))
+              ? (theme.isWestworld
+                    ? theme.primary
+                    : theme.isNes
+                    ? theme.primary
+                    : const Color(0xFF0CC0B5))
               : (_hovered
                     ? theme.primary.withValues(alpha: 0.1)
                     : Colors.transparent),
           borderRadius: BorderRadius.circular(theme.radiusPill),
-          border: theme.isNes
+          border: theme.isNes || theme.isWestworld
               ? Border.all(
-                  color: widget.active ? theme.border : theme.borderLight,
-                  width: 2,
+                  color: widget.active
+                      ? theme.border
+                      : theme.panelLineColor(hovered: _hovered),
+                  width: theme.isWestworld ? 1 : 2,
                 )
               : null,
-          boxShadow: widget.active && widget.shadow
+          boxShadow: widget.active && widget.shadow && !theme.isWestworld
               ? [
                   BoxShadow(
                     color: theme.inputShadow,
@@ -347,7 +356,9 @@ class _TabChipState extends State<_TabChip>
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     fontSize: AnimalIslandTokens.fontMicro,
                     color: widget.active
-                        ? const Color(0xFFFFF9E3)
+                        ? (theme.isWestworld
+                              ? theme.pageBackground
+                              : const Color(0xFFFFF9E3))
                         : theme.textPrimary,
                   ),
                 ),
@@ -355,8 +366,11 @@ class _TabChipState extends State<_TabChip>
                 DefaultTextStyle(
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                     color: widget.active
-                        ? const Color(0xFFFFF9E3)
+                        ? (theme.isWestworld
+                              ? theme.pageBackground
+                              : const Color(0xFFFFF9E3))
                         : theme.textPrimary,
+                    letterSpacing: theme.isWestworld ? 0.9 : null,
                     fontWeight: widget.active
                         ? FontWeight.w600
                         : FontWeight.w500,
@@ -365,7 +379,7 @@ class _TabChipState extends State<_TabChip>
                 ),
               ],
             ),
-            if (widget.active && !theme.isNes)
+            if (widget.active && theme.spec.isOrganic)
               Positioned(
                 right: -5,
                 top: -4,

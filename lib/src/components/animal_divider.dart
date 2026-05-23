@@ -18,6 +18,13 @@ class AnimalDivider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+    if (theme.isWestworld) {
+      return CustomPaint(
+        size: Size.fromHeight(height),
+        painter: _WestworldDividerPainter(color: theme.panelLineColor()),
+      );
+    }
+
     if (theme.isNes) {
       return CustomPaint(
         size: Size.fromHeight(height),
@@ -50,6 +57,32 @@ class AnimalDivider extends StatelessWidget {
       width: double.infinity,
       fit: BoxFit.contain,
     );
+  }
+}
+
+class _WestworldDividerPainter extends CustomPainter {
+  const _WestworldDividerPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final y = (size.height / 2).floorToDouble();
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1;
+    canvas.drawLine(Offset.zero.translate(0, y), Offset(size.width, y), paint);
+    canvas.drawLine(Offset(0, y - 4), Offset(28, y - 4), paint);
+    canvas.drawLine(
+      Offset(size.width - 28, y + 4),
+      Offset(size.width, y + 4),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldDividerPainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }
 

@@ -69,11 +69,7 @@ class ComponentPage extends StatelessWidget {
                         type: AnimalButtonType.defaultType,
                         size: AnimalButtonSize.small,
                         onPressed: onToggleGameStyle,
-                        child: Text(
-                          gameStyle == AnimalIslandGameStyle.animalIsland
-                              ? 'NES 八位机'
-                              : '动森风格',
-                        ),
+                        child: Text(_nextStyleLabel(gameStyle)),
                       ),
                       AnimalButton(
                         type: AnimalButtonType.primary,
@@ -93,6 +89,14 @@ class ComponentPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _nextStyleLabel(AnimalIslandGameStyle style) {
+    return switch (style) {
+      AnimalIslandGameStyle.animalIsland => 'NES 八位机',
+      AnimalIslandGameStyle.nes8Bit => 'Westworld',
+      AnimalIslandGameStyle.westworld => '动森风格',
+    };
   }
 
   List<Widget> _buildSections(BuildContext context) {

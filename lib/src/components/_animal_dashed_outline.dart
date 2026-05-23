@@ -18,16 +18,24 @@ class AnimalDashedOutlinePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+
     final inset = strokeWidth / 2;
     final rect = Rect.fromLTWH(
       inset,
       inset,
-      size.width - strokeWidth,
-      size.height - strokeWidth,
+      (size.width - strokeWidth).clamp(0.0, double.infinity),
+      (size.height - strokeWidth).clamp(0.0, double.infinity),
     );
+    if (rect.isEmpty) {
+      return;
+    }
+    final resolvedRadius = (radius - inset).clamp(0.0, rect.shortestSide / 2);
     final path = Path()
       ..addRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(radius - inset)),
+        RRect.fromRectAndRadius(rect, Radius.circular(resolvedRadius)),
       );
 
     final dashedPath = dashPath(

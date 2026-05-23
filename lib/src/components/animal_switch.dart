@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../models/animal_island_models.dart';
@@ -93,25 +95,33 @@ class _AnimalSwitchState extends State<AnimalSwitch>
     final small = widget.size == AnimalSwitchSize.small;
     final minWidth = small ? 38.0 : 52.0;
     final height = small ? 20.0 : 28.0;
-    final knob = theme.isNes ? (small ? 14.0 : 20.0) : (small ? 14.0 : 21.0);
+    final knob = theme.isNes
+        ? (small ? 14.0 : 20.0)
+        : theme.isWestworld
+        ? (small ? 12.0 : 18.0)
+        : (small ? 14.0 : 21.0);
     final disabled = !widget.enabled;
     final knobPadding = small ? 20.0 : 28.0;
     final horizontalTextPadding = small ? 6.0 : 8.0;
     final hasText =
         widget.checkedChild != null || widget.uncheckedChild != null;
     final textStyle = Theme.of(context).textTheme.labelMedium!.copyWith(
-      color: Colors.white.withValues(alpha: disabled ? 0.5 : 1),
+      color: (theme.isWestworld ? theme.textPrimary : Colors.white).withValues(
+        alpha: disabled ? 0.5 : 1,
+      ),
       fontSize: small ? 9 : AnimalIslandTokens.fontMicro,
       fontWeight: FontWeight.w700,
-      letterSpacing: 0.22,
+      letterSpacing: theme.isWestworld ? 0.9 : 0.22,
       height: 1,
-      shadows: const [
-        Shadow(
-          color: Color.fromRGBO(0, 0, 0, 0.1),
-          offset: Offset(0, 1),
-          blurRadius: 1,
-        ),
-      ],
+      shadows: theme.isWestworld
+          ? null
+          : const [
+              Shadow(
+                color: Color.fromRGBO(0, 0, 0, 0.1),
+                offset: Offset(0, 1),
+                blurRadius: 1,
+              ),
+            ],
     );
 
     return GestureDetector(
@@ -121,33 +131,12 @@ class _AnimalSwitchState extends State<AnimalSwitch>
         opacity: disabled ? 0.5 : 1,
         child: IntrinsicWidth(
           child: AnimatedContainer(
-            duration: theme.isNes
-                ? AnimalIslandTokens.pixelStep
-                : AnimalIslandTokens.base,
+            duration: theme.interactionDuration,
             curve: theme.interactionCurve,
             constraints: BoxConstraints(minWidth: minWidth),
             height: height,
             padding: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: BoxDecoration(
-              color: checked
-                  ? (theme.isNes ? theme.success : const Color(0xFF86D67A))
-                  : (theme.isNes
-                        ? theme.surfaceMuted
-                        : const Color(0xFFD4C9B4)),
-              borderRadius: BorderRadius.circular(theme.radiusPill),
-              border: Border.all(
-                color: checked ? theme.success : theme.border,
-                width: theme.inputBorderWidth,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: (checked ? theme.successActive : theme.textMuted)
-                      .withValues(alpha: 0.2),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
+            decoration: _trackDecoration(theme, checked),
             child: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -175,9 +164,7 @@ class _AnimalSwitchState extends State<AnimalSwitch>
                     ),
                   ),
                 AnimatedPositioned(
-                  duration: theme.isNes
-                      ? AnimalIslandTokens.pixelStep
-                      : AnimalIslandTokens.base,
+                  duration: theme.interactionDuration,
                   curve: theme.interactionCurve,
                   left: checked ? null : 0,
                   right: checked ? 0 : null,
@@ -189,30 +176,39 @@ class _AnimalSwitchState extends State<AnimalSwitch>
                       height: knob,
                       decoration: BoxDecoration(
                         color: theme.surfaceRaised,
-                        shape: theme.isNes
+                        shape: theme.isNes || theme.isWestworld
                             ? BoxShape.rectangle
                             : BoxShape.circle,
-                        borderRadius: theme.isNes
+                        borderRadius: theme.isNes || theme.isWestworld
                             ? BorderRadius.circular(theme.radiusSm)
                             : null,
                         border: Border.all(
                           color: checked ? theme.success : theme.borderLight,
-                          width: theme.isNes ? 3.0 : 2.0,
+                          width: theme.isNes ? 3.0 : theme.borderWidth,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: checked
-                                ? theme.successActive
-                                : theme.buttonShadow,
-                            blurRadius: 0,
-                            offset: Offset(0, small ? 2 : 3),
-                          ),
-                        ],
+                        boxShadow: theme.isWestworld
+                            ? null
+                            : [
+                                BoxShadow(
+                                  color: checked
+                                      ? theme.successActive
+                                      : theme.buttonShadow,
+                                  blurRadius: 0,
+                                  offset: Offset(0, small ? 2 : 3),
+                                ),
+                              ],
                       ),
                       child: Center(
                         child: widget.loading
                             ? (theme.isNes
                                   ? _NesSwitchLoading(
+                                      controller: _controller,
+                                      color: checked
+                                          ? theme.success
+                                          : theme.textSecondary,
+                                    )
+                                  : theme.isWestworld
+                                  ? _WestworldSwitchLoading(
                                       controller: _controller,
                                       color: checked
                                           ? theme.success
@@ -241,6 +237,43 @@ class _AnimalSwitchState extends State<AnimalSwitch>
           ),
         ),
       ),
+    );
+  }
+
+  BoxDecoration _trackDecoration(AnimalIslandThemeData theme, bool checked) {
+    if (theme.isWestworld) {
+      return BoxDecoration(
+        color: checked
+            ? theme.success.withValues(alpha: 0.16)
+            : theme.surfaceRaised.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(theme.radiusPill),
+        border: Border.all(
+          color: checked
+              ? theme.success.withValues(alpha: 0.82)
+              : theme.panelLineColor(),
+          width: theme.inputBorderWidth,
+        ),
+      );
+    }
+
+    return BoxDecoration(
+      color: checked
+          ? (theme.isNes ? theme.success : const Color(0xFF86D67A))
+          : (theme.isNes ? theme.surfaceMuted : const Color(0xFFD4C9B4)),
+      borderRadius: BorderRadius.circular(theme.radiusPill),
+      border: Border.all(
+        color: checked ? theme.success : theme.border,
+        width: theme.inputBorderWidth,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: (checked ? theme.successActive : theme.textMuted).withValues(
+            alpha: 0.2,
+          ),
+          blurRadius: 4,
+          offset: const Offset(0, 2),
+        ),
+      ],
     );
   }
 }
@@ -302,5 +335,67 @@ class _NesSwitchLoadingPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _NesSwitchLoadingPainter oldDelegate) {
     return oldDelegate.frame != frame || oldDelegate.color != color;
+  }
+}
+
+class _WestworldSwitchLoading extends StatelessWidget {
+  const _WestworldSwitchLoading({
+    required this.controller,
+    required this.color,
+  });
+
+  final Animation<double> controller;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) => SizedBox(
+        width: 12,
+        height: 12,
+        child: CustomPaint(
+          painter: _WestworldSwitchLoadingPainter(
+            progress: controller.value,
+            color: color,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WestworldSwitchLoadingPainter extends CustomPainter {
+  const _WestworldSwitchLoadingPainter({
+    required this.progress,
+    required this.color,
+  });
+
+  final double progress;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final center = size.center(Offset.zero);
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    canvas.drawCircle(center, size.shortestSide * 0.36, paint);
+    final angle = progress * math.pi * 2;
+    canvas.drawLine(
+      center,
+      center +
+          Offset(math.cos(angle), math.sin(angle)) * size.shortestSide * 0.38,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldSwitchLoadingPainter oldDelegate) {
+    return oldDelegate.progress != progress || oldDelegate.color != color;
   }
 }

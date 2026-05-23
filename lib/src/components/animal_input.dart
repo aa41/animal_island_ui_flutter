@@ -103,27 +103,27 @@ class _AnimalInputState extends State<AnimalInput> {
     final metrics = switch (widget.size) {
       AnimalInputSize.small => _InputMetrics(
         height: AnimalIslandTokens.heightSm,
-        horizontal: theme.isNes ? 10 : 14,
+        horizontal: theme.spec.inputHorizontalSmall,
         fontSize: AnimalIslandTokens.fontCaption,
-        radius: theme.isNes ? theme.radiusSm : 40,
+        radius: theme.isNes ? theme.radiusSm : theme.radiusPill,
         borderWidth: theme.inputBorderWidth,
-        shadowDepth: theme.isNes ? 3 : 2,
+        shadowDepth: theme.spec.inputShadowSmall,
       ),
       AnimalInputSize.middle => _InputMetrics(
         height: AnimalIslandTokens.heightBase,
-        horizontal: theme.isNes ? 12 : 18,
+        horizontal: theme.spec.inputHorizontalMiddle,
         fontSize: AnimalIslandTokens.fontLabel,
-        radius: theme.isNes ? theme.radiusBase : 50,
+        radius: theme.radiusPill,
         borderWidth: theme.inputBorderWidth,
-        shadowDepth: 3,
+        shadowDepth: theme.spec.inputShadowMiddle,
       ),
       AnimalInputSize.large => _InputMetrics(
         height: AnimalIslandTokens.heightLg,
-        horizontal: theme.isNes ? 14 : 22,
+        horizontal: theme.spec.inputHorizontalLarge,
         fontSize: AnimalIslandTokens.fontBody,
-        radius: theme.isNes ? theme.radiusLg : 50,
+        radius: theme.isNes ? theme.radiusLg : theme.radiusPill,
         borderWidth: theme.inputBorderWidth,
-        shadowDepth: 4,
+        shadowDepth: theme.spec.inputShadowLarge,
       ),
     };
 
@@ -154,19 +154,23 @@ class _AnimalInputState extends State<AnimalInput> {
       onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
       onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
       child: AnimatedContainer(
-        duration: theme.isNes
-            ? AnimalIslandTokens.pixelStep
-            : AnimalIslandTokens.base,
+        duration: theme.interactionDuration,
         curve: theme.interactionCurve,
         height: metrics.height,
         padding: EdgeInsets.symmetric(horizontal: metrics.horizontal),
         decoration: BoxDecoration(
           color: widget.enabled
-              ? (theme.isNes ? theme.surface : theme.surfaceRaised)
+              ? (theme.isWestworld
+                    ? theme.surfaceRaised.withValues(alpha: 0.58)
+                    : theme.isNes
+                    ? theme.surface
+                    : theme.surfaceRaised)
               : theme.surfaceMuted,
           borderRadius: BorderRadius.circular(metrics.radius),
           border: Border.all(color: borderColor, width: metrics.borderWidth),
-          boxShadow: !widget.shadow && widget.status == null && !focused
+          boxShadow:
+              theme.isWestworld ||
+                  (!widget.shadow && widget.status == null && !focused)
               ? null
               : [
                   BoxShadow(
@@ -196,7 +200,7 @@ class _AnimalInputState extends State<AnimalInput> {
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontSize: metrics.fontSize,
                   color: widget.enabled ? theme.textBody : theme.textDisabled,
-                  letterSpacing: 0.14,
+                  letterSpacing: theme.isWestworld ? 0.72 : 0.14,
                   fontFamily: theme.isNes ? 'Press Start 2P' : null,
                 ),
                 decoration: InputDecoration(

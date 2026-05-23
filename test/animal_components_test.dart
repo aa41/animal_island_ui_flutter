@@ -1,6 +1,7 @@
 import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 void main() {
   Widget wrap(Widget child) {
@@ -13,6 +14,13 @@ void main() {
   Widget wrapNes(Widget child) {
     return MaterialApp(
       theme: buildAnimalIslandTheme(gameStyle: AnimalIslandGameStyle.nes8Bit),
+      home: Scaffold(body: Center(child: child)),
+    );
+  }
+
+  Widget wrapWestworld(Widget child) {
+    return MaterialApp(
+      theme: buildAnimalIslandTheme(gameStyle: AnimalIslandGameStyle.westworld),
       home: Scaffold(body: Center(child: child)),
     );
   }
@@ -108,6 +116,80 @@ void main() {
     expect(find.text('确定'), findsOneWidget);
   });
 
+  testWidgets('Westworld modal primary footer keeps readable foreground', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        const Stack(
+          children: [
+            AnimalModal(
+              open: true,
+              typewriter: false,
+              child: Text('modal body'),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.text('确定'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+    'Westworld button variants and loading render without geometry errors',
+    (tester) async {
+      await tester.pumpWidget(
+        wrapWestworld(
+          Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                onPressed: () {},
+                child: const Text('Primary'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {},
+                child: const Text('Default'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.dashed,
+                onPressed: () {},
+                child: const Text('Dashed'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.text,
+                onPressed: () {},
+                child: const Text('Text'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.link,
+                onPressed: () {},
+                child: const Text('Link'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                loading: true,
+                onPressed: () {},
+                child: const Text('Loading'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      await tester.pump(const Duration(milliseconds: 120));
+      await tester.pump(const Duration(milliseconds: 120));
+
+      expect(find.text('Loading'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
+
   testWidgets('AnimalBottomSheet renders title, body, and custom footer', (
     tester,
   ) async {
@@ -182,6 +264,51 @@ void main() {
     await tester.pump();
 
     expect(closed, isTrue);
+  });
+
+  testWidgets('Westworld bottom sheet, switch, and status states render', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        const Stack(
+          children: [
+            AnimalBottomSheet(
+              open: true,
+              title: Text('CONTROL VECTOR'),
+              showCloseButton: true,
+              child: Text('Narrative controls are available.'),
+            ),
+            Positioned.fill(
+              top: 220,
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    SizedBox(height: 24),
+                    AnimalSwitch(initialValue: true, loading: true),
+                    SizedBox(height: 24),
+                    AnimalLoading(compact: true),
+                    SizedBox(height: 24),
+                    AnimalErrorState(compact: true),
+                    SizedBox(height: 24),
+                    AnimalEmptyState(compact: true),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(milliseconds: 120));
+
+    expect(find.text('CONTROL VECTOR'), findsOneWidget);
+    expect(find.byType(AnimalSwitch), findsOneWidget);
+    expect(find.byType(AnimalLoading), findsOneWidget);
+    expect(find.byType(AnimalErrorState), findsOneWidget);
+    expect(find.byType(AnimalEmptyState), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('AnimalPullToRefresh triggers callback after pull', (
@@ -395,5 +522,78 @@ void main() {
 
     expect(find.byType(Image), findsNothing);
     expect(find.byType(CustomPaint), findsWidgets);
+  });
+
+  testWidgets('Westworld date time picker renders system headers and wheels', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        SizedBox(
+          width: 420,
+          child: AnimalDateTimePicker(
+            value: DateTime(2026, 5, 23, 14, 30),
+            mode: AnimalDateTimePickerMode.dateTime,
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('CALENDAR VECTOR'), findsOneWidget);
+    expect(find.text('TIME WINDOW'), findsOneWidget);
+    expect(find.text('2026.05'), findsOneWidget);
+    expect(find.text('14:30'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Westworld and NES footers use custom painters', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Column(
+          children: [
+            Theme(
+              data: buildAnimalIslandTheme(
+                gameStyle: AnimalIslandGameStyle.westworld,
+              ),
+              child: const AnimalFooter(type: AnimalFooterType.tree),
+            ),
+            Theme(
+              data: buildAnimalIslandTheme(
+                gameStyle: AnimalIslandGameStyle.nes8Bit,
+              ),
+              child: const AnimalFooter(type: AnimalFooterType.sea),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.byType(CustomPaint), findsAtLeastNWidgets(2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Westworld icon and collapse use HUD rendering', (tester) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        const Column(
+          children: [
+            AnimalIcon(name: AnimalIconName.map, size: 32),
+            SizedBox(height: 12),
+            AnimalCollapse(
+              question: Text('CONTROL LOOP'),
+              answer: Text('Branch detail panel.'),
+              defaultExpanded: true,
+            ),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.byType(SvgPicture), findsNothing);
+    expect(find.byType(CustomPaint), findsWidgets);
+    expect(find.text('CONTROL LOOP'), findsOneWidget);
+    expect(find.text('Branch detail panel.'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 }

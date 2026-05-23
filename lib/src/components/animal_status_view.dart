@@ -31,7 +31,16 @@ class AnimalStatusView extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
     final config = _configFor(theme);
-    final statusBody = theme.isNes
+    final statusBody = theme.isWestworld
+        ? _WestworldStatusBody(
+            tone: tone,
+            title: title ?? config.title,
+            message: message ?? config.message,
+            action: action,
+            compact: compact,
+            config: config,
+          )
+        : theme.isNes
         ? _NesStatusBody(
             tone: tone,
             title: title ?? config.title,
@@ -52,29 +61,37 @@ class AnimalStatusView extends StatelessWidget {
           );
 
     return DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.isNes ? theme.surfaceRaised : null,
-        gradient: theme.isNes
-            ? null
-            : LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [theme.surfaceRaised, theme.surface],
+      decoration: theme.isWestworld
+          ? theme.westworldPanelDecoration(
+              lineColor: config.border,
+              emphasized: true,
+            )
+          : BoxDecoration(
+              color: theme.isNes ? theme.surfaceRaised : null,
+              gradient: theme.isNes
+                  ? null
+                  : LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [theme.surfaceRaised, theme.surface],
+                    ),
+              borderRadius: BorderRadius.circular(
+                theme.isNes ? theme.radiusBase : (compact ? 26 : 34),
               ),
-        borderRadius: BorderRadius.circular(
-          theme.isNes ? theme.radiusBase : (compact ? 26 : 34),
-        ),
-        border: Border.all(color: config.border, width: theme.inputBorderWidth),
-        boxShadow: [
-          BoxShadow(
-            color: theme.isNes
-                ? theme.buttonShadow
-                : config.shadow.withValues(alpha: 0.26),
-            blurRadius: 0,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
+              border: Border.all(
+                color: config.border,
+                width: theme.inputBorderWidth,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.isNes
+                      ? theme.buttonShadow
+                      : config.shadow.withValues(alpha: 0.26),
+                  blurRadius: 0,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(
@@ -85,9 +102,13 @@ class AnimalStatusView extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(
-            theme.isNes ? theme.radiusBase : (compact ? 24 : 32),
+            theme.isWestworld
+                ? 0
+                : theme.isNes
+                ? theme.radiusBase
+                : (compact ? 24 : 32),
           ),
-          image: theme.isNes
+          image: theme.isNes || theme.isWestworld
               ? null
               : DecorationImage(
                   image: AnimalIslandAssets.raster(
@@ -105,6 +126,50 @@ class AnimalStatusView extends StatelessWidget {
   }
 
   _AnimalStatusConfig _configFor(AnimalIslandThemeData theme) {
+    if (theme.isWestworld) {
+      return switch (tone) {
+        AnimalStatusTone.loading => _AnimalStatusConfig(
+          title: 'SYSTEM ANALYSIS IN PROGRESS',
+          message:
+              'Narrative signals are being correlated. Awaiting stable divergence output.',
+          badge: 'ANALYZING',
+          fill: theme.primary.withValues(alpha: 0.06),
+          accent: theme.primary,
+          border: theme.primary.withValues(alpha: 0.54),
+          shadow: theme.primary,
+          foreground: theme.primary,
+          badgeColor: theme.surfaceSoft,
+          badgeForeground: theme.textPrimary,
+        ),
+        AnimalStatusTone.error => _AnimalStatusConfig(
+          title: 'ANOMALY DETECTED',
+          message:
+              'The requested thread diverged outside operational tolerance. Re-run acquisition.',
+          badge: 'DIVERGENCE',
+          fill: theme.error.withValues(alpha: 0.08),
+          accent: theme.error,
+          border: theme.error.withValues(alpha: 0.62),
+          shadow: theme.errorActive,
+          foreground: theme.error,
+          badgeColor: theme.error.withValues(alpha: 0.12),
+          badgeForeground: theme.error,
+        ),
+        AnimalStatusTone.empty => _AnimalStatusConfig(
+          title: 'NO ACTIVE NARRATIVE',
+          message:
+              'No compatible records were found in the current branch. Broaden the search vector.',
+          badge: 'NO DATA',
+          fill: theme.warning.withValues(alpha: 0.08),
+          accent: theme.warning,
+          border: theme.warning.withValues(alpha: 0.56),
+          shadow: theme.warningActive,
+          foreground: theme.warning,
+          badgeColor: theme.warning.withValues(alpha: 0.1),
+          badgeForeground: theme.warning,
+        ),
+      };
+    }
+
     return switch (tone) {
       AnimalStatusTone.loading => _AnimalStatusConfig(
         title: '狸克正在整理岛上的新消息',
@@ -238,6 +303,241 @@ class _AnimalStatusBody extends StatelessWidget {
         ],
       ],
     );
+  }
+}
+
+class _WestworldStatusBody extends StatefulWidget {
+  const _WestworldStatusBody({
+    required this.tone,
+    required this.title,
+    required this.message,
+    required this.action,
+    required this.compact,
+    required this.config,
+  });
+
+  final AnimalStatusTone tone;
+  final String title;
+  final String message;
+  final Widget? action;
+  final bool compact;
+  final _AnimalStatusConfig config;
+
+  @override
+  State<_WestworldStatusBody> createState() => _WestworldStatusBodyState();
+}
+
+class _WestworldStatusBodyState extends State<_WestworldStatusBody>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2400),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimalBadge(
+              label: widget.config.badge,
+              backgroundColor: widget.config.badgeColor,
+              foregroundColor: widget.config.badgeForeground,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+            ),
+            const SizedBox(width: AnimalIslandTokens.spacingMd),
+            Text(
+              _toneCode(widget.tone),
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: theme.textMuted,
+                letterSpacing: 1.6,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        SizedBox.square(
+          dimension: widget.compact ? 94 : 124,
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) => CustomPaint(
+              painter: _WestworldStatusPainter(
+                tone: widget.tone,
+                progress: _controller.value,
+                line: widget.config.accent,
+                muted: theme.panelLineColor(),
+                glow: widget.config.fill,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 18),
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 520),
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.compact ? 14 : 18,
+            vertical: widget.compact ? 14 : 18,
+          ),
+          decoration: theme.westworldPanelDecoration(
+            color: theme.surface,
+            lineColor: widget.config.border,
+          ),
+          child: Column(
+            children: [
+              Text(
+                widget.title.toUpperCase(),
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: theme.textPrimary,
+                  fontSize: widget.compact
+                      ? AnimalIslandTokens.fontBodyLg
+                      : AnimalIslandTokens.fontTitle,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              if (widget.message.isNotEmpty) ...[
+                const SizedBox(height: AnimalIslandTokens.spacingSm),
+                Text(
+                  widget.message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: theme.textSecondary,
+                    height: 1.32,
+                    letterSpacing: 0.45,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        if (widget.action != null) ...[
+          const SizedBox(height: AnimalIslandTokens.spacingLg),
+          widget.action!,
+        ],
+      ],
+    );
+  }
+
+  String _toneCode(AnimalStatusTone tone) {
+    return switch (tone) {
+      AnimalStatusTone.loading => 'HOST-QUERY-01',
+      AnimalStatusTone.error => 'DIVERGENCE-ERR',
+      AnimalStatusTone.empty => 'NULL-BRANCH',
+    };
+  }
+}
+
+class _WestworldStatusPainter extends CustomPainter {
+  const _WestworldStatusPainter({
+    required this.tone,
+    required this.progress,
+    required this.line,
+    required this.muted,
+    required this.glow,
+  });
+
+  final AnimalStatusTone tone;
+  final double progress;
+  final Color line;
+  final Color muted;
+  final Color glow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide / 2;
+    final ring = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1
+      ..color = muted;
+    canvas.drawCircle(center, radius * 0.44, ring);
+    canvas.drawCircle(center, radius * 0.72, ring);
+    canvas.drawCircle(center, radius * 0.96, ring);
+    for (var i = 0; i < 16; i += 1) {
+      final angle = i * math.pi / 8;
+      final a =
+          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.84;
+      final b =
+          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.96;
+      canvas.drawLine(a, b, ring);
+    }
+
+    final active = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.4
+      ..color = line;
+    final start = -math.pi / 2 + progress * math.pi * 2;
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius * 0.72),
+      start,
+      math.pi * 0.66,
+      false,
+      active,
+    );
+
+    switch (tone) {
+      case AnimalStatusTone.loading:
+        final angle = progress * math.pi * 2;
+        canvas.drawLine(
+          center,
+          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.92,
+          active,
+        );
+      case AnimalStatusTone.error:
+        canvas.drawLine(
+          center - Offset(radius * 0.42, radius * 0.42),
+          center + Offset(radius * 0.42, radius * 0.42),
+          active,
+        );
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: '!',
+            style: TextStyle(
+              color: line,
+              fontSize: radius * 0.78,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout();
+        textPainter.paint(
+          canvas,
+          center - Offset(textPainter.width / 2, textPainter.height / 2),
+        );
+      case AnimalStatusTone.empty:
+        final dash = Paint()
+          ..color = line
+          ..strokeWidth = 1.4;
+        canvas.drawLine(
+          center - Offset(radius * 0.34, 0),
+          center + Offset(radius * 0.34, 0),
+          dash,
+        );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldStatusPainter oldDelegate) {
+    return oldDelegate.tone != tone ||
+        oldDelegate.progress != progress ||
+        oldDelegate.line != line ||
+        oldDelegate.muted != muted ||
+        oldDelegate.glow != glow;
   }
 }
 

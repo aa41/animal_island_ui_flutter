@@ -32,11 +32,19 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
     return Opacity(
       opacity: widget.enabled ? 1 : 0.6,
       child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: theme.surface,
-          borderRadius: BorderRadius.circular(theme.radiusBase),
-          border: Border.all(color: theme.border, width: theme.borderWidth),
-        ),
+        decoration: theme.isWestworld
+            ? theme.westworldPanelDecoration(
+                color: theme.surface,
+                emphasized: _expanded,
+              )
+            : BoxDecoration(
+                color: theme.surface,
+                borderRadius: BorderRadius.circular(theme.radiusBase),
+                border: Border.all(
+                  color: theme.border,
+                  width: theme.borderWidth,
+                ),
+              ),
         child: Column(
           children: [
             InkWell(
@@ -52,30 +60,41 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                 child: Row(
                   children: [
                     AnimatedContainer(
-                      duration: theme.isNes
-                          ? AnimalIslandTokens.pixelStep
-                          : AnimalIslandTokens.base,
+                      duration: theme.interactionDuration,
                       width: 28,
                       height: 28,
-                      decoration: BoxDecoration(
-                        color: _expanded ? theme.primaryActive : theme.primary,
-                        shape: theme.isNes
-                            ? BoxShape.rectangle
-                            : BoxShape.circle,
-                        borderRadius: theme.isNes
-                            ? BorderRadius.circular(theme.radiusSm)
-                            : null,
-                        border: theme.isNes
-                            ? Border.all(color: theme.border, width: 2)
-                            : null,
-                        boxShadow: [
-                          BoxShadow(
-                            color: theme.primary.withValues(alpha: 0.3),
-                            blurRadius: 4,
-                            offset: const Offset(0, 2),
-                          ),
-                        ],
-                      ),
+                      decoration: theme.isWestworld
+                          ? BoxDecoration(
+                              color: _expanded
+                                  ? theme.primary.withValues(alpha: 0.12)
+                                  : theme.surfaceRaised.withValues(alpha: 0.6),
+                              border: Border.all(
+                                color: _expanded
+                                    ? theme.primary
+                                    : theme.panelLineColor(),
+                              ),
+                            )
+                          : BoxDecoration(
+                              color: _expanded
+                                  ? theme.primaryActive
+                                  : theme.primary,
+                              shape: theme.isNes
+                                  ? BoxShape.rectangle
+                                  : BoxShape.circle,
+                              borderRadius: theme.isNes
+                                  ? BorderRadius.circular(theme.radiusSm)
+                                  : null,
+                              border: theme.isNes
+                                  ? Border.all(color: theme.border, width: 2)
+                                  : null,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.primary.withValues(alpha: 0.3),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
                       alignment: Alignment.center,
                       child: AnimatedSwitcher(
                         duration: AnimalIslandTokens.fast,
@@ -89,8 +108,10 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                         child: Text(
                           _expanded ? '−' : '+',
                           key: ValueKey<bool>(_expanded),
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: theme.isWestworld
+                                ? theme.textPrimary
+                                : Colors.white,
                             fontWeight: FontWeight.w700,
                             fontSize: 16,
                             height: 1,
@@ -105,11 +126,22 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                             .copyWith(
                               fontSize: AnimalIslandTokens.fontBodyLg,
                               color: theme.textPrimary,
+                              letterSpacing: theme.isWestworld ? 0.75 : null,
                             ),
                         child: widget.question,
                       ),
                     ),
-                    if (!theme.isNes)
+                    if (theme.isWestworld)
+                      AnimatedRotation(
+                        turns: _expanded ? 0.5 : 0,
+                        duration: theme.interactionDuration,
+                        child: Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: _expanded ? theme.primary : theme.textMuted,
+                          size: 20,
+                        ),
+                      )
+                    else if (!theme.isNes)
                       AnimatedRotation(
                         turns: _expanded ? 0.125 : 0,
                         duration: AnimalIslandTokens.base,
@@ -143,7 +175,8 @@ class _AnimalCollapseState extends State<AnimalCollapse> {
                     child: DefaultTextStyle(
                       style: Theme.of(context).textTheme.bodyMedium!.copyWith(
                         color: theme.textSecondary,
-                        height: 1.7,
+                        height: theme.isWestworld ? 1.36 : 1.7,
+                        letterSpacing: theme.isWestworld ? 0.35 : null,
                       ),
                       child: widget.answer,
                     ),

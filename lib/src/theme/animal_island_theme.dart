@@ -5,7 +5,213 @@ import 'animal_island_tokens.dart';
 
 enum AnimalIslandThemeMode { day, night }
 
-enum AnimalIslandGameStyle { animalIsland, nes8Bit }
+enum AnimalIslandGameStyle { animalIsland, nes8Bit, westworld }
+
+enum AnimalIslandThemeShape { organic, pixel, system }
+
+@immutable
+class AnimalIslandThemeSpec {
+  const AnimalIslandThemeSpec({
+    required this.shape,
+    required this.radiusSm,
+    required this.radiusBase,
+    required this.radiusLg,
+    required this.radiusPill,
+    required this.borderWidth,
+    required this.inputBorderWidth,
+    required this.interactionCurve,
+    required this.interactionDuration,
+    required this.bodyHeight,
+    required this.bodySmallHeight,
+    required this.labelSpacing,
+    required this.buttonHorizontalSmall,
+    required this.buttonHorizontalMiddle,
+    required this.buttonHorizontalLarge,
+    required this.buttonShadowRest,
+    required this.buttonShadowHover,
+    required this.buttonShadowPressed,
+    required this.buttonHoverOffsetY,
+    required this.buttonPressedOffsetY,
+    required this.inputHorizontalSmall,
+    required this.inputHorizontalMiddle,
+    required this.inputHorizontalLarge,
+    required this.inputShadowSmall,
+    required this.inputShadowMiddle,
+    required this.inputShadowLarge,
+    required this.cardTitleRadius,
+    required this.cardRadius,
+    required this.panelRadius,
+    this.uppercaseLabels = false,
+    this.hairlineAccents = false,
+  });
+
+  final AnimalIslandThemeShape shape;
+  final double radiusSm;
+  final double radiusBase;
+  final double radiusLg;
+  final double radiusPill;
+  final double borderWidth;
+  final double inputBorderWidth;
+  final Curve interactionCurve;
+  final Duration interactionDuration;
+  final double bodyHeight;
+  final double bodySmallHeight;
+  final double labelSpacing;
+  final double buttonHorizontalSmall;
+  final double buttonHorizontalMiddle;
+  final double buttonHorizontalLarge;
+  final double buttonShadowRest;
+  final double buttonShadowHover;
+  final double buttonShadowPressed;
+  final double buttonHoverOffsetY;
+  final double buttonPressedOffsetY;
+  final double inputHorizontalSmall;
+  final double inputHorizontalMiddle;
+  final double inputHorizontalLarge;
+  final double inputShadowSmall;
+  final double inputShadowMiddle;
+  final double inputShadowLarge;
+  final BorderRadius cardTitleRadius;
+  final BorderRadius cardRadius;
+  final BorderRadius panelRadius;
+  final bool uppercaseLabels;
+  final bool hairlineAccents;
+
+  bool get isPixel => shape == AnimalIslandThemeShape.pixel;
+  bool get isSystem => shape == AnimalIslandThemeShape.system;
+  bool get isOrganic => shape == AnimalIslandThemeShape.organic;
+
+  static const animalIsland = AnimalIslandThemeSpec(
+    shape: AnimalIslandThemeShape.organic,
+    radiusSm: AnimalIslandTokens.radiusSm,
+    radiusBase: AnimalIslandTokens.radiusBase,
+    radiusLg: AnimalIslandTokens.radiusLg,
+    radiusPill: AnimalIslandTokens.radiusPill,
+    borderWidth: AnimalIslandTokens.borderWidth,
+    inputBorderWidth: AnimalIslandTokens.inputBorderWidth,
+    interactionCurve: AnimalIslandTokens.motionCurve,
+    interactionDuration: AnimalIslandTokens.fast,
+    bodyHeight: 1.55,
+    bodySmallHeight: 1.45,
+    labelSpacing: 0.18,
+    buttonHorizontalSmall: 16,
+    buttonHorizontalMiddle: 20,
+    buttonHorizontalLarge: 32,
+    buttonShadowRest: 5,
+    buttonShadowHover: 6,
+    buttonShadowPressed: 1,
+    buttonHoverOffsetY: -1,
+    buttonPressedOffsetY: 2,
+    inputHorizontalSmall: 14,
+    inputHorizontalMiddle: 18,
+    inputHorizontalLarge: 22,
+    inputShadowSmall: 2,
+    inputShadowMiddle: 3,
+    inputShadowLarge: 4,
+    cardTitleRadius: BorderRadius.only(
+      topLeft: Radius.circular(40),
+      topRight: Radius.circular(35),
+      bottomLeft: Radius.circular(38),
+      bottomRight: Radius.circular(45),
+    ),
+    cardRadius: BorderRadius.all(Radius.circular(20)),
+    panelRadius: BorderRadius.all(Radius.circular(24)),
+  );
+
+  static const nes = AnimalIslandThemeSpec(
+    shape: AnimalIslandThemeShape.pixel,
+    radiusSm: AnimalIslandTokens.pixelRadiusSm,
+    radiusBase: AnimalIslandTokens.pixelRadiusBase,
+    radiusLg: AnimalIslandTokens.pixelRadiusLg,
+    radiusPill: AnimalIslandTokens.pixelRadiusBase,
+    borderWidth: AnimalIslandTokens.pixelBorderWidth,
+    inputBorderWidth: AnimalIslandTokens.pixelBorderWidth,
+    interactionCurve: AnimalIslandTokens.pixelCurve,
+    interactionDuration: AnimalIslandTokens.pixelStep,
+    bodyHeight: 1.75,
+    bodySmallHeight: 1.65,
+    labelSpacing: 0,
+    buttonHorizontalSmall: 14,
+    buttonHorizontalMiddle: 18,
+    buttonHorizontalLarge: 24,
+    buttonShadowRest: 4,
+    buttonShadowHover: 4,
+    buttonShadowPressed: 1,
+    buttonHoverOffsetY: 0,
+    buttonPressedOffsetY: 3,
+    inputHorizontalSmall: 10,
+    inputHorizontalMiddle: 12,
+    inputHorizontalLarge: 14,
+    inputShadowSmall: 3,
+    inputShadowMiddle: 3,
+    inputShadowLarge: 4,
+    cardTitleRadius: BorderRadius.all(Radius.circular(2)),
+    cardRadius: BorderRadius.all(Radius.circular(2)),
+    panelRadius: BorderRadius.all(Radius.circular(2)),
+  );
+
+  static const westworld = AnimalIslandThemeSpec(
+    shape: AnimalIslandThemeShape.system,
+    radiusSm: 0,
+    radiusBase: 0,
+    radiusLg: 0,
+    radiusPill: 0,
+    borderWidth: 1,
+    inputBorderWidth: 1,
+    interactionCurve: Cubic(0.16, 1.0, 0.3, 1.0),
+    interactionDuration: Duration(milliseconds: 180),
+    bodyHeight: 1.36,
+    bodySmallHeight: 1.24,
+    labelSpacing: 1.05,
+    buttonHorizontalSmall: 14,
+    buttonHorizontalMiddle: 18,
+    buttonHorizontalLarge: 24,
+    buttonShadowRest: 0,
+    buttonShadowHover: 0,
+    buttonShadowPressed: 0,
+    buttonHoverOffsetY: 0,
+    buttonPressedOffsetY: 0,
+    inputHorizontalSmall: 12,
+    inputHorizontalMiddle: 16,
+    inputHorizontalLarge: 18,
+    inputShadowSmall: 0,
+    inputShadowMiddle: 0,
+    inputShadowLarge: 0,
+    cardTitleRadius: BorderRadius.all(Radius.circular(0)),
+    cardRadius: BorderRadius.all(Radius.circular(0)),
+    panelRadius: BorderRadius.all(Radius.circular(0)),
+    uppercaseLabels: true,
+    hairlineAccents: true,
+  );
+}
+
+abstract final class AnimalIslandThemeFactory {
+  static AnimalIslandThemeData resolve({
+    required AnimalIslandThemeMode mode,
+    required AnimalIslandGameStyle gameStyle,
+  }) {
+    return switch ((gameStyle, mode)) {
+      (AnimalIslandGameStyle.nes8Bit, AnimalIslandThemeMode.day) =>
+        AnimalIslandThemeData.nesDay,
+      (AnimalIslandGameStyle.nes8Bit, AnimalIslandThemeMode.night) =>
+        AnimalIslandThemeData.nesNight,
+      (AnimalIslandGameStyle.westworld, AnimalIslandThemeMode.day) =>
+        AnimalIslandThemeData.westworldDay,
+      (AnimalIslandGameStyle.westworld, AnimalIslandThemeMode.night) =>
+        AnimalIslandThemeData.westworldNight,
+      (_, AnimalIslandThemeMode.day) => AnimalIslandThemeData.day,
+      (_, AnimalIslandThemeMode.night) => AnimalIslandThemeData.night,
+    };
+  }
+
+  static AnimalIslandThemeSpec specFor(AnimalIslandGameStyle gameStyle) {
+    return switch (gameStyle) {
+      AnimalIslandGameStyle.nes8Bit => AnimalIslandThemeSpec.nes,
+      AnimalIslandGameStyle.westworld => AnimalIslandThemeSpec.westworld,
+      AnimalIslandGameStyle.animalIsland => AnimalIslandThemeSpec.animalIsland,
+    };
+  }
+}
 
 @immutable
 class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
@@ -87,29 +293,20 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
   final Color codeBorder;
   final Color codeDefault;
 
-  bool get isNes => gameStyle == AnimalIslandGameStyle.nes8Bit;
+  AnimalIslandThemeSpec get spec => AnimalIslandThemeFactory.specFor(gameStyle);
 
-  double get radiusSm =>
-      isNes ? AnimalIslandTokens.pixelRadiusSm : AnimalIslandTokens.radiusSm;
-  double get radiusBase => isNes
-      ? AnimalIslandTokens.pixelRadiusBase
-      : AnimalIslandTokens.radiusBase;
-  double get radiusLg =>
-      isNes ? AnimalIslandTokens.pixelRadiusLg : AnimalIslandTokens.radiusLg;
-  double get radiusPill => isNes
-      ? AnimalIslandTokens.pixelRadiusBase
-      : AnimalIslandTokens.radiusPill;
-  double get borderWidth => isNes
-      ? AnimalIslandTokens.pixelBorderWidth
-      : AnimalIslandTokens.borderWidth;
-  double get inputBorderWidth => isNes
-      ? AnimalIslandTokens.pixelBorderWidth
-      : AnimalIslandTokens.inputBorderWidth;
+  bool get isNes => spec.isPixel;
+  bool get isWestworld => spec.isSystem;
 
-  Curve get interactionCurve =>
-      isNes ? AnimalIslandTokens.pixelCurve : AnimalIslandTokens.motionCurve;
-  Duration get interactionDuration =>
-      isNes ? AnimalIslandTokens.pixelStep : AnimalIslandTokens.fast;
+  double get radiusSm => spec.radiusSm;
+  double get radiusBase => spec.radiusBase;
+  double get radiusLg => spec.radiusLg;
+  double get radiusPill => spec.radiusPill;
+  double get borderWidth => spec.borderWidth;
+  double get inputBorderWidth => spec.inputBorderWidth;
+
+  Curve get interactionCurve => spec.interactionCurve;
+  Duration get interactionDuration => spec.interactionDuration;
 
   static const AnimalIslandThemeData day = AnimalIslandThemeData(
     gameStyle: AnimalIslandGameStyle.animalIsland,
@@ -271,8 +468,102 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
     codeDefault: Color(0xFFFFFFFF),
   );
 
+  static const AnimalIslandThemeData westworldDay = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.westworld,
+    mode: AnimalIslandThemeMode.day,
+    primary: Color(0xFF151515),
+    primaryHover: Color(0xFF2C2C2C),
+    primaryActive: Color(0xFF000000),
+    primarySoft: Color(0xFFE7E7E4),
+    textPrimary: Color(0xFF0B0B0B),
+    textBody: Color(0xFF202020),
+    textSecondary: Color(0xFF5A5A5A),
+    textMuted: Color(0xFF7A7A76),
+    textDisabled: Color(0xFFB7B7B0),
+    border: Color(0xFF202020),
+    borderLight: Color(0xFFC7C7C0),
+    borderHover: Color(0xFF5A5A5A),
+    surface: Color(0xFFEDEDEA),
+    surfaceRaised: Color(0xFFF7F7F4),
+    surfaceSoft: Color(0xFFE2E2DE),
+    surfaceMuted: Color(0xFFD4D4CD),
+    pageBackground: Color(0xFFE7E7E4),
+    pageBackgroundAlt: Color(0xFFF1F1EF),
+    success: Color(0xFF1F7A5B),
+    successActive: Color(0xFF0E4E3A),
+    warning: Color(0xFFC29A43),
+    warningActive: Color(0xFF8E6A1C),
+    error: Color(0xFFB2423A),
+    errorActive: Color(0xFF7C211D),
+    focusYellow: Color(0xFFB89C58),
+    focusYellowDark: Color(0xFF6B5830),
+    sidebarActive: Color(0xFF111111),
+    sidebarHover: Color(0xFFE0E0DB),
+    buttonShadow: Color(0x00000000),
+    inputShadow: Color(0x00000000),
+    heroGradientStart: Color(0xFFF4F4F1),
+    heroGradientEnd: Color(0xFFE2E2DD),
+    codeBackground: Color(0xFF111111),
+    codeBorder: Color(0xFF3F3F3F),
+    codeDefault: Color(0xFFE7E7E4),
+  );
+
+  static const AnimalIslandThemeData westworldNight = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.westworld,
+    mode: AnimalIslandThemeMode.night,
+    primary: Color(0xFFECECE8),
+    primaryHover: Color(0xFFFFFFFF),
+    primaryActive: Color(0xFFBFBFB8),
+    primarySoft: Color(0xFF1F1F1D),
+    textPrimary: Color(0xFFF4F4F0),
+    textBody: Color(0xFFE2E2DC),
+    textSecondary: Color(0xFFB8B8AE),
+    textMuted: Color(0xFF8B8B82),
+    textDisabled: Color(0xFF55554F),
+    border: Color(0xFFECECE8),
+    borderLight: Color(0xFF4A4A45),
+    borderHover: Color(0xFFB8B8AE),
+    surface: Color(0xFF10100F),
+    surfaceRaised: Color(0xFF161614),
+    surfaceSoft: Color(0xFF20201D),
+    surfaceMuted: Color(0xFF080807),
+    pageBackground: Color(0xFF060606),
+    pageBackgroundAlt: Color(0xFF121210),
+    success: Color(0xFF78C6A2),
+    successActive: Color(0xFF3C8C67),
+    warning: Color(0xFFD1B16B),
+    warningActive: Color(0xFF9A7833),
+    error: Color(0xFFE17168),
+    errorActive: Color(0xFFAA3932),
+    focusYellow: Color(0xFFD1B16B),
+    focusYellowDark: Color(0xFF826323),
+    sidebarActive: Color(0xFFECECE8),
+    sidebarHover: Color(0xFF242420),
+    buttonShadow: Color(0x00000000),
+    inputShadow: Color(0x00000000),
+    heroGradientStart: Color(0xFF171716),
+    heroGradientEnd: Color(0xFF060606),
+    codeBackground: Color(0xFF050505),
+    codeBorder: Color(0xFF4A4A45),
+    codeDefault: Color(0xFFECECE8),
+  );
+
   Map<String, Color> get cardColors => {
-    if (isNes) ...{
+    if (isWestworld) ...{
+      'default': surfaceRaised,
+      'app-pink': const Color(0xFF7B5B61),
+      'purple': const Color(0xFF625A70),
+      'app-blue': const Color(0xFF4F6470),
+      'app-yellow': const Color(0xFFD1B16B),
+      'app-orange': const Color(0xFFA66A43),
+      'app-teal': const Color(0xFF4B746D),
+      'app-green': const Color(0xFF4D765F),
+      'app-red': const Color(0xFF9B4A44),
+      'lime-green': const Color(0xFF899268),
+      'yellow-green': const Color(0xFFAAA06C),
+      'brown': const Color(0xFF6F6251),
+      'warm-peach-pink': const Color(0xFF9A6D60),
+    } else if (isNes) ...{
       'default': surfaceRaised,
       'app-pink': const Color(0xFFFF77A8),
       'purple': const Color(0xFF8854F8),
@@ -304,6 +595,70 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
   };
 
   Color cardForeground(String key) {
+    switch (key) {
+      case 'default':
+        return textBody;
+      case 'app-yellow':
+      case 'yellow-green':
+        return isWestworld ? const Color(0xFF10100F) : textBody;
+      case 'lime-green':
+        return isWestworld ? const Color(0xFF10100F) : const Color(0xFF3D5A1A);
+      default:
+        return isWestworld ? Colors.white : Colors.white;
+    }
+  }
+
+  Color panelLineColor({bool hovered = false, bool emphasized = false}) {
+    if (!isWestworld) {
+      return emphasized
+          ? border
+          : borderLight.withValues(alpha: hovered ? 0.9 : 0.7);
+    }
+
+    final base = emphasized ? border : borderLight;
+    return base.withValues(
+      alpha: emphasized
+          ? 0.86
+          : hovered
+          ? 0.62
+          : 0.38,
+    );
+  }
+
+  BoxDecoration westworldPanelDecoration({
+    Color? color,
+    Color? lineColor,
+    bool hovered = false,
+    bool emphasized = false,
+  }) {
+    final resolvedLine =
+        lineColor ?? panelLineColor(hovered: hovered, emphasized: emphasized);
+    return BoxDecoration(
+      color: (color ?? surfaceRaised).withValues(
+        alpha: mode == AnimalIslandThemeMode.day ? 0.72 : 0.82,
+      ),
+      border: Border.all(color: resolvedLine, width: emphasized ? 1.2 : 1),
+      boxShadow: [
+        BoxShadow(
+          color: (mode == AnimalIslandThemeMode.day ? Colors.white : primary)
+              .withValues(alpha: hovered ? 0.18 : 0.06),
+          blurRadius: hovered ? 18 : 10,
+          spreadRadius: -8,
+        ),
+      ],
+    );
+  }
+
+  LinearGradient get westworldBackgroundGradient {
+    return LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [heroGradientStart, pageBackground, heroGradientEnd],
+    );
+  }
+
+  @Deprecated('Use cardForeground. Kept only for source compatibility.')
+  Color legacyCardForeground(String key) {
     switch (key) {
       case 'default':
       case 'app-yellow':
@@ -460,14 +815,11 @@ ThemeData buildAnimalIslandTheme({
   AnimalIslandThemeMode mode = AnimalIslandThemeMode.day,
   AnimalIslandGameStyle gameStyle = AnimalIslandGameStyle.animalIsland,
 }) {
-  final palette = switch ((gameStyle, mode)) {
-    (AnimalIslandGameStyle.nes8Bit, AnimalIslandThemeMode.day) =>
-      AnimalIslandThemeData.nesDay,
-    (AnimalIslandGameStyle.nes8Bit, AnimalIslandThemeMode.night) =>
-      AnimalIslandThemeData.nesNight,
-    (_, AnimalIslandThemeMode.day) => AnimalIslandThemeData.day,
-    (_, AnimalIslandThemeMode.night) => AnimalIslandThemeData.night,
-  };
+  final palette = AnimalIslandThemeFactory.resolve(
+    mode: mode,
+    gameStyle: gameStyle,
+  );
+  final spec = palette.spec;
 
   final base = ThemeData(
     useMaterial3: true,
@@ -501,62 +853,81 @@ ThemeData buildAnimalIslandTheme({
     ),
   );
 
-  final baseTextTheme = gameStyle == AnimalIslandGameStyle.nes8Bit
-      ? GoogleFonts.pressStart2pTextTheme(base.textTheme)
-      : GoogleFonts.nunitoTextTheme(base.textTheme);
-  final textFont = gameStyle == AnimalIslandGameStyle.nes8Bit
-      ? GoogleFonts.pressStart2p
-      : GoogleFonts.nunito;
-  final bodyHeight = gameStyle == AnimalIslandGameStyle.nes8Bit ? 1.75 : 1.55;
-  final labelSpacing = gameStyle == AnimalIslandGameStyle.nes8Bit ? 0.0 : 0.18;
+  final baseTextTheme = switch (gameStyle) {
+    AnimalIslandGameStyle.nes8Bit => GoogleFonts.pressStart2pTextTheme(
+      base.textTheme,
+    ),
+    AnimalIslandGameStyle.westworld => GoogleFonts.barlowCondensedTextTheme(
+      base.textTheme,
+    ),
+    AnimalIslandGameStyle.animalIsland => GoogleFonts.nunitoTextTheme(
+      base.textTheme,
+    ),
+  };
+  final textFont = switch (gameStyle) {
+    AnimalIslandGameStyle.nes8Bit => GoogleFonts.pressStart2p,
+    AnimalIslandGameStyle.westworld => GoogleFonts.barlowCondensed,
+    AnimalIslandGameStyle.animalIsland => GoogleFonts.nunito,
+  };
+  final bodyHeight = spec.bodyHeight;
+  final labelSpacing = spec.labelSpacing;
+  final headingWeight = spec.isSystem ? FontWeight.w500 : FontWeight.w800;
+  final titleWeight = spec.isSystem ? FontWeight.w500 : FontWeight.w700;
+  final bodyWeight = spec.isSystem ? FontWeight.w400 : FontWeight.w500;
 
   final rounded = baseTextTheme.copyWith(
     displayLarge: textFont(
       fontSize: AnimalIslandTokens.fontDisplay,
-      fontWeight: FontWeight.w800,
+      fontWeight: headingWeight,
+      letterSpacing: spec.isSystem ? 1.4 : 0,
       color: palette.textPrimary,
     ),
     displayMedium: textFont(
       fontSize: AnimalIslandTokens.fontDisplaySm,
-      fontWeight: FontWeight.w800,
+      fontWeight: headingWeight,
+      letterSpacing: spec.isSystem ? 1.2 : 0,
       color: palette.textPrimary,
     ),
     headlineLarge: textFont(
       fontSize: AnimalIslandTokens.fontHeadline,
-      fontWeight: FontWeight.w700,
+      fontWeight: titleWeight,
+      letterSpacing: spec.isSystem ? 1.1 : 0,
       color: palette.textPrimary,
     ),
     headlineMedium: textFont(
       fontSize: AnimalIslandTokens.fontHeadlineSm,
-      fontWeight: FontWeight.w700,
+      fontWeight: titleWeight,
+      letterSpacing: spec.isSystem ? 1.0 : 0,
       color: palette.textPrimary,
     ),
     titleLarge: textFont(
       fontSize: AnimalIslandTokens.fontTitle,
-      fontWeight: FontWeight.w700,
+      fontWeight: titleWeight,
+      letterSpacing: spec.isSystem ? 0.9 : 0,
       color: palette.textPrimary,
     ),
     titleMedium: textFont(
       fontSize: AnimalIslandTokens.fontTitleSm,
-      fontWeight: FontWeight.w700,
+      fontWeight: titleWeight,
+      letterSpacing: spec.isSystem ? 0.7 : 0,
       color: palette.textBody,
     ),
     bodyLarge: textFont(
       fontSize: AnimalIslandTokens.fontBodyLg,
-      fontWeight: FontWeight.w500,
+      fontWeight: bodyWeight,
       height: bodyHeight,
       color: palette.textBody,
     ),
     bodyMedium: textFont(
       fontSize: AnimalIslandTokens.fontBody,
-      fontWeight: FontWeight.w500,
+      fontWeight: bodyWeight,
       height: bodyHeight,
       color: palette.textBody,
     ),
     bodySmall: textFont(
       fontSize: AnimalIslandTokens.fontBodySm,
-      fontWeight: FontWeight.w500,
-      height: gameStyle == AnimalIslandGameStyle.nes8Bit ? 1.65 : 1.45,
+      fontWeight: bodyWeight,
+      height: spec.bodySmallHeight,
       color: palette.textSecondary,
     ),
     labelLarge: textFont(

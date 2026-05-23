@@ -36,25 +36,10 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
 
             if (_activeKey == 'home') {
               return Scaffold(
-                body: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        context.animalIslandTheme.heroGradientStart,
-                        context.animalIslandTheme.heroGradientEnd,
-                      ],
-                    ),
-                    image: DecorationImage(
-                      image: AnimalIslandAssets.raster(
-                        AnimalIslandAssets.demoHomeBackground,
-                      ),
-                      fit: BoxFit.cover,
-                      repeat: ImageRepeat.repeat,
-                      opacity: _mode == AnimalIslandThemeMode.day ? 0.32 : 0.12,
-                    ),
-                  ),
+                body: _ThemedDemoBackground(
+                  mode: _mode,
+                  gameStyle: _gameStyle,
+                  home: true,
                   child: HomePage(
                     mode: _mode,
                     onToggleMode: _toggleMode,
@@ -65,18 +50,10 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
             }
 
             return Scaffold(
-              body: Container(
-                decoration: BoxDecoration(
-                  color: context.animalIslandTheme.pageBackground,
-                  image: DecorationImage(
-                    image: AnimalIslandAssets.raster(
-                      AnimalIslandAssets.demoContentBackground,
-                    ),
-                    fit: BoxFit.none,
-                    repeat: ImageRepeat.repeat,
-                    opacity: _mode == AnimalIslandThemeMode.day ? 0.18 : 0.06,
-                  ),
-                ),
+              body: _ThemedDemoBackground(
+                mode: _mode,
+                gameStyle: _gameStyle,
+                home: false,
                 child: Stack(
                   children: [
                     Row(
@@ -104,7 +81,8 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
                         ),
                       ],
                     ),
-                    if (!isMobile)
+                    if (!isMobile &&
+                        _gameStyle != AnimalIslandGameStyle.westworld)
                       Positioned(
                         left: 220,
                         right: 0,
@@ -145,11 +123,7 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
                       actions: [
                         IconButton(
                           onPressed: _toggleGameStyle,
-                          icon: Icon(
-                            _gameStyle == AnimalIslandGameStyle.animalIsland
-                                ? Icons.videogame_asset_outlined
-                                : Icons.park_outlined,
-                          ),
+                          icon: Icon(_animalStyleIcon(_gameStyle)),
                         ),
                         IconButton(
                           onPressed: _toggleMode,
@@ -185,14 +159,118 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
 
   void _toggleGameStyle() {
     setState(() {
-      _gameStyle = _gameStyle == AnimalIslandGameStyle.animalIsland
-          ? AnimalIslandGameStyle.nes8Bit
-          : AnimalIslandGameStyle.animalIsland;
+      _gameStyle = switch (_gameStyle) {
+        AnimalIslandGameStyle.animalIsland => AnimalIslandGameStyle.nes8Bit,
+        AnimalIslandGameStyle.nes8Bit => AnimalIslandGameStyle.westworld,
+        AnimalIslandGameStyle.westworld => AnimalIslandGameStyle.animalIsland,
+      };
     });
   }
 
   void _navigate(String key) {
     setState(() => _activeKey = key);
+  }
+}
+
+class _ThemedDemoBackground extends StatelessWidget {
+  const _ThemedDemoBackground({
+    required this.mode,
+    required this.gameStyle,
+    required this.home,
+    required this.child,
+  });
+
+  final AnimalIslandThemeMode mode;
+  final AnimalIslandGameStyle gameStyle;
+  final bool home;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    if (gameStyle == AnimalIslandGameStyle.westworld) {
+      return DecoratedBox(
+        decoration: BoxDecoration(gradient: theme.westworldBackgroundGradient),
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: _WestworldDemoBackgroundPainter(
+                    line: theme.panelLineColor(),
+                    ink: theme.textPrimary.withValues(alpha: 0.08),
+                  ),
+                ),
+              ),
+            ),
+            child,
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: home ? null : theme.pageBackground,
+        gradient: home
+            ? LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [theme.heroGradientStart, theme.heroGradientEnd],
+              )
+            : null,
+        image: DecorationImage(
+          image: AnimalIslandAssets.raster(
+            home
+                ? AnimalIslandAssets.demoHomeBackground
+                : AnimalIslandAssets.demoContentBackground,
+          ),
+          fit: home ? BoxFit.cover : BoxFit.none,
+          repeat: ImageRepeat.repeat,
+          opacity: home
+              ? (mode == AnimalIslandThemeMode.day ? 0.32 : 0.12)
+              : (mode == AnimalIslandThemeMode.day ? 0.18 : 0.06),
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class _WestworldDemoBackgroundPainter extends CustomPainter {
+  const _WestworldDemoBackgroundPainter({
+    required this.line,
+    required this.ink,
+  });
+
+  final Color line;
+  final Color ink;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width * 0.58, size.height * 0.42);
+    final ringPaint = Paint()
+      ..color = line
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+    for (var i = 0; i < 6; i += 1) {
+      canvas.drawCircle(center, 90 + i * 62, ringPaint);
+    }
+
+    final gridPaint = Paint()
+      ..color = ink
+      ..strokeWidth = 1;
+    for (double x = 0; x < size.width; x += 64) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    }
+    for (double y = 0; y < size.height; y += 64) {
+      canvas.drawLine(Offset(0, y), Offset(size.width, y), gridPaint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldDemoBackgroundPainter oldDelegate) {
+    return oldDelegate.line != line || oldDelegate.ink != ink;
   }
 }
 
@@ -228,6 +306,12 @@ class _Sidebar extends StatelessWidget {
                 AnimalIslandAssets.demoMenuBackground,
                 package: AnimalIslandAssets.package,
                 fit: BoxFit.cover,
+                colorFilter: gameStyle == AnimalIslandGameStyle.westworld
+                    ? ColorFilter.mode(
+                        theme.pageBackground.withValues(alpha: 0.9),
+                        BlendMode.srcATop,
+                      )
+                    : null,
               ),
               DecoratedBox(
                 decoration: BoxDecoration(
@@ -271,11 +355,7 @@ class _Sidebar extends StatelessWidget {
                             onPressed: onToggleGameStyle,
                             iconSize: 18,
                             visualDensity: VisualDensity.compact,
-                            icon: Icon(
-                              gameStyle == AnimalIslandGameStyle.animalIsland
-                                  ? Icons.videogame_asset_outlined
-                                  : Icons.park_outlined,
-                            ),
+                            icon: Icon(_animalStyleIcon(gameStyle)),
                           ),
                         ],
                       ),
@@ -309,6 +389,14 @@ class _Sidebar extends StatelessWidget {
       ),
     );
   }
+}
+
+IconData _animalStyleIcon(AnimalIslandGameStyle style) {
+  return switch (style) {
+    AnimalIslandGameStyle.animalIsland => Icons.videogame_asset_outlined,
+    AnimalIslandGameStyle.nes8Bit => Icons.radar_outlined,
+    AnimalIslandGameStyle.westworld => Icons.park_outlined,
+  };
 }
 
 class _SidebarGroup extends StatelessWidget {

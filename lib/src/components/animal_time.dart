@@ -70,35 +70,41 @@ class _AnimalTimeState extends State<AnimalTime> {
         horizontal: compact ? 20 : 36,
         vertical: compact ? 12 : 16,
       ),
-      decoration: BoxDecoration(
-        color: theme.isNes ? theme.surfaceRaised : null,
-        gradient: theme.isNes
-            ? null
-            : LinearGradient(
-                colors: <Color>[
-                  Colors.white.withValues(
-                    alpha: theme.mode == AnimalIslandThemeMode.day ? 1 : 0.2,
-                  ),
-                  theme.surface,
-                ],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
+      decoration: theme.isWestworld
+          ? theme.westworldPanelDecoration(emphasized: true)
+          : BoxDecoration(
+              color: theme.isNes ? theme.surfaceRaised : null,
+              gradient: theme.isNes
+                  ? null
+                  : LinearGradient(
+                      colors: <Color>[
+                        Colors.white.withValues(
+                          alpha: theme.mode == AnimalIslandThemeMode.day
+                              ? 1
+                              : 0.2,
+                        ),
+                        theme.surface,
+                      ],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+              borderRadius: BorderRadius.circular(
+                theme.isNes ? theme.radiusSm : 18,
               ),
-        borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusSm : 18),
-        border: Border.all(
-          color: theme.isNes ? theme.border : const Color(0xFFD4CFC3),
-          width: 3,
-        ),
-        boxShadow: theme.isNes
-            ? [
-                BoxShadow(
-                  color: theme.buttonShadow,
-                  blurRadius: 0,
-                  offset: const Offset(0, 4),
-                ),
-              ]
-            : null,
-      ),
+              border: Border.all(
+                color: theme.isNes ? theme.border : const Color(0xFFD4CFC3),
+                width: 3,
+              ),
+              boxShadow: theme.isNes
+                  ? [
+                      BoxShadow(
+                        color: theme.buttonShadow,
+                        blurRadius: 0,
+                        offset: const Offset(0, 4),
+                      ),
+                    ]
+                  : null,
+            ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -119,7 +125,11 @@ class _AnimalTimeState extends State<AnimalTime> {
                 Text(
                   _weekdays[_now.weekday % 7].toUpperCase(),
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: theme.isNes ? theme.primary : theme.success,
+                    color: theme.isWestworld
+                        ? theme.textMuted
+                        : theme.isNes
+                        ? theme.primary
+                        : theme.success,
                     fontWeight: FontWeight.w900,
                     fontSize: compact
                         ? AnimalIslandTokens.fontMicro
@@ -131,6 +141,8 @@ class _AnimalTimeState extends State<AnimalTime> {
                   '${_months[_now.month - 1]} ${_now.day}',
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: theme.isNes
+                        ? theme.textPrimary
+                        : theme.isWestworld
                         ? theme.textPrimary
                         : const Color(0xFF8B7355),
                     fontWeight: FontWeight.w800,
@@ -147,6 +159,8 @@ class _AnimalTimeState extends State<AnimalTime> {
               style: Theme.of(context).textTheme.displaySmall?.copyWith(
                 color: theme.isNes
                     ? theme.textPrimary
+                    : theme.isWestworld
+                    ? theme.textPrimary
                     : const Color(0xFF8B7355),
                 fontSize: compact ? 24 : 32,
                 fontWeight: FontWeight.w900,
@@ -158,6 +172,8 @@ class _AnimalTimeState extends State<AnimalTime> {
                   text: _showColon ? ':' : ' ',
                   style: TextStyle(
                     color: theme.isNes
+                        ? theme.focusYellow
+                        : theme.isWestworld
                         ? theme.focusYellow
                         : const Color(0xFF8B7355),
                   ),

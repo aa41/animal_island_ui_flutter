@@ -24,7 +24,7 @@ class AnimalBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? theme.surfaceSoft,
         borderRadius: BorderRadius.circular(theme.radiusPill),
-        border: theme.isNes
+        border: theme.isNes || theme.isWestworld
             ? Border.all(color: theme.border, width: theme.borderWidth)
             : null,
       ),
@@ -34,6 +34,7 @@ class AnimalBadge extends StatelessWidget {
           label,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
             color: foregroundColor ?? theme.textSecondary,
+            letterSpacing: theme.isWestworld ? 0.8 : null,
           ),
         ),
       ),

@@ -149,9 +149,7 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>> {
             mainAxisSize: MainAxisSize.min,
             children: [
               AnimatedContainer(
-                duration: theme.isNes
-                    ? AnimalIslandTokens.pixelStep
-                    : AnimalIslandTokens.base,
+                duration: theme.interactionDuration,
                 width: box,
                 height: box,
                 decoration: BoxDecoration(

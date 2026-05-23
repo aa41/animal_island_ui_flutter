@@ -262,32 +262,56 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
             maxHeight: size.height * widget.maxHeightRatio,
           ),
           child: PhysicalShape(
-            clipper: theme.isNes
+            clipper: theme.isNes || theme.isWestworld
                 ? const ShapeBorderClipper(shape: RoundedRectangleBorder())
                 : const _AnimalBottomSheetClipper(),
-            color: theme.borderLight,
+            color: theme.isWestworld
+                ? theme.panelLineColor(emphasized: true)
+                : theme.borderLight,
             shadowColor: theme.buttonShadow.withValues(alpha: 0.34),
-            elevation: theme.isNes ? 0 : 12,
+            elevation: theme.isNes || theme.isWestworld ? 0 : 12,
             child: Padding(
-              padding: EdgeInsets.all(theme.isNes ? theme.borderWidth : 2.5),
+              padding: EdgeInsets.all(
+                theme.isNes
+                    ? theme.borderWidth
+                    : theme.isWestworld
+                    ? 1
+                    : 2.5,
+              ),
               child: ClipPath(
-                clipper: theme.isNes
+                clipper: theme.isNes || theme.isWestworld
                     ? const ShapeBorderClipper(shape: RoundedRectangleBorder())
                     : const _AnimalBottomSheetClipper(),
                 child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: theme.isNes ? theme.surfaceRaised : null,
-                    gradient: theme.isNes
-                        ? null
-                        : LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: <Color>[theme.surfaceRaised, theme.surface],
-                          ),
-                  ),
+                  decoration: theme.isWestworld
+                      ? theme.westworldPanelDecoration(emphasized: true)
+                      : BoxDecoration(
+                          color: theme.isNes ? theme.surfaceRaised : null,
+                          gradient: theme.isNes
+                              ? null
+                              : LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: <Color>[
+                                    theme.surfaceRaised,
+                                    theme.surface,
+                                  ],
+                                ),
+                        ),
                   child: Stack(
                     children: [
-                      if (!theme.isNes)
+                      if (theme.isWestworld)
+                        Positioned.fill(
+                          child: IgnorePointer(
+                            child: CustomPaint(
+                              painter: _WestworldBottomSheetPainter(
+                                line: theme.panelLineColor(),
+                                glow: theme.primary.withValues(alpha: 0.08),
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (theme.spec.isOrganic)
                         Positioned.fill(
                           child: IgnorePointer(
                             child: DecoratedBox(
@@ -306,7 +330,7 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
                             ),
                           ),
                         ),
-                      if (!theme.isNes)
+                      if (theme.spec.isOrganic)
                         Positioned(
                           left: 18,
                           top: 22,
@@ -324,7 +348,7 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
                             ),
                           ),
                         ),
-                      if (!theme.isNes)
+                      if (theme.spec.isOrganic)
                         Positioned(
                           right: 24,
                           top: 18,
@@ -338,10 +362,26 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
                         ),
                       Padding(
                         padding: EdgeInsets.fromLTRB(
-                          theme.isNes ? 18 : 24,
-                          theme.isNes ? 14 : 18,
-                          theme.isNes ? 18 : 24,
-                          theme.isNes ? 18 : 22,
+                          theme.isNes
+                              ? 18
+                              : theme.isWestworld
+                              ? 22
+                              : 24,
+                          theme.isNes
+                              ? 14
+                              : theme.isWestworld
+                              ? 16
+                              : 18,
+                          theme.isNes
+                              ? 18
+                              : theme.isWestworld
+                              ? 22
+                              : 24,
+                          theme.isNes
+                              ? 18
+                              : theme.isWestworld
+                              ? 20
+                              : 22,
                         ),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
@@ -383,10 +423,19 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
                                                                 theme.isNes
                                                                 ? AnimalIslandTokens
                                                                       .fontBody
+                                                                : theme
+                                                                      .isWestworld
+                                                                ? AnimalIslandTokens
+                                                                      .fontHeadlineSm
                                                                 : AnimalIslandTokens
                                                                       .fontTitle,
                                                             color: theme
                                                                 .textPrimary,
+                                                            letterSpacing:
+                                                                theme
+                                                                    .isWestworld
+                                                                ? 1.2
+                                                                : null,
                                                           ),
                                                       child: widget.title!,
                                                     ),
@@ -414,10 +463,18 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
                                       .copyWith(
                                         fontSize: theme.isNes
                                             ? AnimalIslandTokens.fontBodySm
+                                            : theme.isWestworld
+                                            ? AnimalIslandTokens.fontBody
                                             : AnimalIslandTokens.fontBodyLg,
                                         color: theme.textBody,
-                                        height: theme.isNes ? 1.8 : 1.55,
-                                        fontWeight: FontWeight.w600,
+                                        height: theme.isNes
+                                            ? 1.8
+                                            : theme.isWestworld
+                                            ? 1.36
+                                            : 1.55,
+                                        fontWeight: theme.isWestworld
+                                            ? FontWeight.w400
+                                            : FontWeight.w600,
                                       ),
                                   child: _AnimalBottomSheetBody(
                                     typeSpeed: widget.typeSpeed,
@@ -453,6 +510,20 @@ class _AnimalBottomSheetHandle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (theme.isWestworld) {
+      return Container(
+        width: 84,
+        height: 10,
+        alignment: Alignment.center,
+        child: CustomPaint(
+          size: const Size(84, 10),
+          painter: _WestworldHandlePainter(
+            color: theme.panelLineColor(emphasized: true),
+          ),
+        ),
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -474,13 +545,14 @@ class _AnimalBottomSheetHandle extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 6),
-        Image.asset(
-          AnimalIslandAssets.iconLeaf,
-          package: AnimalIslandAssets.package,
-          width: 16,
-          height: 16,
-          opacity: const AlwaysStoppedAnimation<double>(0.84),
-        ),
+        if (!theme.isWestworld)
+          Image.asset(
+            AnimalIslandAssets.iconLeaf,
+            package: AnimalIslandAssets.package,
+            width: 16,
+            height: 16,
+            opacity: const AlwaysStoppedAnimation<double>(0.84),
+          ),
       ],
     );
   }
@@ -501,7 +573,7 @@ class _AnimalBottomSheetCloseButton extends StatelessWidget {
         height: 28,
         decoration: BoxDecoration(
           color: theme.surfaceSoft,
-          borderRadius: theme.isNes
+          borderRadius: theme.isNes || theme.isWestworld
               ? BorderRadius.circular(theme.radiusSm)
               : const BorderRadius.only(
                   topLeft: Radius.circular(16),
@@ -513,18 +585,20 @@ class _AnimalBottomSheetCloseButton extends StatelessWidget {
             color: theme.borderLight,
             width: theme.borderWidth,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: theme.inputShadow.withValues(alpha: 0.6),
-              blurRadius: 0,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: theme.isWestworld
+              ? null
+              : [
+                  BoxShadow(
+                    color: theme.inputShadow.withValues(alpha: 0.6),
+                    blurRadius: 0,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (!theme.isNes)
+            if (theme.spec.isOrganic)
               Positioned(
                 left: 7,
                 top: 7,
@@ -549,6 +623,64 @@ class _AnimalBottomSheetCloseButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _WestworldBottomSheetPainter extends CustomPainter {
+  const _WestworldBottomSheetPainter({required this.line, required this.glow});
+
+  final Color line;
+  final Color glow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+
+    final gridPaint = Paint()
+      ..color = glow
+      ..strokeWidth = 1;
+    for (double x = 24; x < size.width; x += 36) {
+      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
+    }
+
+    final linePaint = Paint()
+      ..color = line
+      ..strokeWidth = 1;
+    canvas.drawLine(const Offset(0, 18), const Offset(72, 18), linePaint);
+    canvas.drawLine(
+      Offset(size.width - 72, size.height - 18),
+      Offset(size.width, size.height - 18),
+      linePaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldBottomSheetPainter oldDelegate) {
+    return oldDelegate.line != line || oldDelegate.glow != glow;
+  }
+}
+
+class _WestworldHandlePainter extends CustomPainter {
+  const _WestworldHandlePainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 1;
+    final y = size.height / 2;
+    canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
+    canvas.drawLine(Offset(18, y - 4), Offset(size.width - 18, y - 4), paint);
+    canvas.drawLine(Offset(18, y + 4), Offset(size.width - 18, y + 4), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldHandlePainter oldDelegate) {
+    return oldDelegate.color != color;
   }
 }
 

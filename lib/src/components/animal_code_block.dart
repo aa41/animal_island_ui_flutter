@@ -34,7 +34,13 @@ class AnimalCodeBlock extends StatelessWidget {
     return DecoratedBox(
       decoration: BoxDecoration(
         color: theme.codeBackground,
-        borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusSm : 20),
+        borderRadius: BorderRadius.circular(
+          theme.isWestworld
+              ? 0
+              : theme.isNes
+              ? theme.radiusSm
+              : 20,
+        ),
         border: Border.all(
           color: theme.codeBorder,
           width: theme.isNes ? theme.borderWidth : 1,

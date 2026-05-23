@@ -160,12 +160,6 @@ class _AnimalModalPanel extends StatelessWidget {
     final useDefaultFooter = identical(footer, _defaultModalFooterMarker);
     final showFooter = useDefaultFooter || footer != null;
     final customFooter = footer is Widget ? footer as Widget : null;
-    final dialogButtonStyle = Theme.of(context).textTheme.bodyLarge?.copyWith(
-      fontSize: AnimalIslandTokens.fontBody,
-      fontWeight: FontWeight.w600,
-      color: theme.textBody,
-      height: 1,
-    );
     final defaultFooter = Row(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.end,
@@ -174,35 +168,39 @@ class _AnimalModalPanel extends StatelessWidget {
           type: AnimalButtonType.defaultType,
           size: AnimalButtonSize.middle,
           onPressed: onClose,
-          child: Text('取消', style: dialogButtonStyle),
+          child: const Text('取消'),
         ),
         const SizedBox(width: 12),
         AnimalButton(
           type: AnimalButtonType.primary,
           size: AnimalButtonSize.middle,
           onPressed: onOk,
-          child: Text('确定', style: dialogButtonStyle),
+          child: const Text('确定'),
         ),
       ],
     );
 
     final panel = DecoratedBox(
-      decoration: BoxDecoration(
-        color: theme.surfaceRaised,
-        borderRadius: BorderRadius.circular(theme.isNes ? theme.radiusBase : 0),
-        border: theme.isNes
-            ? Border.all(color: theme.border, width: theme.borderWidth)
-            : null,
-        boxShadow: theme.isNes
-            ? [
-                BoxShadow(
-                  color: theme.buttonShadow,
-                  blurRadius: 0,
-                  offset: const Offset(0, 6),
-                ),
-              ]
-            : null,
-      ),
+      decoration: theme.isWestworld
+          ? theme.westworldPanelDecoration(emphasized: true)
+          : BoxDecoration(
+              color: theme.surfaceRaised,
+              borderRadius: BorderRadius.circular(
+                theme.isNes ? theme.radiusBase : 0,
+              ),
+              border: theme.isNes
+                  ? Border.all(color: theme.border, width: theme.borderWidth)
+                  : null,
+              boxShadow: theme.isNes
+                  ? [
+                      BoxShadow(
+                        color: theme.buttonShadow,
+                        blurRadius: 0,
+                        offset: const Offset(0, 6),
+                      ),
+                    ]
+                  : null,
+            ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(
           theme.isNes ? 24 : 36,
@@ -262,7 +260,7 @@ class _AnimalModalPanel extends StatelessWidget {
         maxWidth: math.min(MediaQuery.sizeOf(context).width - 32, width),
         maxHeight: MediaQuery.sizeOf(context).height - 64,
       ),
-      child: theme.isNes
+      child: theme.isNes || theme.isWestworld
           ? panel
           : ClipPath(clipper: _AnimalModalClipper(), child: panel),
     );
