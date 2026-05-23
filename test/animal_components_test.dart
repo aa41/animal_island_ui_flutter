@@ -345,6 +345,66 @@ void main() {
     expect(refreshCount, 1);
   });
 
+  testWidgets('Westworld refresh and load-more remove island copy/assets', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        SizedBox(
+          height: 360,
+          child: Column(
+            children: [
+              Expanded(
+                child: AnimalPullToRefresh(
+                  onRefresh: () async {},
+                  child: ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(
+                      parent: BouncingScrollPhysics(),
+                    ),
+                    itemCount: 8,
+                    itemBuilder: (context, index) =>
+                        SizedBox(height: 48, child: Text('node $index')),
+                  ),
+                ),
+              ),
+              const AnimalLoadMoreFooter(state: AnimalLoadMoreState.loading),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    await tester.drag(find.byType(ListView), const Offset(0, 120));
+    await tester.pump();
+
+    expect(find.textContaining('island', findRichText: true), findsNothing);
+    expect(find.textContaining('Tom Nook', findRichText: true), findsNothing);
+    expect(find.textContaining('Kapp', findRichText: true), findsNothing);
+    expect(find.text('ACQUIRING NEXT VECTOR'), findsOneWidget);
+    expect(find.byType(Image), findsNothing);
+    expect(find.byType(CustomPaint), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Westworld checkbox group uses custom HUD tiles', (tester) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        AnimalCheckboxGroup<String>(
+          defaultValues: const ['host'],
+          options: const [
+            AnimalCheckboxOption(value: 'host', label: Text('HOST')),
+            AnimalCheckboxOption(value: 'guest', label: Text('GUEST')),
+          ],
+        ),
+      ),
+    );
+
+    expect(find.byIcon(Icons.check_rounded), findsNothing);
+    expect(find.byType(CustomPaint), findsWidgets);
+    expect(find.text('HOST'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('AnimalSlider renders value badge and labels', (tester) async {
     await tester.pumpWidget(
       wrap(
@@ -362,6 +422,30 @@ void main() {
     expect(find.text('42'), findsOneWidget);
     expect(find.text('低'), findsOneWidget);
     expect(find.text('高'), findsOneWidget);
+  });
+
+  testWidgets('Westworld slider renders calibrated system track', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        const SizedBox(
+          width: 320,
+          child: AnimalSlider(
+            initialValue: 42,
+            leadingLabel: 'LOW',
+            trailingLabel: 'HIGH',
+            divisions: 10,
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump(const Duration(milliseconds: 120));
+
+    expect(find.text('42'), findsOneWidget);
+    expect(find.byType(CustomPaint), findsWidgets);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('AnimalDateTimePicker hour wheel supports multi-step fling', (

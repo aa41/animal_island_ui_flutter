@@ -135,13 +135,6 @@ class _AnimalButtonState extends State<AnimalButton>
         mainAxisSize: widget.block ? MainAxisSize.max : MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (widget.loading && theme.isWestworld) ...[
-            _WestworldButtonLoadingGlyph(
-              controller: _loadingController,
-              color: colors.foreground,
-            ),
-            const SizedBox(width: AnimalIslandTokens.spacingSm),
-          ],
           if (widget.icon != null && !widget.loading) ...[
             widget.icon!,
             const SizedBox(width: AnimalIslandTokens.spacingSm),
@@ -242,7 +235,7 @@ class _AnimalButtonState extends State<AnimalButton>
     if (widget.loading) {
       return _ButtonColors(
         background: theme.isWestworld
-            ? theme.primary.withValues(alpha: 0.08)
+            ? theme.surfaceRaised.withValues(alpha: 0.64)
             : theme.isNes
             ? theme.primary
             : const Color(0xFF0EC4B6),
@@ -357,9 +350,9 @@ class _AnimalButtonState extends State<AnimalButton>
     if (theme.isWestworld) {
       return _ScanlineLoadingPainter(
         progress: progress,
-        base: theme.surfaceRaised.withValues(alpha: 0.18),
+        base: theme.surfaceRaised.withValues(alpha: 0.14),
         line: theme.primary.withValues(alpha: 0.56),
-        glow: theme.primary.withValues(alpha: 0.22),
+        muted: theme.panelLineColor(),
       );
     }
 
@@ -499,13 +492,13 @@ class _ScanlineLoadingPainter extends CustomPainter {
     required this.progress,
     required this.base,
     required this.line,
-    required this.glow,
+    required this.muted,
   });
 
   final double progress;
   final Color base;
   final Color line;
-  final Color glow;
+  final Color muted;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -514,25 +507,33 @@ class _ScanlineLoadingPainter extends CustomPainter {
     }
     canvas.drawRect(Offset.zero & size, Paint()..color = base);
 
-    final y = size.height - 5.5;
-    final track = Paint()
+    final y = size.height - 6;
+    final startX = 14.0;
+    final endX = size.width - 14;
+    final tickPaint = Paint()
       ..color = line.withValues(alpha: 0.18)
       ..strokeWidth = 1;
-    canvas.drawLine(Offset(14, y), Offset(size.width - 14, y), track);
-
-    final activeWidth = (size.width - 28) * progress;
-    final active = Paint()
-      ..color = line
-      ..strokeWidth = 1.4;
-    canvas.drawLine(Offset(14, y), Offset(14 + activeWidth, y), active);
-
-    final pulseX = 14 + activeWidth;
+    for (var i = 0; i <= 8; i += 1) {
+      final x = startX + (endX - startX) * (i / 8);
+      canvas.drawLine(
+        Offset(x, y - (i == 0 || i == 8 ? 8 : 4)),
+        Offset(x, y + 2),
+        tickPaint,
+      );
+    }
     canvas.drawLine(
-      Offset(pulseX, y - 4),
-      Offset(pulseX, y + 4),
+      Offset(startX, y),
+      Offset(endX, y),
       Paint()
-        ..color = glow
-        ..strokeWidth = 1,
+        ..strokeWidth = 1
+        ..color = muted.withValues(alpha: 0.36),
+    );
+    canvas.drawLine(
+      Offset(startX, y),
+      Offset(startX + (endX - startX) * progress, y),
+      Paint()
+        ..strokeWidth = 1.4
+        ..color = line.withValues(alpha: 0.72),
     );
   }
 
@@ -541,104 +542,6 @@ class _ScanlineLoadingPainter extends CustomPainter {
     return other.progress != progress ||
         other.base != base ||
         other.line != line ||
-        other.glow != glow;
-  }
-}
-
-class _WestworldButtonLoadingGlyph extends StatelessWidget {
-  const _WestworldButtonLoadingGlyph({
-    required this.controller,
-    required this.color,
-  });
-
-  final Animation<double> controller;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) {
-        return SizedBox.square(
-          dimension: 19,
-          child: CustomPaint(
-            painter: _WestworldButtonGlyphPainter(
-              progress: controller.value,
-              color: color,
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _WestworldButtonGlyphPainter extends CustomPainter {
-  const _WestworldButtonGlyphPainter({
-    required this.progress,
-    required this.color,
-  });
-
-  final double progress;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty || !size.isFinite) {
-      return;
-    }
-
-    final center = size.center(Offset.zero);
-    final radius = size.shortestSide / 2;
-    final muted = Paint()
-      ..color = color.withValues(alpha: 0.22)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    final active = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
-
-    canvas.drawCircle(center, radius * 0.76, muted);
-    canvas.drawCircle(center, radius * 0.42, muted);
-    final tick = Paint()
-      ..color = color.withValues(alpha: 0.5)
-      ..strokeWidth = 1;
-    for (var i = 0; i < 4; i += 1) {
-      final angle = i * math.pi / 2;
-      final a =
-          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.58;
-      final b =
-          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.82;
-      canvas.drawLine(a, b, tick);
-    }
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius * 0.76),
-      -math.pi / 2 + progress * math.pi * 2,
-      math.pi * 0.86,
-      false,
-      active,
-    );
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius * 0.42),
-      math.pi / 2 - progress * math.pi * 2,
-      math.pi * 0.72,
-      false,
-      active..color = color.withValues(alpha: 0.72),
-    );
-
-    final angle = progress * math.pi * 2;
-    active.color = color;
-    canvas.drawLine(
-      center,
-      center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.86,
-      active,
-    );
-    canvas.drawCircle(center, 1.4, Paint()..color = color);
-  }
-
-  @override
-  bool shouldRepaint(covariant _WestworldButtonGlyphPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.color != color;
+        other.muted != muted;
   }
 }

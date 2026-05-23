@@ -24,8 +24,25 @@ class AnimalCard extends StatefulWidget {
   State<AnimalCard> createState() => _AnimalCardState();
 }
 
-class _AnimalCardState extends State<AnimalCard> {
+class _AnimalCardState extends State<AnimalCard>
+    with SingleTickerProviderStateMixin {
   bool _hovered = false;
+  late final AnimationController _westworldController;
+
+  @override
+  void initState() {
+    super.initState();
+    _westworldController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 4200),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _westworldController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +118,8 @@ class _AnimalCardState extends State<AnimalCard> {
                       hovered: _hovered,
                       emphasized: widget.type == AnimalCardType.title,
                     ),
+                    animation: _westworldController,
+                    hovered: _hovered,
                     child: _cardChild,
                   )
                 : _cardChild,
@@ -195,32 +214,90 @@ class _AnimalCardState extends State<AnimalCard> {
 }
 
 class _WestworldCardFrame extends StatelessWidget {
-  const _WestworldCardFrame({required this.lineColor, required this.child});
+  const _WestworldCardFrame({
+    required this.lineColor,
+    required this.animation,
+    required this.hovered,
+    required this.child,
+  });
 
   final Color lineColor;
+  final Animation<double> animation;
+  final bool hovered;
   final Widget child;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Positioned(
-          left: 0,
-          top: 0,
-          width: 42,
-          child: Divider(height: 1, thickness: 1, color: lineColor),
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (context, _) => CustomPaint(
+        foregroundPainter: _WestworldCardPerspectivePainter(
+          progress: animation.value,
+          lineColor: lineColor,
+          hovered: hovered,
         ),
-        Positioned(
-          right: 0,
-          bottom: 0,
-          width: 42,
-          child: Divider(height: 1, thickness: 1, color: lineColor),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 5, bottom: 3),
+        child: Padding(
+          padding: const EdgeInsets.only(top: 7, bottom: 5),
           child: child,
         ),
-      ],
+      ),
     );
+  }
+}
+
+class _WestworldCardPerspectivePainter extends CustomPainter {
+  const _WestworldCardPerspectivePainter({
+    required this.progress,
+    required this.lineColor,
+    required this.hovered,
+  });
+
+  final double progress;
+  final Color lineColor;
+  final bool hovered;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final alpha = hovered ? 0.72 : 0.42;
+    final basePaint = Paint()
+      ..strokeWidth = 1
+      ..color = lineColor.withValues(alpha: alpha);
+    const topLength = 50.0;
+    const sideLength = 18.0;
+    canvas.drawLine(Offset.zero, const Offset(topLength, 0), basePaint);
+    canvas.drawLine(Offset.zero, const Offset(0, sideLength), basePaint);
+    canvas.drawLine(
+      Offset(size.width - topLength, size.height),
+      Offset(size.width, size.height),
+      basePaint,
+    );
+    canvas.drawLine(
+      Offset(size.width, size.height - sideLength),
+      Offset(size.width, size.height),
+      basePaint,
+    );
+
+    final pulse = 0.48 + 0.52 * (1 - (progress * 2 - 1).abs());
+    final activePaint = Paint()
+      ..strokeWidth = 1
+      ..color = lineColor.withValues(alpha: (hovered ? 0.86 : 0.62) * pulse);
+    final topActive = topLength * (0.34 + progress * 0.42);
+    final bottomActive = topLength * (0.76 - progress * 0.42);
+    canvas.drawLine(Offset.zero, Offset(topActive, 0), activePaint);
+    canvas.drawLine(
+      Offset(size.width - bottomActive, size.height),
+      Offset(size.width, size.height),
+      activePaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldCardPerspectivePainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.lineColor != lineColor ||
+        oldDelegate.hovered != hovered;
   }
 }

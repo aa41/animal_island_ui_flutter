@@ -40,7 +40,7 @@ class _AnimalSwitchState extends State<AnimalSwitch>
   AnimationController get _controller =>
       _spinController ??= AnimationController(
         vsync: this,
-        duration: const Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 1800),
       )..repeat();
 
   @override
@@ -95,16 +95,7 @@ class _AnimalSwitchState extends State<AnimalSwitch>
     final small = widget.size == AnimalSwitchSize.small;
     final minWidth = small ? 38.0 : 52.0;
     final height = small ? 20.0 : 28.0;
-    final knob = theme.isNes
-        ? (small ? 14.0 : 20.0)
-        : theme.isWestworld
-        ? (small ? 12.0 : 18.0)
-        : (small ? 14.0 : 21.0);
     final disabled = !widget.enabled;
-    final knobPadding = small ? 20.0 : 28.0;
-    final horizontalTextPadding = small ? 6.0 : 8.0;
-    final hasText =
-        widget.checkedChild != null || widget.uncheckedChild != null;
     final textStyle = Theme.of(context).textTheme.labelMedium!.copyWith(
       color: (theme.isWestworld ? theme.textPrimary : Colors.white).withValues(
         alpha: disabled ? 0.5 : 1,
@@ -124,115 +115,140 @@ class _AnimalSwitchState extends State<AnimalSwitch>
             ],
     );
 
+    if (theme.isWestworld) {
+      return _WestworldSwitchControl(
+        checked: checked,
+        enabled: widget.enabled,
+        loading: widget.loading,
+        small: small,
+        progress: _controller,
+        checkedChild: widget.checkedChild,
+        uncheckedChild: widget.uncheckedChild,
+        textStyle: textStyle,
+        onTap: _toggle,
+      );
+    }
+
+    final knob = theme.isNes ? (small ? 14.0 : 20.0) : (small ? 14.0 : 21.0);
+    final knobPadding = small ? 20.0 : 28.0;
+    final horizontalTextPadding = small ? 6.0 : 8.0;
+    final hasText =
+        widget.checkedChild != null || widget.uncheckedChild != null;
+
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: _toggle,
       child: Opacity(
         opacity: disabled ? 0.5 : 1,
         child: IntrinsicWidth(
-          child: AnimatedContainer(
-            duration: theme.interactionDuration,
-            curve: theme.interactionCurve,
-            constraints: BoxConstraints(minWidth: minWidth),
-            height: height,
-            padding: const EdgeInsets.symmetric(horizontal: 2),
-            decoration: _trackDecoration(theme, checked),
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                SizedBox(width: minWidth - 4, height: height),
-                if (hasText)
-                  Positioned.fill(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          checked ? horizontalTextPadding : knobPadding,
-                          0,
-                          checked ? knobPadding : horizontalTextPadding,
-                          0,
-                        ),
-                        child: DefaultTextStyle(
-                          style: textStyle,
-                          maxLines: 1,
-                          overflow: TextOverflow.visible,
-                          child: checked
-                              ? widget.checkedChild ?? const SizedBox.shrink()
-                              : widget.uncheckedChild ??
-                                    const SizedBox.shrink(),
-                        ),
-                      ),
-                    ),
-                  ),
-                AnimatedPositioned(
-                  duration: theme.interactionDuration,
-                  curve: theme.interactionCurve,
-                  left: checked ? null : 0,
-                  right: checked ? 0 : null,
-                  top: small ? 1 : 2,
-                  child: Transform.translate(
-                    offset: const Offset(0, -1),
-                    child: Container(
-                      width: knob,
-                      height: knob,
-                      decoration: BoxDecoration(
-                        color: theme.surfaceRaised,
-                        shape: theme.isNes || theme.isWestworld
-                            ? BoxShape.rectangle
-                            : BoxShape.circle,
-                        borderRadius: theme.isNes || theme.isWestworld
-                            ? BorderRadius.circular(theme.radiusSm)
-                            : null,
-                        border: Border.all(
-                          color: checked ? theme.success : theme.borderLight,
-                          width: theme.isNes ? 3.0 : theme.borderWidth,
-                        ),
-                        boxShadow: theme.isWestworld
-                            ? null
-                            : [
-                                BoxShadow(
-                                  color: checked
-                                      ? theme.successActive
-                                      : theme.buttonShadow,
-                                  blurRadius: 0,
-                                  offset: Offset(0, small ? 2 : 3),
-                                ),
-                              ],
-                      ),
+          child: AnimatedBuilder(
+            animation: widget.loading && theme.isWestworld
+                ? _controller
+                : kAlwaysDismissedAnimation,
+            builder: (context, child) => AnimatedContainer(
+              duration: theme.interactionDuration,
+              curve: theme.interactionCurve,
+              constraints: BoxConstraints(minWidth: minWidth),
+              height: height,
+              padding: const EdgeInsets.symmetric(horizontal: 2),
+              decoration: _trackDecoration(theme, checked),
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  SizedBox(width: minWidth - 4, height: height),
+                  if (hasText)
+                    Positioned.fill(
                       child: Center(
-                        child: widget.loading
-                            ? (theme.isNes
-                                  ? _NesSwitchLoading(
-                                      controller: _controller,
-                                      color: checked
-                                          ? theme.success
-                                          : theme.textSecondary,
-                                    )
-                                  : theme.isWestworld
-                                  ? _WestworldSwitchLoading(
-                                      controller: _controller,
-                                      color: checked
-                                          ? theme.success
-                                          : theme.textSecondary,
-                                    )
-                                  : RotationTransition(
-                                      turns: _controller,
-                                      child: SizedBox(
-                                        width: 11,
-                                        height: 11,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: checked
-                                              ? theme.success
-                                              : theme.textSecondary,
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            checked ? horizontalTextPadding : knobPadding,
+                            0,
+                            checked ? knobPadding : horizontalTextPadding,
+                            0,
+                          ),
+                          child: DefaultTextStyle(
+                            style: textStyle,
+                            maxLines: 1,
+                            overflow: TextOverflow.visible,
+                            child: checked
+                                ? widget.checkedChild ?? const SizedBox.shrink()
+                                : widget.uncheckedChild ??
+                                      const SizedBox.shrink(),
+                          ),
+                        ),
+                      ),
+                    ),
+                  AnimatedPositioned(
+                    duration: theme.interactionDuration,
+                    curve: theme.interactionCurve,
+                    left: checked ? null : 0,
+                    right: checked ? 0 : null,
+                    top: small ? 1 : 2,
+                    child: Transform.translate(
+                      offset: const Offset(0, -1),
+                      child: Container(
+                        width: knob,
+                        height: knob,
+                        decoration: BoxDecoration(
+                          color: theme.surfaceRaised,
+                          shape: theme.isNes
+                              ? BoxShape.rectangle
+                              : BoxShape.circle,
+                          borderRadius: theme.isNes
+                              ? BorderRadius.circular(theme.radiusSm)
+                              : null,
+                          border: Border.all(
+                            color: checked ? theme.success : theme.borderLight,
+                            width: theme.isNes ? 3.0 : 1,
+                          ),
+                          boxShadow: theme.isWestworld
+                              ? null
+                              : [
+                                  BoxShadow(
+                                    color: checked
+                                        ? theme.successActive
+                                        : theme.buttonShadow,
+                                    blurRadius: 0,
+                                    offset: Offset(0, small ? 2 : 3),
+                                  ),
+                                ],
+                        ),
+                        child: Center(
+                          child: widget.loading
+                              ? (theme.isNes
+                                    ? _NesSwitchLoading(
+                                        controller: _controller,
+                                        color: checked
+                                            ? theme.success
+                                            : theme.textSecondary,
+                                      )
+                                    : theme.isWestworld
+                                    ? _WestworldSwitchLoading(
+                                        controller: _controller,
+                                        color: checked
+                                            ? theme.success
+                                            : theme.textSecondary,
+                                      )
+                                    : RotationTransition(
+                                        turns: _controller,
+                                        child: SizedBox(
+                                          width: 11,
+                                          height: 11,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: checked
+                                                ? theme.success
+                                                : theme.textSecondary,
+                                          ),
                                         ),
-                                      ),
-                                    ))
-                            : const SizedBox.shrink(),
+                                      ))
+                              : const SizedBox.shrink(),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -241,21 +257,6 @@ class _AnimalSwitchState extends State<AnimalSwitch>
   }
 
   BoxDecoration _trackDecoration(AnimalIslandThemeData theme, bool checked) {
-    if (theme.isWestworld) {
-      return BoxDecoration(
-        color: checked
-            ? theme.success.withValues(alpha: 0.16)
-            : theme.surfaceRaised.withValues(alpha: 0.72),
-        borderRadius: BorderRadius.circular(theme.radiusPill),
-        border: Border.all(
-          color: checked
-              ? theme.success.withValues(alpha: 0.82)
-              : theme.panelLineColor(),
-          width: theme.inputBorderWidth,
-        ),
-      );
-    }
-
     return BoxDecoration(
       color: checked
           ? (theme.isNes ? theme.success : const Color(0xFF86D67A))
@@ -299,6 +300,174 @@ class _NesSwitchLoading extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class _WestworldSwitchControl extends StatelessWidget {
+  const _WestworldSwitchControl({
+    required this.checked,
+    required this.enabled,
+    required this.loading,
+    required this.small,
+    required this.progress,
+    required this.checkedChild,
+    required this.uncheckedChild,
+    required this.textStyle,
+    required this.onTap,
+  });
+
+  final bool checked;
+  final bool enabled;
+  final bool loading;
+  final bool small;
+  final Animation<double> progress;
+  final Widget? checkedChild;
+  final Widget? uncheckedChild;
+  final TextStyle textStyle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    final width = small ? 96.0 : 118.0;
+    final labelLeft = small ? 55.0 : 62.0;
+    const touchHeight = 44.0;
+    final label = checked
+        ? checkedChild ?? const Text('ON')
+        : uncheckedChild ?? const Text('OFF');
+    return Semantics(
+      button: true,
+      toggled: checked,
+      enabled: enabled && !loading,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: Opacity(
+          opacity: enabled ? 1 : 0.46,
+          child: AnimatedBuilder(
+            animation: progress,
+            builder: (context, child) => SizedBox(
+              width: width,
+              height: touchHeight,
+              child: CustomPaint(
+                painter: _WestworldSwitchControlPainter(
+                  checked: checked,
+                  loading: loading,
+                  progress: progress.value,
+                  line: theme.textPrimary,
+                  surface: theme.surfaceRaised,
+                ),
+                child: Padding(
+                  padding: EdgeInsets.only(left: labelLeft, right: 4),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: DefaultTextStyle(
+                      style: textStyle.copyWith(
+                        color: textStyle.color?.withValues(
+                          alpha: checked ? 0.88 : 0.52,
+                        ),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      child: label,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WestworldSwitchControlPainter extends CustomPainter {
+  const _WestworldSwitchControlPainter({
+    required this.checked,
+    required this.loading,
+    required this.progress,
+    required this.line,
+    required this.surface,
+  });
+
+  final bool checked;
+  final bool loading;
+  final double progress;
+  final Color line;
+  final Color surface;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final y = size.height / 2;
+    final start = 8.0;
+    final end = math.min(size.width - 48, 42.0);
+    final stateT = checked ? 1.0 : 0.0;
+    final cursorX = start + (end - start) * stateT;
+    final sweepT = loading ? progress : stateT;
+    final base = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.square
+      ..color = line.withValues(alpha: checked ? 0.82 : 0.32);
+
+    canvas.drawLine(Offset(start, y), Offset(end, y), base);
+    if (!checked) {
+      canvas.drawLine(
+        Offset(end + 5, y),
+        Offset(end + 17, y),
+        Paint()
+          ..strokeWidth = 1
+          ..color = line.withValues(alpha: 0.12),
+      );
+    }
+
+    canvas.drawCircle(
+      Offset(cursorX, y),
+      10.5,
+      Paint()
+        ..style = PaintingStyle.fill
+        ..color = surface.withValues(alpha: 0.96),
+    );
+    canvas.drawCircle(
+      Offset(cursorX, y),
+      10.5,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = line.withValues(alpha: checked ? 0.18 : 0.12),
+    );
+    canvas.drawCircle(
+      Offset(cursorX, y),
+      7,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.6
+        ..color = line.withValues(alpha: checked ? 0.1 : 0.06),
+    );
+
+    if (loading) {
+      final scanX = start + (end - start) * sweepT;
+      canvas.drawLine(
+        Offset(scanX, y - 13),
+        Offset(scanX, y + 13),
+        Paint()
+          ..strokeWidth = 1
+          ..color = line.withValues(alpha: 0.28),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldSwitchControlPainter oldDelegate) {
+    return oldDelegate.checked != checked ||
+        oldDelegate.loading != loading ||
+        oldDelegate.progress != progress ||
+        oldDelegate.line != line ||
+        oldDelegate.surface != surface;
   }
 }
 
@@ -380,17 +549,22 @@ class _WestworldSwitchLoadingPainter extends CustomPainter {
       return;
     }
     final center = size.center(Offset.zero);
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1;
-    canvas.drawCircle(center, size.shortestSide * 0.36, paint);
-    final angle = progress * math.pi * 2;
+    final x = 2 + (size.width - 4) * progress;
     canvas.drawLine(
-      center,
-      center +
-          Offset(math.cos(angle), math.sin(angle)) * size.shortestSide * 0.38,
-      paint,
+      Offset(2, center.dy),
+      Offset(size.width - 2, center.dy),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = color.withValues(alpha: 0.28),
+    );
+    canvas.drawLine(
+      Offset(x, 2),
+      Offset(x, size.height - 2),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = color.withValues(alpha: 0.8),
     );
   }
 

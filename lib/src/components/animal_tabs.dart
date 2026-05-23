@@ -199,13 +199,18 @@ class _AnimalTabsState extends State<AnimalTabs>
               splashFactory: NoSplash.splashFactory,
               overlayColor: WidgetStateProperty.all(Colors.transparent),
               tabs: [
-                for (final item in widget.items)
-                  Tab(
-                    child: _TabChip(
-                      item: item,
-                      active: item.id == _activeId,
-                      shadow: widget.shadow,
-                      leafAnimation: widget.leafAnimation,
+                for (var index = 0; index < widget.items.length; index += 1)
+                  SizedBox(
+                    height: theme.isWestworld ? 64 : null,
+                    child: Tab(
+                      height: theme.isWestworld ? 64 : null,
+                      child: _TabChip(
+                        item: widget.items[index],
+                        index: index,
+                        active: widget.items[index].id == _activeId,
+                        shadow: widget.shadow,
+                        leafAnimation: widget.leafAnimation,
+                      ),
                     ),
                   ),
               ],
@@ -250,12 +255,14 @@ class _AnimalTabsState extends State<AnimalTabs>
 class _TabChip extends StatefulWidget {
   const _TabChip({
     required this.item,
+    required this.index,
     required this.active,
     required this.shadow,
     required this.leafAnimation,
   });
 
   final AnimalTabItem item;
+  final int index;
   final bool active;
   final bool shadow;
   final bool leafAnimation;
@@ -307,6 +314,20 @@ class _TabChipState extends State<_TabChip>
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+
+    if (theme.isWestworld) {
+      return MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        cursor: SystemMouseCursors.click,
+        child: _WestworldTabLine(
+          item: widget.item,
+          index: widget.index,
+          active: widget.active,
+          hovered: _hovered,
+        ),
+      );
+    }
 
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
@@ -413,6 +434,151 @@ class _TabChipState extends State<_TabChip>
         ),
       ),
     );
+  }
+}
+
+class _WestworldTabLine extends StatelessWidget {
+  const _WestworldTabLine({
+    required this.item,
+    required this.index,
+    required this.active,
+    required this.hovered,
+  });
+
+  final AnimalTabItem item;
+  final int index;
+  final bool active;
+  final bool hovered;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    final line = theme.textPrimary.withValues(
+      alpha: active
+          ? 0.92
+          : hovered
+          ? 0.52
+          : 0.22,
+    );
+    final textColor = theme.textPrimary.withValues(
+      alpha: active
+          ? 0.96
+          : hovered
+          ? 0.74
+          : 0.58,
+    );
+    return AnimatedContainer(
+      duration: theme.interactionDuration,
+      curve: theme.interactionCurve,
+      width: 188,
+      height: 58,
+      padding: const EdgeInsets.only(left: 18, top: 5, right: 8, bottom: 4),
+      child: CustomPaint(
+        painter: _WestworldTabLinePainter(
+          line: line,
+          active: active,
+          hovered: hovered,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 16, top: 5, right: 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Text(
+                    (index + 1).toString().padLeft(2, '0'),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: theme.textMuted.withValues(
+                        alpha: active ? 0.86 : 0.58,
+                      ),
+                      fontWeight: FontWeight.w400,
+                      letterSpacing: 1.0,
+                      height: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  SizedBox(
+                    width: 120,
+                    child: Divider(
+                      height: 1,
+                      thickness: 1,
+                      color: line.withValues(alpha: active ? 0.44 : 0.24),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              DefaultTextStyle(
+                style: Theme.of(context).textTheme.titleSmall!.copyWith(
+                  color: textColor,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 3.0,
+                  height: 1,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                child: item.label,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WestworldTabLinePainter extends CustomPainter {
+  const _WestworldTabLinePainter({
+    required this.line,
+    required this.active,
+    required this.hovered,
+  });
+
+  final Color line;
+  final bool active;
+  final bool hovered;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = active ? 1.25 : 1
+      ..color = line;
+    const left = 6.0;
+    final top = active ? 0.0 : 6.0;
+    final cornerY = size.height - 20;
+    final bottomY = size.height - 5;
+    final bottomEnd = active ? size.width - 2 : size.width - 18;
+    canvas.drawLine(Offset(left, top), Offset(left, cornerY), paint);
+    canvas.drawLine(Offset(left, cornerY), Offset(left + 18, bottomY), paint);
+    canvas.drawLine(
+      Offset(left + 18, bottomY),
+      Offset(bottomEnd, bottomY),
+      paint,
+    );
+
+    if (active || hovered) {
+      canvas.drawLine(
+        Offset(left + 34, bottomY - 1),
+        Offset(math.min(size.width - 36, left + 106), bottomY - 1),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1
+          ..color = line.withValues(alpha: active ? 0.42 : 0.22),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldTabLinePainter oldDelegate) {
+    return oldDelegate.line != line ||
+        oldDelegate.active != active ||
+        oldDelegate.hovered != hovered;
   }
 }
 

@@ -257,6 +257,10 @@ class _AnimalRefreshIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
 
+    if (theme.isWestworld) {
+      return _WestworldRefreshIndicator(stage: stage, progress: progress);
+    }
+
     final label = switch (stage) {
       _AnimalRefreshStage.armed => releaseText,
       _AnimalRefreshStage.refreshing => refreshingText,
@@ -372,6 +376,248 @@ class _AnimalRefreshIndicator extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _WestworldRefreshIndicator extends StatefulWidget {
+  const _WestworldRefreshIndicator({
+    required this.stage,
+    required this.progress,
+  });
+
+  final _AnimalRefreshStage stage;
+  final double progress;
+
+  @override
+  State<_WestworldRefreshIndicator> createState() =>
+      _WestworldRefreshIndicatorState();
+}
+
+class _WestworldRefreshIndicatorState extends State<_WestworldRefreshIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2400),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    final label = switch (widget.stage) {
+      _AnimalRefreshStage.armed => 'RELEASE TO ACQUIRE SIGNAL',
+      _AnimalRefreshStage.refreshing => 'SYNCHRONIZING NARRATIVE STREAM',
+      _AnimalRefreshStage.done => 'SIGNAL LOCKED',
+      _ => 'PULL TO SAMPLE VECTOR',
+    };
+    final code = switch (widget.stage) {
+      _AnimalRefreshStage.armed => 'ARMED',
+      _AnimalRefreshStage.refreshing => 'SYNC',
+      _AnimalRefreshStage.done => 'LOCK',
+      _ => '${(widget.progress * 100).round().toString().padLeft(2, '0')}%',
+    };
+    return DecoratedBox(
+      decoration: const BoxDecoration(color: Color(0xFFEFEFED)),
+      child: CustomPaint(
+        painter: _WestworldRefreshFramePainter(
+          progress: widget.progress,
+          active: widget.stage == _AnimalRefreshStage.refreshing,
+          line: theme.panelLineColor(emphasized: true),
+          accent: theme.textPrimary,
+          surface: theme.surfaceRaised,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(14, 8, 16, 9),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox.square(
+                dimension: 44,
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, child) => CustomPaint(
+                    painter: _WestworldRefreshGlyphPainter(
+                      progress: widget.stage == _AnimalRefreshStage.refreshing
+                          ? _controller.value
+                          : widget.progress,
+                      active: widget.stage == _AnimalRefreshStage.refreshing,
+                      line: theme.textPrimary,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 280),
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: theme.textPrimary,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 1.35,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                code,
+                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: theme.textMuted,
+                  fontWeight: FontWeight.w500,
+                  letterSpacing: 1.4,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WestworldRefreshFramePainter extends CustomPainter {
+  const _WestworldRefreshFramePainter({
+    required this.progress,
+    required this.active,
+    required this.line,
+    required this.accent,
+    required this.surface,
+  });
+
+  final double progress;
+  final bool active;
+  final Color line;
+  final Color accent;
+  final Color surface;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..color = const Color(0xFFEFEFED),
+    );
+    final trackStart = Offset(66, size.height - 7);
+    final trackEnd = Offset(size.width - 18, size.height - 7);
+    canvas.drawLine(
+      trackStart,
+      trackEnd,
+      Paint()
+        ..strokeWidth = 1
+        ..color = accent.withValues(alpha: 0.12),
+    );
+    canvas.drawLine(
+      trackStart,
+      Offset.lerp(trackStart, trackEnd, progress.clamp(0, 1))!,
+      Paint()
+        ..strokeWidth = 1
+        ..color = accent.withValues(alpha: active ? 0.56 : 0.34),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldRefreshFramePainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.active != active ||
+        oldDelegate.line != line ||
+        oldDelegate.accent != accent ||
+        oldDelegate.surface != surface;
+  }
+}
+
+class _WestworldRefreshGlyphPainter extends CustomPainter {
+  const _WestworldRefreshGlyphPainter({
+    required this.progress,
+    required this.active,
+    required this.line,
+  });
+
+  final double progress;
+  final bool active;
+  final Color line;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide * 0.45;
+    final pale = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.5
+      ..color = const Color(0xFF111111).withValues(alpha: 0.07);
+    for (var i = 1; i <= 4; i += 1) {
+      canvas.drawCircle(center, radius * i / 4, pale);
+    }
+    final baseRadius = radius * 0.86;
+    final phase = progress * math.pi * 2;
+    final baseContour = <Offset>[];
+    final outer = <Offset>[];
+    for (var i = 0; i <= 96; i += 1) {
+      final t = i / 96;
+      final angle = t * math.pi * 2;
+      final wave =
+          math.sin(angle * 9 + phase) * (active ? 0.05 : 0.025) +
+          math.sin(angle * 17 - phase * 0.72) * (active ? 0.034 : 0.014) +
+          math.sin(angle * 31 + phase * 0.36) * (active ? 0.018 : 0.008);
+      final sweep = _rehoboamPulse(angle, phase, active ? 0.38 : 0.18);
+      final r = baseRadius + radius * (wave + sweep * (active ? 0.09 : 0.04));
+      final direction = Offset(math.cos(angle), math.sin(angle));
+      baseContour.add(center + direction * baseRadius);
+      outer.add(center + direction * r);
+    }
+    canvas.drawPath(
+      Path()..addPolygon(baseContour, true),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.9
+        ..color = const Color(0xFF111111).withValues(alpha: 0.28),
+    );
+    canvas.drawPath(
+      Path()..addPolygon(outer, true),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = active ? 1.35 : 1.05
+        ..color = const Color(
+          0xFF111111,
+        ).withValues(alpha: active ? 0.82 : 0.7),
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius * 0.92),
+      phase,
+      math.pi * 0.18,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = const Color(0xFF111111).withValues(alpha: 0.42),
+    );
+  }
+
+  double _rehoboamPulse(double angle, double phase, double window) {
+    final diff = ((angle - phase).abs()) % (math.pi * 2);
+    final distance = diff > math.pi ? math.pi * 2 - diff : diff;
+    if (distance >= window) {
+      return 0;
+    }
+    return 0.5 * (1 + math.cos(math.pi * distance / window));
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldRefreshGlyphPainter oldDelegate) {
+    return oldDelegate.progress != progress ||
+        oldDelegate.active != active ||
+        oldDelegate.line != line;
   }
 }
 

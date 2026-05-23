@@ -122,8 +122,25 @@ class _CheckboxTile<T> extends StatefulWidget {
   State<_CheckboxTile<T>> createState() => _CheckboxTileState<T>();
 }
 
-class _CheckboxTileState<T> extends State<_CheckboxTile<T>> {
+class _CheckboxTileState<T> extends State<_CheckboxTile<T>>
+    with SingleTickerProviderStateMixin {
   bool _hovered = false;
+  late final AnimationController _westworldController;
+
+  @override
+  void initState() {
+    super.initState();
+    _westworldController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 3600),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _westworldController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,6 +154,27 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>> {
 
     final box = metrics.$1;
     final fontSize = metrics.$2;
+
+    if (theme.isWestworld) {
+      return MouseRegion(
+        onEnter: disabled ? null : (_) => setState(() => _hovered = true),
+        onExit: disabled ? null : (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          onTap: disabled ? null : widget.onTap,
+          child: Opacity(
+            opacity: disabled ? 0.46 : 1,
+            child: _WestworldCheckboxTile(
+              checked: widget.checked,
+              hovered: _hovered,
+              progress: _westworldController,
+              box: box,
+              fontSize: fontSize,
+              label: widget.option.label,
+            ),
+          ),
+        ),
+      );
+    }
 
     return MouseRegion(
       onEnter: disabled ? null : (_) => setState(() => _hovered = true),
@@ -195,5 +233,166 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>> {
         ),
       ),
     );
+  }
+}
+
+class _WestworldCheckboxTile extends StatelessWidget {
+  const _WestworldCheckboxTile({
+    required this.checked,
+    required this.hovered,
+    required this.progress,
+    required this.box,
+    required this.fontSize,
+    required this.label,
+  });
+
+  final bool checked;
+  final bool hovered;
+  final Animation<double> progress;
+  final double box;
+  final double fontSize;
+  final Widget label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    return Semantics(
+      button: true,
+      checked: checked,
+      child: AnimatedContainer(
+        duration: theme.interactionDuration,
+        constraints: const BoxConstraints(minHeight: 44),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        child: AnimatedBuilder(
+          animation: progress,
+          builder: (context, child) => CustomPaint(
+            painter: _WestworldCheckboxFramePainter(
+              checked: checked,
+              hovered: hovered,
+              progress: progress.value,
+              line: theme.textPrimary,
+              surface: theme.surfaceRaised,
+            ),
+            child: child,
+          ),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(box + 14, 6, 12, 6),
+            child: AnimatedDefaultTextStyle(
+              duration: theme.interactionDuration,
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                fontSize: fontSize,
+                color: checked
+                    ? theme.textPrimary
+                    : theme.textPrimary.withValues(
+                        alpha: hovered ? 0.74 : 0.56,
+                      ),
+                fontWeight: checked ? FontWeight.w600 : FontWeight.w500,
+                letterSpacing: 1.0,
+              ),
+              child: label,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _WestworldCheckboxFramePainter extends CustomPainter {
+  const _WestworldCheckboxFramePainter({
+    required this.checked,
+    required this.hovered,
+    required this.progress,
+    required this.line,
+    required this.surface,
+  });
+
+  final bool checked;
+  final bool hovered;
+  final double progress;
+  final Color line;
+  final Color surface;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final rect = Rect.fromLTWH(0.5, 5.5, size.width - 1, size.height - 11);
+    final mark = Rect.fromLTWH(rect.left + 2, rect.top + 5, 18, 18);
+    final y = mark.center.dy;
+    final endX = rect.right - 6;
+    canvas.drawRect(
+      rect,
+      Paint()..color = surface.withValues(alpha: checked ? 0.18 : 0.1),
+    );
+    canvas.drawLine(
+      Offset(mark.right + 10, y),
+      Offset(endX, y),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = line.withValues(alpha: checked ? 0.18 : 0.07),
+    );
+
+    canvas.drawRect(
+      mark,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1
+        ..color = line.withValues(
+          alpha: checked
+              ? 0.82
+              : hovered
+              ? 0.44
+              : 0.26,
+        ),
+    );
+
+    if (checked || hovered) {
+      final scanX = mark.right + 10 + (endX - mark.right - 10) * progress;
+      canvas.drawLine(
+        Offset(scanX, y - 3),
+        Offset(scanX, y + 3),
+        Paint()
+          ..strokeWidth = 1
+          ..color = line.withValues(alpha: checked ? 0.18 : 0.09),
+      );
+    }
+
+    if (!checked) {
+      return;
+    }
+
+    canvas.drawLine(
+      Offset(mark.left + 4, y),
+      Offset(mark.right - 4, y),
+      Paint()
+        ..strokeWidth = 1.4
+        ..color = line.withValues(alpha: 0.86),
+    );
+    canvas.drawLine(
+      Offset(mark.center.dx, mark.top + 4),
+      Offset(mark.center.dx, mark.bottom - 4),
+      Paint()
+        ..strokeWidth = 1.2
+        ..color = line.withValues(alpha: 0.7),
+    );
+    canvas.drawLine(
+      Offset(mark.right + 10, y),
+      Offset(endX, y),
+      Paint()
+        ..strokeWidth = 1.2
+        ..color = line.withValues(alpha: 0.34),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _WestworldCheckboxFramePainter oldDelegate) {
+    return oldDelegate.checked != checked ||
+        oldDelegate.hovered != hovered ||
+        oldDelegate.progress != progress ||
+        oldDelegate.line != line ||
+        oldDelegate.surface != surface;
   }
 }

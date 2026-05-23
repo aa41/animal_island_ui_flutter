@@ -62,10 +62,7 @@ class AnimalStatusView extends StatelessWidget {
 
     return DecoratedBox(
       decoration: theme.isWestworld
-          ? theme.westworldPanelDecoration(
-              lineColor: config.border,
-              emphasized: true,
-            )
+          ? const BoxDecoration(color: Color(0xFFEFEFED))
           : BoxDecoration(
               color: theme.isNes ? theme.surfaceRaised : null,
               gradient: theme.isNes
@@ -95,10 +92,26 @@ class AnimalStatusView extends StatelessWidget {
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(
-          compact ? 18 : 24,
-          compact ? 18 : 22,
-          compact ? 18 : 24,
-          compact ? 18 : 22,
+          theme.isWestworld
+              ? (compact ? 12 : 18)
+              : compact
+              ? 18
+              : 24,
+          theme.isWestworld
+              ? (compact ? 12 : 18)
+              : compact
+              ? 18
+              : 22,
+          theme.isWestworld
+              ? (compact ? 12 : 18)
+              : compact
+              ? 18
+              : 24,
+          theme.isWestworld
+              ? (compact ? 12 : 18)
+              : compact
+              ? 18
+              : 22,
         ),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(
@@ -365,9 +378,9 @@ class _WestworldStatusBodyState extends State<_WestworldStatusBody>
             ),
           ],
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 10),
         SizedBox.square(
-          dimension: widget.compact ? 94 : 124,
+          dimension: widget.compact ? 220 : 360,
           child: AnimatedBuilder(
             animation: _controller,
             builder: (context, child) => CustomPaint(
@@ -381,7 +394,7 @@ class _WestworldStatusBodyState extends State<_WestworldStatusBody>
             ),
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 12),
         Container(
           width: double.infinity,
           constraints: const BoxConstraints(maxWidth: 520),
@@ -460,48 +473,281 @@ class _WestworldStatusPainter extends CustomPainter {
     }
 
     final center = size.center(Offset.zero);
-    final radius = size.shortestSide / 2;
-    final ring = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1
-      ..color = muted;
-    canvas.drawCircle(center, radius * 0.44, ring);
-    canvas.drawCircle(center, radius * 0.72, ring);
-    canvas.drawCircle(center, radius * 0.96, ring);
-    for (var i = 0; i < 16; i += 1) {
-      final angle = i * math.pi / 8;
-      final a =
-          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.84;
-      final b =
-          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.96;
-      canvas.drawLine(a, b, ring);
-    }
+    final outerRadius = size.shortestSide * 0.47;
+    _drawRehoboamBackground(canvas, center, outerRadius, size);
+    _drawRehoboamRings(canvas, center, outerRadius);
+    _drawRehoboamContour(canvas, center, outerRadius);
+    _drawRehoboamSweep(canvas, center, outerRadius);
+    _drawToneGlyph(canvas, center, outerRadius);
+  }
 
+  void _drawRehoboamBackground(
+    Canvas canvas,
+    Offset center,
+    double outerRadius,
+    Size size,
+  ) {
+    canvas.drawRect(
+      Offset.zero & size,
+      Paint()..color = const Color(0xFFEFEFED),
+    );
+    canvas.drawCircle(
+      center,
+      outerRadius * 0.84,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = outerRadius * 0.015
+        ..color = const Color(0xFF151515).withValues(alpha: 0.04),
+    );
+    final ringPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.45
+      ..color = const Color(0xFF111111).withValues(alpha: 0.025);
+    for (var i = 1; i <= 10; i += 1) {
+      canvas.drawCircle(center, outerRadius * (i / 10) * 0.78, ringPaint);
+    }
+  }
+
+  void _drawRehoboamRings(Canvas canvas, Offset center, double outerRadius) {
+    const specs = <_RehoboamRingSpec>[
+      _RehoboamRingSpec(0.22, 0.32, 0.010, <double>[2, 5], -0.11, 0.1),
+      _RehoboamRingSpec(0.32, 0.42, 0.012, <double>[], 0.06, 1.6),
+      _RehoboamRingSpec(0.43, 0.34, 0.012, <double>[3, 8], 0.14, 2.4),
+      _RehoboamRingSpec(0.54, 0.46, 0.014, <double>[], -0.19, 0.8),
+      _RehoboamRingSpec(0.64, 0.34, 0.012, <double>[5, 12], 0.22, 3.1),
+      _RehoboamRingSpec(0.74, 0.5, 0.014, <double>[], -0.28, 4.2),
+      _RehoboamRingSpec(0.84, 0.4, 0.014, <double>[7, 14], 0.35, 5.4),
+    ];
+    for (final spec in specs) {
+      final pulse = 0.94 + math.sin(progress * math.pi * 2 + spec.phase) * 0.06;
+      final paint = Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = spec.width
+        ..color = const Color(
+          0xFF101010,
+        ).withValues(alpha: spec.alpha * pulse * 1.8);
+      if (spec.dash.isNotEmpty) {
+        _drawDashedCircle(
+          canvas,
+          center,
+          outerRadius * spec.radius,
+          paint,
+          spec.dash,
+          progress * math.pi * 2 * spec.speed,
+        );
+      } else {
+        canvas.drawCircle(center, outerRadius * spec.radius, paint);
+      }
+    }
+  }
+
+  void _drawRehoboamSweep(Canvas canvas, Offset center, double outerRadius) {
+    final angle = progress * math.pi * 2 * 0.55;
+    final sweepPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.1
+      ..color = const Color(0xFF101010).withValues(alpha: 0.12);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: outerRadius * 0.87),
+      angle - math.pi / 60,
+      math.pi / 30,
+      false,
+      sweepPaint,
+    );
+    canvas.drawLine(
+      center,
+      center + Offset(math.cos(angle), math.sin(angle)) * outerRadius * 0.9,
+      Paint()
+        ..strokeWidth = 0.8
+        ..color = const Color(0xFF101010).withValues(alpha: 0.035),
+    );
+  }
+
+  void _drawRehoboamContour(Canvas canvas, Offset center, double outerRadius) {
+    final samples = 240;
+    final baseRadius = outerRadius * 0.88;
+    final severity = switch (tone) {
+      AnimalStatusTone.loading => 0.016,
+      AnimalStatusTone.empty => 0.01,
+      AnimalStatusTone.error => 0.082,
+    };
+    final contour = <Offset>[];
+    final radii = <double>[];
+    final baseContour = <Offset>[];
+    for (var i = 0; i <= samples; i += 1) {
+      final t = i / samples;
+      final angle = t * math.pi * 2;
+      final deterministicNoise =
+          math.sin(angle * 23.0 + 0.7) * 0.004 +
+          math.sin(angle * 37.0 - 1.3) * 0.003 +
+          math.sin(angle * 61.0 + 2.1) * 0.002;
+      final wave =
+          math.sin(angle * 5 + progress * math.pi * 2) * 0.006 +
+          math.sin(angle * 9 - progress * math.pi * 1.4) * 0.009 +
+          math.sin(angle * 14 + progress * math.pi * 0.8) * severity;
+      final pulse = _raisedCosine(
+        _angularDistance(angle, progress * math.pi * 2),
+        tone == AnimalStatusTone.error ? 0.64 : 0.24,
+      );
+      final errorJitter = tone == AnimalStatusTone.error
+          ? deterministicNoise +
+                math.pow(
+                      (math.sin(angle * 31.0 + progress * math.pi * 2.2) + 1) /
+                          2,
+                      10,
+                    ) *
+                    0.022
+          : 0.0;
+      final r =
+          baseRadius +
+          outerRadius * (wave + errorJitter + pulse * severity * 1.8);
+      radii.add(r);
+      final direction = Offset(math.cos(angle), math.sin(angle));
+      final point = center + direction * r;
+      contour.add(point);
+      baseContour.add(
+        center +
+            direction *
+                (tone == AnimalStatusTone.error
+                    ? r
+                    : baseRadius + outerRadius * deterministicNoise * 0.35),
+      );
+    }
+    final path = _closedSmoothPath(contour);
+    canvas.drawPath(
+      tone == AnimalStatusTone.error
+          ? _closedLinearPath(baseContour)
+          : _closedSmoothPath(baseContour),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = tone == AnimalStatusTone.error ? 1.45 : 1.05
+        ..color = const Color(
+          0xFF111111,
+        ).withValues(alpha: tone == AnimalStatusTone.error ? 0.42 : 0.3),
+    );
+    canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = tone == AnimalStatusTone.error ? 1.6 : 1.25
+        ..color = const Color(
+          0xFF111111,
+        ).withValues(alpha: tone == AnimalStatusTone.loading ? 0.86 : 0.72),
+    );
+    _drawMountainWaveLayers(canvas, center, outerRadius, contour, radii);
+  }
+
+  void _drawMountainWaveLayers(
+    Canvas canvas,
+    Offset center,
+    double outerRadius,
+    List<Offset> contour,
+    List<double> radii,
+  ) {
+    const layers = <_RehoboamWaveLayer>[
+      _RehoboamWaveLayer(0.002, 0.038, 18, 50, 0.08, 0.18, 0.62, 1.1),
+      _RehoboamWaveLayer(0.008, 0.052, 24, 66, -0.06, 0.13, 0.46, 0.95),
+      _RehoboamWaveLayer(0.014, 0.068, 31, 84, 0.07, 0.10, 0.36, 0.82),
+      _RehoboamWaveLayer(0.020, 0.082, 38, 108, -0.05, 0.08, 0.28, 0.7),
+      _RehoboamWaveLayer(0.026, 0.118, 43, 132, 0.09, 0.05, 0.24, 0.64),
+    ];
+    final elapsed = progress * math.pi * 2;
+    for (final layer in layers) {
+      final crest = <Offset>[];
+      final base = <Offset>[];
+      for (var i = 0; i < radii.length; i += 1) {
+        final angle = (i / (radii.length - 1)) * math.pi * 2;
+        final carrier =
+            0.4 + 0.6 * ((math.sin(angle * 7 + elapsed * 0.4) + 1) / 2);
+        final waveA =
+            (math.sin(angle * layer.frequencyA + elapsed * layer.drift) + 1) /
+            2;
+        final waveB =
+            (math.sin(angle * layer.frequencyB - elapsed * layer.drift * 1.7) +
+                1) /
+            2;
+        final pulse = _raisedCosine(
+          _angularDistance(angle, progress * math.pi * 2),
+          tone == AnimalStatusTone.error ? 0.34 : 0.2,
+        );
+        final ridge = math.pow(waveA, 4) * 0.46 + math.pow(waveB, 8) * 0.24;
+        final errorNeedle = tone == AnimalStatusTone.error
+            ? math.pow(math.max(waveA, waveB), 15) * 2.6
+            : 0.0;
+        final height =
+            outerRadius *
+            layer.amplitude *
+            carrier *
+            (ridge +
+                errorNeedle +
+                pulse * (tone == AnimalStatusTone.error ? 3.2 : 0.8));
+        final baseRadius = radii[i] + outerRadius * layer.baseOffset;
+        final crestRadius =
+            baseRadius +
+            math.min(
+              outerRadius * (tone == AnimalStatusTone.error ? 0.22 : 0.12),
+              height,
+            );
+        final direction = Offset(math.cos(angle), math.sin(angle));
+        crest.add(center + direction * crestRadius);
+        base.insert(0, center + direction * baseRadius);
+      }
+      final fill = Path()
+        ..addPath(_openSmoothPath(crest), Offset.zero)
+        ..lineTo(base.first.dx, base.first.dy)
+        ..addPath(_openSmoothPath(base), Offset.zero)
+        ..close();
+      canvas.drawPath(
+        fill,
+        Paint()
+          ..style = PaintingStyle.fill
+          ..color = const Color(0xFF101010).withValues(alpha: layer.fillAlpha),
+      );
+      canvas.drawPath(
+        _closedSmoothPath(crest),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = layer.strokeWidth
+          ..color = const Color(
+            0xFF101010,
+          ).withValues(alpha: layer.strokeAlpha),
+      );
+    }
+  }
+
+  void _drawToneGlyph(Canvas canvas, Offset center, double outerRadius) {
+    canvas.drawCircle(
+      center,
+      outerRadius * 0.18,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.6
+        ..color = const Color(0xFF111111).withValues(alpha: 0.035),
+    );
     final active = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.4
+      ..strokeWidth = 1
       ..color = line;
-    final start = -math.pi / 2 + progress * math.pi * 2;
-    canvas.drawArc(
-      Rect.fromCircle(center: center, radius: radius * 0.72),
-      start,
-      math.pi * 0.66,
-      false,
-      active,
-    );
-
     switch (tone) {
       case AnimalStatusTone.loading:
         final angle = progress * math.pi * 2;
+        final sweep =
+            center +
+            Offset(math.cos(angle), math.sin(angle)) * outerRadius * 0.29;
         canvas.drawLine(
           center,
-          center + Offset(math.cos(angle), math.sin(angle)) * radius * 0.92,
-          active,
+          sweep,
+          active..color = line.withValues(alpha: 0.72),
+        );
+        canvas.drawCircle(
+          sweep,
+          2,
+          Paint()..color = line.withValues(alpha: 0.8),
         );
       case AnimalStatusTone.error:
         canvas.drawLine(
-          center - Offset(radius * 0.42, radius * 0.42),
-          center + Offset(radius * 0.42, radius * 0.42),
+          center - Offset(outerRadius * 0.16, outerRadius * 0.16),
+          center + Offset(outerRadius * 0.16, outerRadius * 0.16),
           active,
         );
         final textPainter = TextPainter(
@@ -509,7 +755,7 @@ class _WestworldStatusPainter extends CustomPainter {
             text: '!',
             style: TextStyle(
               color: line,
-              fontSize: radius * 0.78,
+              fontSize: outerRadius * 0.36,
               fontWeight: FontWeight.w400,
             ),
           ),
@@ -522,13 +768,99 @@ class _WestworldStatusPainter extends CustomPainter {
       case AnimalStatusTone.empty:
         final dash = Paint()
           ..color = line
-          ..strokeWidth = 1.4;
+          ..strokeWidth = 1.2;
         canvas.drawLine(
-          center - Offset(radius * 0.34, 0),
-          center + Offset(radius * 0.34, 0),
+          center - Offset(outerRadius * 0.16, 0),
+          center + Offset(outerRadius * 0.16, 0),
           dash,
         );
     }
+  }
+
+  void _drawDashedCircle(
+    Canvas canvas,
+    Offset center,
+    double radius,
+    Paint paint,
+    List<double> dash,
+    double phase,
+  ) {
+    final total = dash.fold<double>(0, (sum, value) => sum + value);
+    final circumference = math.pi * 2 * radius;
+    final cycles = math.max(1, (circumference / total).floor());
+    var offset = phase;
+    for (var i = 0; i < cycles; i += 1) {
+      final start = offset / radius;
+      final sweep = dash.first / radius;
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: radius),
+        start,
+        sweep,
+        false,
+        paint,
+      );
+      offset += total;
+    }
+  }
+
+  double _angularDistance(double a, double b) {
+    final diff = (a - b).abs() % (math.pi * 2);
+    return diff > math.pi ? math.pi * 2 - diff : diff;
+  }
+
+  double _raisedCosine(double distance, double window) {
+    if (distance >= window) {
+      return 0;
+    }
+    return 0.5 * (1 + math.cos(math.pi * distance / window));
+  }
+
+  Path _closedSmoothPath(List<Offset> points) {
+    if (points.isEmpty) {
+      return Path();
+    }
+    if (points.length < 3) {
+      return Path()..addPolygon(points, true);
+    }
+    final path = Path();
+    final firstMid = Offset.lerp(points.first, points[1], 0.5)!;
+    path.moveTo(firstMid.dx, firstMid.dy);
+    for (var i = 1; i < points.length; i += 1) {
+      final current = points[i];
+      final next = points[(i + 1) % points.length];
+      final mid = Offset.lerp(current, next, 0.5)!;
+      path.quadraticBezierTo(current.dx, current.dy, mid.dx, mid.dy);
+    }
+    path.close();
+    return path;
+  }
+
+  Path _closedLinearPath(List<Offset> points) {
+    if (points.isEmpty) {
+      return Path();
+    }
+    return Path()..addPolygon(points, true);
+  }
+
+  Path _openSmoothPath(List<Offset> points) {
+    if (points.isEmpty) {
+      return Path();
+    }
+    final path = Path()..moveTo(points.first.dx, points.first.dy);
+    if (points.length < 3) {
+      for (final point in points.skip(1)) {
+        path.lineTo(point.dx, point.dy);
+      }
+      return path;
+    }
+    for (var i = 1; i < points.length - 1; i += 1) {
+      final current = points[i];
+      final next = points[i + 1];
+      final mid = Offset.lerp(current, next, 0.5)!;
+      path.quadraticBezierTo(current.dx, current.dy, mid.dx, mid.dy);
+    }
+    path.lineTo(points.last.dx, points.last.dy);
+    return path;
   }
 
   @override
@@ -539,6 +871,46 @@ class _WestworldStatusPainter extends CustomPainter {
         oldDelegate.muted != muted ||
         oldDelegate.glow != glow;
   }
+}
+
+class _RehoboamRingSpec {
+  const _RehoboamRingSpec(
+    this.radius,
+    this.width,
+    this.alpha,
+    this.dash,
+    this.speed,
+    this.phase,
+  );
+
+  final double radius;
+  final double width;
+  final double alpha;
+  final List<double> dash;
+  final double speed;
+  final double phase;
+}
+
+class _RehoboamWaveLayer {
+  const _RehoboamWaveLayer(
+    this.baseOffset,
+    this.amplitude,
+    this.frequencyA,
+    this.frequencyB,
+    this.drift,
+    this.fillAlpha,
+    this.strokeAlpha,
+    this.strokeWidth,
+  );
+
+  final double baseOffset;
+  final double amplitude;
+  final double frequencyA;
+  final double frequencyB;
+  final double drift;
+  final double fillAlpha;
+  final double strokeAlpha;
+  final double strokeWidth;
 }
 
 class _NesStatusBody extends StatefulWidget {
