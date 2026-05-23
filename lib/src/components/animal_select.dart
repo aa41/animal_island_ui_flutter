@@ -46,10 +46,10 @@ class _AnimalSelectState extends State<AnimalSelect> {
     }
   }
 
-  void _close() {
+  void _close({bool rebuild = true}) {
     _entry?.remove();
     _entry = null;
-    if (mounted) {
+    if (mounted && rebuild) {
       setState(() => _hoveredKey = null);
     }
   }
@@ -229,7 +229,7 @@ class _AnimalSelectState extends State<AnimalSelect> {
 
   @override
   void dispose() {
-    _close();
+    _close(rebuild: false);
     super.dispose();
   }
 
