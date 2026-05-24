@@ -1,0 +1,5 @@
+export GPTIMAGE2_API_KEY="sk-J0eaxTNjAJCSV38iRywDEvvGqn5HiryqwajovoLtpK1etS6u"
+export GPTIMAGE2_BASE_URL="https://image.fushengyunsuan.cn/v1"
+export GPTIMAGE2_MODEL="gpt-image-2"
+export GPTIMAGE2_QUALITY="high"
+export GPTIMAGE2_SIZE="2048x1152"
