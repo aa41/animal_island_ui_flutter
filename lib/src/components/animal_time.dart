@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
+import 'theme_strategies/animal_time_theme_strategy.dart';
 
 class AnimalTime extends StatefulWidget {
   const AnimalTime({super.key});
@@ -63,6 +65,7 @@ class _AnimalTimeState extends State<AnimalTime> {
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
     final compact = MediaQuery.sizeOf(context).width < 768;
+    final strategy = AnimalTimeThemeStrategy.of(theme);
 
     return AnimatedContainer(
       duration: AnimalIslandTokens.base,
@@ -70,41 +73,7 @@ class _AnimalTimeState extends State<AnimalTime> {
         horizontal: compact ? 20 : 36,
         vertical: compact ? 12 : 16,
       ),
-      decoration: theme.isWestworld
-          ? theme.westworldPanelDecoration(emphasized: true)
-          : BoxDecoration(
-              color: theme.isNes ? theme.surfaceRaised : null,
-              gradient: theme.isNes
-                  ? null
-                  : LinearGradient(
-                      colors: <Color>[
-                        Colors.white.withValues(
-                          alpha: theme.mode == AnimalIslandThemeMode.day
-                              ? 1
-                              : 0.2,
-                        ),
-                        theme.surface,
-                      ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                    ),
-              borderRadius: BorderRadius.circular(
-                theme.isNes ? theme.radiusSm : 18,
-              ),
-              border: Border.all(
-                color: theme.isNes ? theme.border : const Color(0xFFD4CFC3),
-                width: 3,
-              ),
-              boxShadow: theme.isNes
-                  ? [
-                      BoxShadow(
-                        color: theme.buttonShadow,
-                        blurRadius: 0,
-                        offset: const Offset(0, 4),
-                      ),
-                    ]
-                  : null,
-            ),
+      decoration: strategy.decoration(theme),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -124,59 +93,23 @@ class _AnimalTimeState extends State<AnimalTime> {
               children: [
                 Text(
                   _weekdays[_now.weekday % 7].toUpperCase(),
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: theme.isWestworld
-                        ? theme.textMuted
-                        : theme.isNes
-                        ? theme.primary
-                        : theme.success,
-                    fontWeight: FontWeight.w900,
-                    fontSize: compact
-                        ? AnimalIslandTokens.fontMicro
-                        : AnimalIslandTokens.fontCaption,
-                    letterSpacing: compact ? 1.1 : 1.3,
-                  ),
+                  style: strategy.weekdayStyle(context, theme, compact: compact),
                 ),
                 Text(
                   '${_months[_now.month - 1]} ${_now.day}',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    color: theme.isNes
-                        ? theme.textPrimary
-                        : theme.isWestworld
-                        ? theme.textPrimary
-                        : const Color(0xFF8B7355),
-                    fontWeight: FontWeight.w800,
-                    fontSize: compact
-                        ? AnimalIslandTokens.fontBody
-                        : AnimalIslandTokens.fontTitleSm,
-                  ),
+                  style: strategy.dateStyle(context, theme, compact: compact),
                 ),
               ],
             ),
           ),
           RichText(
             text: TextSpan(
-              style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                color: theme.isNes
-                    ? theme.textPrimary
-                    : theme.isWestworld
-                    ? theme.textPrimary
-                    : const Color(0xFF8B7355),
-                fontSize: compact ? 24 : 32,
-                fontWeight: FontWeight.w900,
-                letterSpacing: compact ? 1.1 : 1.5,
-              ),
+              style: strategy.timeStyle(context, theme, compact: compact),
               children: [
                 TextSpan(text: _now.hour.toString().padLeft(2, '0')),
                 TextSpan(
                   text: _showColon ? ':' : ' ',
-                  style: TextStyle(
-                    color: theme.isNes
-                        ? theme.focusYellow
-                        : theme.isWestworld
-                        ? theme.focusYellow
-                        : const Color(0xFF8B7355),
-                  ),
+                  style: strategy.colonStyle(context, theme),
                 ),
                 TextSpan(text: _now.minute.toString().padLeft(2, '0')),
               ],

@@ -6,6 +6,8 @@ enum AnimalButtonSize { small, middle, large }
 
 enum AnimalInputSize { small, middle, large }
 
+enum AnimalInputStatus { error, warning }
+
 enum AnimalSwitchSize { small, normal }
 
 enum AnimalCardType { defaultType, title, dashed }
@@ -79,6 +81,32 @@ class AnimalIconInfo {
 
   final AnimalIconName name;
   final String label;
+}
+
+class AnimalStatusConfig {
+  const AnimalStatusConfig({
+    required this.title,
+    required this.message,
+    required this.badge,
+    required this.fill,
+    required this.accent,
+    required this.border,
+    required this.shadow,
+    required this.foreground,
+    required this.badgeColor,
+    required this.badgeForeground,
+  });
+
+  final String title;
+  final String message;
+  final String badge;
+  final Color fill;
+  final Color accent;
+  final Color border;
+  final Color shadow;
+  final Color foreground;
+  final Color badgeColor;
+  final Color badgeForeground;
 }
 
 const List<AnimalIconInfo> kAnimalIslandIconList = <AnimalIconInfo>[

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
-
-enum AnimalInputStatus { error, warning }
+import 'theme_strategies/animal_input_theme_strategy.dart';
 
 class AnimalInput extends StatefulWidget {
   const AnimalInput({
@@ -97,6 +96,7 @@ class _AnimalInputState extends State<AnimalInput> {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+    final strategy = AnimalInputThemeStrategy.of(theme);
     final focused = _focusNode.hasFocus;
     final hasText = _controller.text.isNotEmpty;
 
@@ -105,7 +105,7 @@ class _AnimalInputState extends State<AnimalInput> {
         height: AnimalIslandTokens.heightSm,
         horizontal: theme.spec.inputHorizontalSmall,
         fontSize: AnimalIslandTokens.fontCaption,
-        radius: theme.isNes ? theme.radiusSm : theme.radiusPill,
+        radius: strategy.radiusForSize(theme, widget.size),
         borderWidth: theme.inputBorderWidth,
         shadowDepth: theme.spec.inputShadowSmall,
       ),
@@ -113,7 +113,7 @@ class _AnimalInputState extends State<AnimalInput> {
         height: AnimalIslandTokens.heightBase,
         horizontal: theme.spec.inputHorizontalMiddle,
         fontSize: AnimalIslandTokens.fontLabel,
-        radius: theme.radiusPill,
+        radius: strategy.radiusForSize(theme, widget.size),
         borderWidth: theme.inputBorderWidth,
         shadowDepth: theme.spec.inputShadowMiddle,
       ),
@@ -121,34 +121,11 @@ class _AnimalInputState extends State<AnimalInput> {
         height: AnimalIslandTokens.heightLg,
         horizontal: theme.spec.inputHorizontalLarge,
         fontSize: AnimalIslandTokens.fontBody,
-        radius: theme.isNes ? theme.radiusLg : theme.radiusPill,
+        radius: strategy.radiusForSize(theme, widget.size),
         borderWidth: theme.inputBorderWidth,
         shadowDepth: theme.spec.inputShadowLarge,
       ),
     };
-
-    Color borderColor = theme.borderLight;
-    Color shadowColor = theme.inputShadow;
-    if (_hovered) {
-      borderColor = theme.borderHover;
-      shadowColor = theme.borderLight;
-    }
-    if (focused) {
-      borderColor = theme.focusYellow;
-      shadowColor = theme.focusYellowDark;
-    }
-    if (widget.status == AnimalInputStatus.error) {
-      borderColor = theme.error;
-      shadowColor = theme.errorActive;
-    }
-    if (widget.status == AnimalInputStatus.warning) {
-      borderColor = theme.warning;
-      shadowColor = theme.warningActive;
-    }
-    if (!widget.enabled) {
-      borderColor = theme.inputShadow;
-      shadowColor = Colors.transparent;
-    }
 
     return MouseRegion(
       onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
@@ -158,27 +135,16 @@ class _AnimalInputState extends State<AnimalInput> {
         curve: theme.interactionCurve,
         height: metrics.height,
         padding: EdgeInsets.symmetric(horizontal: metrics.horizontal),
-        decoration: BoxDecoration(
-          color: widget.enabled
-              ? (theme.isWestworld
-                    ? theme.surfaceRaised.withValues(alpha: 0.58)
-                    : theme.isNes
-                    ? theme.surface
-                    : theme.surfaceRaised)
-              : theme.surfaceMuted,
-          borderRadius: BorderRadius.circular(metrics.radius),
-          border: Border.all(color: borderColor, width: metrics.borderWidth),
-          boxShadow:
-              theme.isWestworld ||
-                  (!widget.shadow && widget.status == null && !focused)
-              ? null
-              : [
-                  BoxShadow(
-                    color: shadowColor,
-                    blurRadius: 0,
-                    offset: Offset(0, metrics.shadowDepth),
-                  ),
-                ],
+        decoration: strategy.decoration(
+          theme,
+          hovered: _hovered,
+          focused: focused,
+          enabled: widget.enabled,
+          shadow: widget.shadow,
+          status: widget.status,
+          radius: metrics.radius,
+          borderWidth: metrics.borderWidth,
+          shadowDepth: metrics.shadowDepth,
         ),
         child: Row(
           children: [
@@ -197,11 +163,11 @@ class _AnimalInputState extends State<AnimalInput> {
                 controller: _controller,
                 focusNode: _focusNode,
                 enabled: widget.enabled,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                style: strategy.textStyle(
+                  context,
+                  theme,
+                  enabled: widget.enabled,
                   fontSize: metrics.fontSize,
-                  color: widget.enabled ? theme.textBody : theme.textDisabled,
-                  letterSpacing: theme.isWestworld ? 0.72 : 0.14,
-                  fontFamily: theme.isNes ? 'Press Start 2P' : null,
                 ),
                 decoration: InputDecoration(
                   isCollapsed: true,

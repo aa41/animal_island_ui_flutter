@@ -5,16 +5,17 @@ import 'package:flutter/material.dart';
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
-import '../utils/animal_island_assets.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
+import 'theme_strategies/animal_bottom_sheet_shared.dart';
+import 'theme_strategies/animal_bottom_sheet_theme_strategy.dart';
 
 Future<T?> showAnimalBottomSheet<T>({
   required BuildContext context,
   Widget? title,
   Widget? footer,
   double maxWidth = 560,
-  double maxHeightRatio = 0.82,
+  double? maxHeightRatio,
   bool barrierDismissible = true,
   bool useRootNavigator = true,
   bool showHandle = false,
@@ -78,7 +79,7 @@ class AnimalBottomSheet extends StatelessWidget {
     this.title,
     this.footer,
     this.maxWidth = 560,
-    this.maxHeightRatio = 0.82,
+    this.maxHeightRatio,
     this.maskClosable = true,
     this.showHandle = true,
     this.showCloseButton = true,
@@ -93,7 +94,7 @@ class AnimalBottomSheet extends StatelessWidget {
   final Widget? title;
   final Widget? footer;
   final double maxWidth;
-  final double maxHeightRatio;
+  final double? maxHeightRatio;
   final bool maskClosable;
   final bool showHandle;
   final bool showCloseButton;
@@ -108,8 +109,12 @@ class AnimalBottomSheet extends StatelessWidget {
     if (!open) {
       return const SizedBox.shrink();
     }
+    final theme = context.animalIslandTheme;
+    final strategy = AnimalBottomSheetThemeStrategy.of(theme);
 
     final sheet = _AnimalBottomSheetPanel(
+      theme: theme,
+      strategy: strategy,
       title: title,
       footer: footer,
       maxWidth: maxWidth,
@@ -155,6 +160,8 @@ class AnimalBottomSheet extends StatelessWidget {
 
 class _AnimalBottomSheetPanel extends StatefulWidget {
   const _AnimalBottomSheetPanel({
+    required this.theme,
+    required this.strategy,
     required this.title,
     required this.footer,
     required this.maxWidth,
@@ -168,10 +175,12 @@ class _AnimalBottomSheetPanel extends StatefulWidget {
     required this.typewriter,
   });
 
+  final AnimalIslandThemeData theme;
+  final AnimalBottomSheetThemeStrategy strategy;
   final Widget? title;
   final Widget? footer;
   final double maxWidth;
-  final double maxHeightRatio;
+  final double? maxHeightRatio;
   final bool showHandle;
   final bool showCloseButton;
   final bool enableDrag;
@@ -236,12 +245,32 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.animalIslandTheme;
     final size = MediaQuery.sizeOf(context);
+    final theme = widget.theme;
+    final strategy = widget.strategy;
     final horizontalInset = size.width < 480 ? 12.0 : 18.0;
     final bottomInset = math.max(12.0, MediaQuery.paddingOf(context).bottom);
     final headerVisible = widget.title != null || widget.showCloseButton;
-
+    final maxHeightRatio = math.min(
+      widget.maxHeightRatio ?? strategy.maxHeightRatio(theme),
+      0.94,
+    );
+    final outerClipper = strategy.clipRadius(theme) == null
+        ? const AnimalBottomSheetClipper()
+        : ShapeBorderClipper(
+            shape: RoundedRectangleBorder(
+              borderRadius: strategy.clipRadius(theme)!,
+            ),
+          );
+    final panelClipper = strategy.panelClipper(theme);
+    final body = DefaultTextStyle(
+      style: strategy.bodyStyle(context, theme),
+      child: _AnimalBottomSheetBody(
+        typeSpeed: widget.typeSpeed,
+        typewriter: widget.typewriter,
+        child: widget.child,
+      ),
+    );
     return AnimatedContainer(
       duration: _isDragging ? Duration.zero : const Duration(milliseconds: 220),
       curve: Curves.easeOutCubic,
@@ -259,242 +288,51 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
               size.width - horizontalInset * 2,
               widget.maxWidth,
             ),
-            maxHeight: size.height * widget.maxHeightRatio,
+            maxHeight: size.height * maxHeightRatio,
           ),
           child: PhysicalShape(
-            clipper: theme.isNes || theme.isWestworld
-                ? const ShapeBorderClipper(shape: RoundedRectangleBorder())
-                : const _AnimalBottomSheetClipper(),
-            color: theme.isWestworld
-                ? theme.panelLineColor(emphasized: true)
-                : theme.borderLight,
+            clipper: outerClipper,
+            color: strategy.outerColor(theme),
             shadowColor: theme.buttonShadow.withValues(alpha: 0.34),
-            elevation: theme.isNes || theme.isWestworld ? 0 : 12,
+            elevation: strategy.elevation(theme),
             child: Padding(
-              padding: EdgeInsets.all(
-                theme.isNes
-                    ? theme.borderWidth
-                    : theme.isWestworld
-                    ? 1
-                    : 2.5,
-              ),
-              child: ClipPath(
-                clipper: theme.isNes || theme.isWestworld
-                    ? const ShapeBorderClipper(shape: RoundedRectangleBorder())
-                    : const _AnimalBottomSheetClipper(),
-                child: DecoratedBox(
-                  decoration: theme.isWestworld
-                      ? theme.westworldPanelDecoration(emphasized: true)
-                      : BoxDecoration(
-                          color: theme.isNes ? theme.surfaceRaised : null,
-                          gradient: theme.isNes
-                              ? null
-                              : LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: <Color>[
-                                    theme.surfaceRaised,
-                                    theme.surface,
-                                  ],
-                                ),
-                        ),
-                  child: Stack(
-                    children: [
-                      if (theme.isWestworld)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: CustomPaint(
-                              painter: _WestworldBottomSheetPainter(
-                                line: theme.panelLineColor(),
-                                glow: theme.primary.withValues(alpha: 0.08),
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (theme.spec.isOrganic)
-                        Positioned.fill(
-                          child: IgnorePointer(
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                image: DecorationImage(
-                                  image: AnimalIslandAssets.raster(
-                                    AnimalIslandAssets.demoGuideLine,
-                                  ),
-                                  fit: BoxFit.cover,
-                                  opacity:
-                                      theme.mode == AnimalIslandThemeMode.day
-                                      ? 0.06
-                                      : 0.04,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (theme.spec.isOrganic)
-                        Positioned(
-                          left: 18,
-                          top: 22,
-                          child: Container(
-                            width: 56,
-                            height: 56,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.14),
-                              borderRadius: const BorderRadius.only(
-                                topLeft: Radius.circular(24),
-                                topRight: Radius.circular(16),
-                                bottomLeft: Radius.circular(20),
-                                bottomRight: Radius.circular(28),
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (theme.spec.isOrganic)
-                        Positioned(
-                          right: 24,
-                          top: 18,
-                          child: Image.asset(
-                            AnimalIslandAssets.iconLeaf,
-                            package: AnimalIslandAssets.package,
-                            width: 20,
-                            height: 20,
-                            opacity: const AlwaysStoppedAnimation<double>(0.18),
-                          ),
-                        ),
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          theme.isNes
-                              ? 18
-                              : theme.isWestworld
-                              ? 22
-                              : 24,
-                          theme.isNes
-                              ? 14
-                              : theme.isWestworld
-                              ? 16
-                              : 18,
-                          theme.isNes
-                              ? 18
-                              : theme.isWestworld
-                              ? 22
-                              : 24,
-                          theme.isNes
-                              ? 18
-                              : theme.isWestworld
-                              ? 20
-                              : 22,
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (widget.showHandle || headerVisible)
-                              GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                onVerticalDragUpdate: _handleVerticalDragUpdate,
-                                onVerticalDragEnd: _handleVerticalDragEnd,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 14),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      if (widget.showHandle) ...[
-                                        Center(
-                                          child: _AnimalBottomSheetHandle(
-                                            theme: theme,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 12),
-                                      ],
-                                      if (headerVisible)
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: widget.title == null
-                                                  ? const SizedBox.shrink()
-                                                  : DefaultTextStyle(
-                                                      style: Theme.of(context)
-                                                          .textTheme
-                                                          .titleLarge!
-                                                          .copyWith(
-                                                            fontSize:
-                                                                theme.isNes
-                                                                ? AnimalIslandTokens
-                                                                      .fontBody
-                                                                : theme
-                                                                      .isWestworld
-                                                                ? AnimalIslandTokens
-                                                                      .fontHeadlineSm
-                                                                : AnimalIslandTokens
-                                                                      .fontTitle,
-                                                            color: theme
-                                                                .textPrimary,
-                                                            letterSpacing:
-                                                                theme
-                                                                    .isWestworld
-                                                                ? 1.2
-                                                                : null,
-                                                          ),
-                                                      child: widget.title!,
-                                                    ),
-                                            ),
-                                            if (widget.showCloseButton)
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                  left: 12,
-                                                ),
-                                                child:
-                                                    _AnimalBottomSheetCloseButton(
-                                                      onTap: widget.onClose,
-                                                    ),
-                                              ),
-                                          ],
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            Flexible(
-                              child: SingleChildScrollView(
-                                child: DefaultTextStyle(
-                                  style: Theme.of(context).textTheme.bodyLarge!
-                                      .copyWith(
-                                        fontSize: theme.isNes
-                                            ? AnimalIslandTokens.fontBodySm
-                                            : theme.isWestworld
-                                            ? AnimalIslandTokens.fontBody
-                                            : AnimalIslandTokens.fontBodyLg,
-                                        color: theme.textBody,
-                                        height: theme.isNes
-                                            ? 1.8
-                                            : theme.isWestworld
-                                            ? 1.36
-                                            : 1.55,
-                                        fontWeight: theme.isWestworld
-                                            ? FontWeight.w400
-                                            : FontWeight.w600,
-                                      ),
-                                  child: _AnimalBottomSheetBody(
-                                    typeSpeed: widget.typeSpeed,
-                                    typewriter: widget.typewriter,
-                                    child: widget.child,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            if (widget.footer != null) ...[
-                              const SizedBox(height: 18),
-                              widget.footer!,
-                            ],
-                          ],
-                        ),
+              padding: EdgeInsets.all(strategy.framePadding(theme)),
+              child: panelClipper == null
+                  ? _AnimalBottomSheetPanelSurface(
+                      decoration: strategy.panelDecoration(theme),
+                      contentPadding: strategy.contentPadding(theme),
+                      strategy: strategy,
+                      theme: theme,
+                      headerVisible: headerVisible,
+                      showHandle: widget.showHandle,
+                      showCloseButton: widget.showCloseButton,
+                      onVerticalDragUpdate: _handleVerticalDragUpdate,
+                      onVerticalDragEnd: _handleVerticalDragEnd,
+                      title: widget.title,
+                      onClose: widget.onClose,
+                      bodyScrolls: strategy.bodyScrolls(theme),
+                      body: body,
+                      footer: widget.footer,
+                    )
+                  : ClipPath(
+                      clipper: panelClipper,
+                      child: _AnimalBottomSheetPanelSurface(
+                        decoration: strategy.panelDecoration(theme),
+                        contentPadding: strategy.contentPadding(theme),
+                        strategy: strategy,
+                        theme: theme,
+                        headerVisible: headerVisible,
+                        showHandle: widget.showHandle,
+                        showCloseButton: widget.showCloseButton,
+                        onVerticalDragUpdate: _handleVerticalDragUpdate,
+                        onVerticalDragEnd: _handleVerticalDragEnd,
+                        title: widget.title,
+                        onClose: widget.onClose,
+                        bodyScrolls: strategy.bodyScrolls(theme),
+                        body: body,
+                        footer: widget.footer,
                       ),
-                    ],
-                  ),
-                ),
-              ),
+                    ),
             ),
           ),
         ),
@@ -503,296 +341,114 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
   }
 }
 
-class _AnimalBottomSheetHandle extends StatelessWidget {
-  const _AnimalBottomSheetHandle({required this.theme});
+class _AnimalBottomSheetPanelSurface extends StatelessWidget {
+  const _AnimalBottomSheetPanelSurface({
+    required this.decoration,
+    required this.contentPadding,
+    required this.strategy,
+    required this.theme,
+    required this.headerVisible,
+    required this.showHandle,
+    required this.showCloseButton,
+    required this.onVerticalDragUpdate,
+    required this.onVerticalDragEnd,
+    required this.title,
+    required this.onClose,
+    required this.bodyScrolls,
+    required this.body,
+    required this.footer,
+  });
 
+  final BoxDecoration decoration;
+  final EdgeInsets contentPadding;
+  final AnimalBottomSheetThemeStrategy strategy;
   final AnimalIslandThemeData theme;
+  final bool headerVisible;
+  final bool showHandle;
+  final bool showCloseButton;
+  final GestureDragUpdateCallback onVerticalDragUpdate;
+  final GestureDragEndCallback onVerticalDragEnd;
+  final Widget? title;
+  final VoidCallback? onClose;
+  final bool bodyScrolls;
+  final Widget body;
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context) {
-    if (theme.isWestworld) {
-      return Container(
-        width: 84,
-        height: 10,
-        alignment: Alignment.center,
-        child: CustomPaint(
-          size: const Size(84, 10),
-          painter: _WestworldHandlePainter(
-            color: theme.panelLineColor(emphasized: true),
-          ),
-        ),
-      );
-    }
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 42,
-          height: 8,
-          decoration: BoxDecoration(
-            color: theme.surfaceSoft,
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(10),
-              topRight: Radius.circular(12),
-              bottomLeft: Radius.circular(12),
-              bottomRight: Radius.circular(10),
-            ),
-            border: Border.all(
-              color: theme.border.withValues(alpha: 0.36),
-              width: 1.4,
-            ),
-          ),
-        ),
-        const SizedBox(width: 6),
-        if (!theme.isWestworld)
-          Image.asset(
-            AnimalIslandAssets.iconLeaf,
-            package: AnimalIslandAssets.package,
-            width: 16,
-            height: 16,
-            opacity: const AlwaysStoppedAnimation<double>(0.84),
-          ),
-      ],
-    );
-  }
-}
-
-class _AnimalBottomSheetCloseButton extends StatelessWidget {
-  const _AnimalBottomSheetCloseButton({required this.onTap});
-
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.animalIslandTheme;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: 42,
-        height: 28,
-        decoration: BoxDecoration(
-          color: theme.surfaceSoft,
-          borderRadius: theme.isNes || theme.isWestworld
-              ? BorderRadius.circular(theme.radiusSm)
-              : const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(14),
-                  bottomLeft: Radius.circular(14),
-                  bottomRight: Radius.circular(18),
-                ),
-          border: Border.all(
-            color: theme.borderLight,
-            width: theme.borderWidth,
-          ),
-          boxShadow: theme.isWestworld
-              ? null
-              : [
-                  BoxShadow(
-                    color: theme.inputShadow.withValues(alpha: 0.6),
-                    blurRadius: 0,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Stack(
-          alignment: Alignment.center,
+    return DecoratedBox(
+      decoration: decoration,
+      child: Padding(
+        padding: contentPadding,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (theme.spec.isOrganic)
-              Positioned(
-                left: 7,
-                top: 7,
-                child: Image.asset(
-                  AnimalIslandAssets.iconLeaf,
-                  package: AnimalIslandAssets.package,
-                  width: 10,
-                  height: 10,
-                  opacity: const AlwaysStoppedAnimation<double>(0.62),
+            if (showHandle || headerVisible)
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onVerticalDragUpdate: onVerticalDragUpdate,
+                onVerticalDragEnd: onVerticalDragEnd,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (showHandle) ...[
+                        Center(child: strategy.buildHandle(theme)),
+                        const SizedBox(height: 12),
+                      ],
+                      if (headerVisible)
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: title == null
+                                  ? const SizedBox.shrink()
+                                  : DefaultTextStyle(
+                                      style: strategy.titleStyle(
+                                        context,
+                                        theme,
+                                      ),
+                                      child: title!,
+                                    ),
+                            ),
+                            if (showCloseButton)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 12),
+                                child: strategy.buildCloseButton(
+                                  context,
+                                  theme,
+                                  onTap: onClose,
+                                ),
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            Text(
-              '×',
-              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                color: theme.textPrimary,
-                fontSize: AnimalIslandTokens.fontBodySm,
-                fontWeight: FontWeight.w800,
-                height: 1,
-              ),
-            ),
+            if (bodyScrolls)
+              Flexible(
+                fit: FlexFit.loose,
+                child: ListView(
+                  shrinkWrap: true,
+                  padding: EdgeInsets.zero,
+                  physics: const BouncingScrollPhysics(
+                    parent: AlwaysScrollableScrollPhysics(),
+                  ),
+                  children: [body],
+                ),
+              )
+            else
+              body,
+            if (footer != null) ...[const SizedBox(height: 18), footer!],
           ],
         ),
       ),
     );
   }
-}
-
-class _WestworldBottomSheetPainter extends CustomPainter {
-  const _WestworldBottomSheetPainter({required this.line, required this.glow});
-
-  final Color line;
-  final Color glow;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty || !size.isFinite) {
-      return;
-    }
-
-    final gridPaint = Paint()
-      ..color = glow
-      ..strokeWidth = 1;
-    for (double x = 24; x < size.width; x += 36) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), gridPaint);
-    }
-
-    final linePaint = Paint()
-      ..color = line
-      ..strokeWidth = 1;
-    canvas.drawLine(const Offset(0, 18), const Offset(72, 18), linePaint);
-    canvas.drawLine(
-      Offset(size.width - 72, size.height - 18),
-      Offset(size.width, size.height - 18),
-      linePaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _WestworldBottomSheetPainter oldDelegate) {
-    return oldDelegate.line != line || oldDelegate.glow != glow;
-  }
-}
-
-class _WestworldHandlePainter extends CustomPainter {
-  const _WestworldHandlePainter({required this.color});
-
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 1;
-    final y = size.height / 2;
-    canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    canvas.drawLine(Offset(18, y - 4), Offset(size.width - 18, y - 4), paint);
-    canvas.drawLine(Offset(18, y + 4), Offset(size.width - 18, y + 4), paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _WestworldHandlePainter oldDelegate) {
-    return oldDelegate.color != color;
-  }
-}
-
-class _AnimalBottomSheetClipper extends CustomClipper<Path> {
-  const _AnimalBottomSheetClipper();
-
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.moveTo(size.width * 0.03, size.height * 0.18);
-    path.cubicTo(
-      size.width * 0.045,
-      size.height * 0.055,
-      size.width * 0.12,
-      size.height * 0.02,
-      size.width * 0.23,
-      size.height * 0.055,
-    );
-    path.cubicTo(
-      size.width * 0.31,
-      size.height * 0.082,
-      size.width * 0.39,
-      size.height * 0.015,
-      size.width * 0.49,
-      size.height * 0.025,
-    );
-    path.cubicTo(
-      size.width * 0.6,
-      size.height * 0.035,
-      size.width * 0.66,
-      0,
-      size.width * 0.77,
-      size.height * 0.042,
-    );
-    path.cubicTo(
-      size.width * 0.88,
-      size.height * 0.083,
-      size.width * 0.96,
-      size.height * 0.045,
-      size.width * 0.982,
-      size.height * 0.16,
-    );
-    path.cubicTo(
-      size.width * 1.006,
-      size.height * 0.28,
-      size.width * 0.992,
-      size.height * 0.39,
-      size.width * 0.985,
-      size.height * 0.55,
-    );
-    path.cubicTo(
-      size.width * 0.978,
-      size.height * 0.67,
-      size.width * 0.995,
-      size.height * 0.78,
-      size.width * 0.974,
-      size.height * 0.89,
-    );
-    path.cubicTo(
-      size.width * 0.958,
-      size.height * 0.956,
-      size.width * 0.915,
-      size.height * 0.985,
-      size.width * 0.842,
-      size.height * 0.992,
-    );
-    path.cubicTo(
-      size.width * 0.75,
-      size.height * 1.0,
-      size.width * 0.645,
-      size.height * 0.988,
-      size.width * 0.505,
-      size.height * 0.988,
-    );
-    path.cubicTo(
-      size.width * 0.36,
-      size.height * 0.988,
-      size.width * 0.255,
-      size.height * 1.0,
-      size.width * 0.162,
-      size.height * 0.992,
-    );
-    path.cubicTo(
-      size.width * 0.09,
-      size.height * 0.985,
-      size.width * 0.045,
-      size.height * 0.956,
-      size.width * 0.029,
-      size.height * 0.89,
-    );
-    path.cubicTo(
-      size.width * 0.008,
-      size.height * 0.79,
-      size.width * 0.028,
-      size.height * 0.68,
-      size.width * 0.018,
-      size.height * 0.555,
-    );
-    path.cubicTo(
-      size.width * 0.007,
-      size.height * 0.405,
-      size.width * -0.006,
-      size.height * 0.29,
-      size.width * 0.03,
-      size.height * 0.18,
-    );
-    path.close();
-    return path;
-  }
-
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 }
 
 class _AnimalBottomSheetBody extends StatelessWidget {

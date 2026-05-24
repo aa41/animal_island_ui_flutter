@@ -6,6 +6,7 @@ import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
 import '_animal_dashed_outline.dart';
+import 'theme_strategies/animal_button_theme_strategy.dart';
 
 class AnimalButton extends StatefulWidget {
   const AnimalButton({
@@ -107,7 +108,14 @@ class _AnimalButtonState extends State<AnimalButton>
       ),
     };
 
-    final colors = _resolveColors(theme);
+    final strategy = AnimalButtonThemeStrategy.of(theme);
+    final colors = strategy.resolveColors(
+      theme,
+      type: widget.type,
+      danger: widget.danger,
+      ghost: widget.ghost,
+      loading: widget.loading,
+    );
     final shadowDepth = widget.loading
         ? 0.0
         : _pressed
@@ -182,19 +190,20 @@ class _AnimalButtonState extends State<AnimalButton>
               ),
             ),
           ),
-        if (widget.loading)
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _loadingController,
-              builder: (context, child) => CustomPaint(
-                painter: _resolveLoadingPainter(
-                  theme,
-                  metrics.radius,
-                  _loadingController.value,
+          if (widget.loading)
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _loadingController,
+                builder: (context, child) => CustomPaint(
+                  painter: _resolveLoadingPainter(
+                    strategy,
+                    theme,
+                    metrics.radius,
+                    _loadingController.value,
+                  ),
                 ),
               ),
             ),
-          ),
         Padding(
           padding: EdgeInsets.symmetric(
             horizontal: metrics.horizontal,
@@ -231,137 +240,34 @@ class _AnimalButtonState extends State<AnimalButton>
     );
   }
 
-  _ButtonColors _resolveColors(AnimalIslandThemeData theme) {
-    if (widget.loading) {
-      return _ButtonColors(
-        background: theme.isWestworld
-            ? theme.surfaceRaised.withValues(alpha: 0.64)
-            : theme.isNes
-            ? theme.primary
-            : const Color(0xFF0EC4B6),
-        border: theme.isWestworld
-            ? theme.primary.withValues(alpha: 0.72)
-            : theme.isNes
-            ? theme.border
-            : const Color(0xFF4DE2DA),
-        foreground: theme.isWestworld ? theme.primary : Colors.white,
-        shadow: Colors.transparent,
-      );
-    }
-
-    if (widget.danger) {
-      if (widget.type == AnimalButtonType.primary) {
-        return _ButtonColors(
-          background: theme.error,
-          border: theme.error,
-          foreground: Colors.white,
-          shadow: theme.errorActive,
-        );
-      }
-
-      if (widget.type == AnimalButtonType.text ||
-          widget.type == AnimalButtonType.link) {
-        return _ButtonColors(
-          background: Colors.transparent,
-          border: Colors.transparent,
-          foreground: Colors.white,
-          shadow: Colors.transparent,
-        );
-      }
-
-      return _ButtonColors(
-        background: widget.ghost ? Colors.transparent : theme.surface,
-        border: theme.error,
-        foreground: theme.error,
-        shadow: theme.buttonShadow,
-      );
-    }
-
-    switch (widget.type) {
-      case AnimalButtonType.primary:
-        return _ButtonColors(
-          background: widget.ghost
-              ? Colors.transparent
-              : (theme.isWestworld
-                    ? theme.primary
-                    : theme.isNes
-                    ? theme.primary
-                    : theme.surface),
-          border: widget.ghost
-              ? theme.primary
-              : (theme.isWestworld
-                    ? theme.primary
-                    : theme.isNes
-                    ? theme.border
-                    : theme.surface),
-          foreground: widget.ghost
-              ? theme.primary
-              : (theme.isWestworld
-                    ? theme.pageBackground
-                    : theme.isNes
-                    ? Colors.white
-                    : const Color(0xFF794F27)),
-          shadow: widget.ghost ? Colors.transparent : theme.buttonShadow,
-        );
-      case AnimalButtonType.defaultType:
-        return _ButtonColors(
-          background: widget.ghost ? Colors.transparent : theme.surface,
-          border: theme.border,
-          foreground: theme.textPrimary,
-          shadow: theme.buttonShadow,
-        );
-      case AnimalButtonType.dashed:
-        return _ButtonColors(
-          background: widget.ghost ? Colors.transparent : theme.surface,
-          border: theme.border,
-          foreground: theme.textPrimary,
-          shadow: Colors.transparent,
-        );
-      case AnimalButtonType.text:
-        return _ButtonColors(
-          background: Colors.transparent,
-          border: Colors.transparent,
-          foreground: theme.textPrimary,
-          shadow: Colors.transparent,
-        );
-      case AnimalButtonType.link:
-        return _ButtonColors(
-          background: Colors.transparent,
-          border: Colors.transparent,
-          foreground: theme.primary,
-          shadow: Colors.transparent,
-        );
-    }
-  }
-
   CustomPainter _resolveLoadingPainter(
+    AnimalButtonThemeStrategy strategy,
     AnimalIslandThemeData theme,
     double radius,
     double progress,
   ) {
-    if (theme.isNes) {
+    switch (strategy.loadingStyle) {
+      case AnimalButtonLoadingStyle.pixel:
       return _PixelLoadingPainter(
         progress: progress,
         base: theme.primary,
         stripe: theme.focusYellow,
       );
-    }
-
-    if (theme.isWestworld) {
+      case AnimalButtonLoadingStyle.scanline:
       return _ScanlineLoadingPainter(
         progress: progress,
         base: theme.surfaceRaised.withValues(alpha: 0.14),
         line: theme.primary.withValues(alpha: 0.56),
         muted: theme.panelLineColor(),
       );
+      case AnimalButtonLoadingStyle.stripe:
+      return _StripePainter(
+        progress: progress,
+        base: const Color(0xFF0EC4B6),
+        stripe: const Color(0xFF01B0A7),
+        radius: radius,
+      );
     }
-
-    return _StripePainter(
-      progress: progress,
-      base: const Color(0xFF0EC4B6),
-      stripe: const Color(0xFF01B0A7),
-      radius: radius,
-    );
   }
 }
 
@@ -377,20 +283,6 @@ class _ButtonMetrics {
   final double horizontal;
   final double fontSize;
   final double radius;
-}
-
-class _ButtonColors {
-  const _ButtonColors({
-    required this.background,
-    required this.border,
-    required this.foreground,
-    required this.shadow,
-  });
-
-  final Color background;
-  final Color border;
-  final Color foreground;
-  final Color shadow;
 }
 
 class _StripePainter extends CustomPainter {

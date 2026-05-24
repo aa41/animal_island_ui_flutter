@@ -1,4 +1,5 @@
 import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
+import 'package:animal_island_ui_flutter/src/components/theme_strategies/animal_bottom_sheet_shared.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,6 +22,13 @@ void main() {
   Widget wrapWestworld(Widget child) {
     return MaterialApp(
       theme: buildAnimalIslandTheme(gameStyle: AnimalIslandGameStyle.westworld),
+      home: Scaffold(body: Center(child: child)),
+    );
+  }
+
+  Widget wrapStyle(AnimalIslandGameStyle style, Widget child) {
+    return MaterialApp(
+      theme: buildAnimalIslandTheme(gameStyle: style),
       home: Scaffold(body: Center(child: child)),
     );
   }
@@ -264,6 +272,128 @@ void main() {
     await tester.pump();
 
     expect(closed, isTrue);
+  });
+
+  testWidgets('AnimalBottomSheet uses organic geometry for island theme', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrap(
+        const Stack(
+          children: [
+            AnimalBottomSheet(open: true, child: Text('island sheet')),
+          ],
+        ),
+      ),
+    );
+
+    final islandShape = tester.widget<PhysicalShape>(
+      find
+          .ancestor(
+            of: find.text('island sheet'),
+            matching: find.byType(PhysicalShape),
+          )
+          .first,
+    );
+    expect(islandShape.clipper, isA<AnimalBottomSheetClipper>());
+  });
+
+  testWidgets('AnimalBottomSheet stays within the island height cap', (
+    tester,
+  ) async {
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.binding.setSurfaceSize(const Size(390, 780));
+
+    await tester.pumpWidget(
+      wrap(
+        Stack(
+          children: [
+            AnimalBottomSheet(
+              open: true,
+              title: const Text('岛屿设置'),
+              footer: const AnimalBottomSheetActionBar(),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: List.generate(
+                  18,
+                  (index) => Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Text('条目 ${index + 1}'),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    final bottomSheetSize = tester.getSize(
+      find
+          .ancestor(of: find.text('岛屿设置'), matching: find.byType(PhysicalShape))
+          .first,
+    );
+    expect(bottomSheetSize.height, lessThan(560));
+    expect(tester.takeException(), isNull);
+  });
+
+  for (final style in AnimalIslandGameStyle.values) {
+    testWidgets('AnimalBottomSheet short content shrink-wraps for $style', (
+      tester,
+    ) async {
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+      await tester.binding.setSurfaceSize(const Size(390, 780));
+
+      await tester.pumpWidget(
+        wrapStyle(
+          style,
+          const Stack(
+            children: [
+              AnimalBottomSheet(
+                open: true,
+                title: Text('岛屿广播'),
+                child: Text('狸克已经把今天的广播整理好了。现在海风正好，适合出门钓鱼、摘果子，或者去看看商店有没有新货。'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final panelSize = tester.getSize(
+        find
+            .ancestor(
+              of: find.text('岛屿广播'),
+              matching: find.byType(PhysicalShape),
+            )
+            .first,
+      );
+      expect(panelSize.height, lessThan(260));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('AnimalBottomSheet uses rectangular geometry for system theme', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapWestworld(
+        const Stack(
+          children: [
+            AnimalBottomSheet(open: true, child: Text('system sheet')),
+          ],
+        ),
+      ),
+    );
+
+    final westworldShape = tester.widget<PhysicalShape>(
+      find
+          .ancestor(
+            of: find.text('system sheet'),
+            matching: find.byType(PhysicalShape),
+          )
+          .first,
+    );
+    expect(westworldShape.clipper, isA<ShapeBorderClipper>());
   });
 
   testWidgets('Westworld bottom sheet, switch, and status states render', (

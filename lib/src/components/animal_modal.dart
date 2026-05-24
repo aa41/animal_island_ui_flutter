@@ -8,6 +8,7 @@ import '../theme/animal_island_tokens.dart';
 import '../models/animal_island_models.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
+import 'theme_strategies/animal_modal_theme_strategy.dart';
 
 const Object _defaultModalFooterMarker = Object();
 
@@ -157,6 +158,7 @@ class _AnimalModalPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+    final strategy = AnimalModalThemeStrategy.of(theme);
     final useDefaultFooter = identical(footer, _defaultModalFooterMarker);
     final showFooter = useDefaultFooter || footer != null;
     final customFooter = footer is Widget ? footer as Widget : null;
@@ -181,33 +183,9 @@ class _AnimalModalPanel extends StatelessWidget {
     );
 
     final panel = DecoratedBox(
-      decoration: theme.isWestworld
-          ? theme.westworldPanelDecoration(emphasized: true)
-          : BoxDecoration(
-              color: theme.surfaceRaised,
-              borderRadius: BorderRadius.circular(
-                theme.isNes ? theme.radiusBase : 0,
-              ),
-              border: theme.isNes
-                  ? Border.all(color: theme.border, width: theme.borderWidth)
-                  : null,
-              boxShadow: theme.isNes
-                  ? [
-                      BoxShadow(
-                        color: theme.buttonShadow,
-                        blurRadius: 0,
-                        offset: const Offset(0, 6),
-                      ),
-                    ]
-                  : null,
-            ),
+      decoration: strategy.panelDecoration(theme),
       child: Padding(
-        padding: EdgeInsets.fromLTRB(
-          theme.isNes ? 24 : 36,
-          theme.isNes ? 24 : 36,
-          theme.isNes ? 24 : 36,
-          theme.isNes ? 22 : 28,
-        ),
+        padding: strategy.panelPadding(theme),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -216,9 +194,7 @@ class _AnimalModalPanel extends StatelessWidget {
               DefaultTextStyle(
                 style: Theme.of(context).textTheme.headlineLarge!.copyWith(
                   color: theme.textBody,
-                  fontSize: theme.isNes
-                      ? AnimalIslandTokens.fontBody
-                      : AnimalIslandTokens.fontHeadlineSm,
+                  fontSize: strategy.titleFontSize(theme),
                 ),
                 child: title!,
               ),
@@ -229,11 +205,9 @@ class _AnimalModalPanel extends StatelessWidget {
                 child: DefaultTextStyle(
                   style: Theme.of(context).textTheme.bodyLarge!.copyWith(
                     color: theme.textMuted,
-                    fontSize: theme.isNes
-                        ? AnimalIslandTokens.fontBodySm
-                        : AnimalIslandTokens.fontBodyLg,
-                    fontWeight: FontWeight.w600,
-                    height: theme.isNes ? 1.8 : 1.55,
+                    fontSize: strategy.bodyFontSize(theme),
+                    fontWeight: strategy.bodyFontWeight(theme),
+                    height: strategy.bodyHeight(theme),
                   ),
                   child: _AnimalModalBody(
                     typeSpeed: typeSpeed,
@@ -260,7 +234,7 @@ class _AnimalModalPanel extends StatelessWidget {
         maxWidth: math.min(MediaQuery.sizeOf(context).width - 32, width),
         maxHeight: MediaQuery.sizeOf(context).height - 64,
       ),
-      child: theme.isNes || theme.isWestworld
+      child: strategy.clipRadius(theme) == null
           ? panel
           : ClipPath(clipper: _AnimalModalClipper(), child: panel),
     );

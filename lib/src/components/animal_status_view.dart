@@ -8,6 +8,7 @@ import '../theme/animal_island_tokens.dart';
 import '../utils/animal_island_assets.dart';
 import 'animal_badge.dart';
 import 'animal_button.dart';
+import 'theme_strategies/animal_status_view_theme_strategy.dart';
 
 class AnimalStatusView extends StatelessWidget {
   const AnimalStatusView({
@@ -30,65 +31,43 @@ class AnimalStatusView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
-    final config = _configFor(theme);
-    final statusBody = theme.isWestworld
-        ? _WestworldStatusBody(
-            tone: tone,
-            title: title ?? config.title,
-            message: message ?? config.message,
-            action: action,
-            compact: compact,
-            config: config,
-          )
-        : theme.isNes
-        ? _NesStatusBody(
-            tone: tone,
-            title: title ?? config.title,
-            message: message ?? config.message,
-            badge: config.badge,
-            action: action,
-            compact: compact,
-            config: config,
-          )
-        : _AnimalStatusBody(
-            tone: tone,
-            title: title ?? config.title,
-            message: message ?? config.message,
-            action: action,
-            icon: icon,
-            compact: compact,
-            config: config,
-          );
+    final strategy = AnimalStatusViewThemeStrategy.of(theme);
+    final config = strategy.config(theme, tone);
+    final statusBody = switch (theme.gameStyle) {
+      AnimalIslandGameStyle.westworld => _WestworldStatusBody(
+        tone: tone,
+        title: title ?? config.title,
+        message: message ?? config.message,
+        action: action,
+        compact: compact,
+        config: config,
+      ),
+      AnimalIslandGameStyle.nes8Bit => _NesStatusBody(
+        tone: tone,
+        title: title ?? config.title,
+        message: message ?? config.message,
+        badge: config.badge,
+        action: action,
+        compact: compact,
+        config: config,
+      ),
+      AnimalIslandGameStyle.animalIsland => _AnimalStatusBody(
+        tone: tone,
+        title: title ?? config.title,
+        message: message ?? config.message,
+        action: action,
+        icon: icon,
+        compact: compact,
+        config: config,
+      ),
+    };
 
     return DecoratedBox(
-      decoration: theme.isWestworld
-          ? const BoxDecoration(color: Color(0xFFEFEFED))
-          : BoxDecoration(
-              color: theme.isNes ? theme.surfaceRaised : null,
-              gradient: theme.isNes
-                  ? null
-                  : LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [theme.surfaceRaised, theme.surface],
-                    ),
-              borderRadius: BorderRadius.circular(
-                theme.isNes ? theme.radiusBase : (compact ? 26 : 34),
-              ),
-              border: Border.all(
-                color: config.border,
-                width: theme.inputBorderWidth,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.isNes
-                      ? theme.buttonShadow
-                      : config.shadow.withValues(alpha: 0.26),
-                  blurRadius: 0,
-                  offset: const Offset(0, 5),
-                ),
-              ],
-            ),
+      decoration: strategy.outerDecoration(
+        theme,
+        config: config,
+        compact: compact,
+      ),
       child: Container(
         width: double.infinity,
         padding: EdgeInsets.fromLTRB(
@@ -113,114 +92,10 @@ class AnimalStatusView extends StatelessWidget {
               ? 18
               : 22,
         ),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(
-            theme.isWestworld
-                ? 0
-                : theme.isNes
-                ? theme.radiusBase
-                : (compact ? 24 : 32),
-          ),
-          image: theme.isNes || theme.isWestworld
-              ? null
-              : DecorationImage(
-                  image: AnimalIslandAssets.raster(
-                    AnimalIslandAssets.demoHomeBackground,
-                  ),
-                  fit: BoxFit.cover,
-                  opacity: theme.mode == AnimalIslandThemeMode.day
-                      ? 0.08
-                      : 0.05,
-                ),
-        ),
+        decoration: strategy.innerDecoration(theme, compact: compact),
         child: statusBody,
       ),
     );
-  }
-
-  _AnimalStatusConfig _configFor(AnimalIslandThemeData theme) {
-    if (theme.isWestworld) {
-      return switch (tone) {
-        AnimalStatusTone.loading => _AnimalStatusConfig(
-          title: 'SYSTEM ANALYSIS IN PROGRESS',
-          message:
-              'Narrative signals are being correlated. Awaiting stable divergence output.',
-          badge: 'ANALYZING',
-          fill: theme.primary.withValues(alpha: 0.06),
-          accent: theme.primary,
-          border: theme.primary.withValues(alpha: 0.54),
-          shadow: theme.primary,
-          foreground: theme.primary,
-          badgeColor: theme.surfaceSoft,
-          badgeForeground: theme.textPrimary,
-        ),
-        AnimalStatusTone.error => _AnimalStatusConfig(
-          title: 'ANOMALY DETECTED',
-          message:
-              'The requested thread diverged outside operational tolerance. Re-run acquisition.',
-          badge: 'DIVERGENCE',
-          fill: theme.error.withValues(alpha: 0.08),
-          accent: theme.error,
-          border: theme.error.withValues(alpha: 0.62),
-          shadow: theme.errorActive,
-          foreground: theme.error,
-          badgeColor: theme.error.withValues(alpha: 0.12),
-          badgeForeground: theme.error,
-        ),
-        AnimalStatusTone.empty => _AnimalStatusConfig(
-          title: 'NO ACTIVE NARRATIVE',
-          message:
-              'No compatible records were found in the current branch. Broaden the search vector.',
-          badge: 'NO DATA',
-          fill: theme.warning.withValues(alpha: 0.08),
-          accent: theme.warning,
-          border: theme.warning.withValues(alpha: 0.56),
-          shadow: theme.warningActive,
-          foreground: theme.warning,
-          badgeColor: theme.warning.withValues(alpha: 0.1),
-          badgeForeground: theme.warning,
-        ),
-      };
-    }
-
-    return switch (tone) {
-      AnimalStatusTone.loading => _AnimalStatusConfig(
-        title: '狸克正在整理岛上的新消息',
-        message: '公告板上的纸张刚刚被海风吹起，再稍等一下，新的通知就会贴好。',
-        badge: '正在准备',
-        fill: theme.primary.withValues(alpha: 0.14),
-        accent: theme.primary,
-        border: theme.primary.withValues(alpha: 0.38),
-        shadow: theme.primaryActive,
-        foreground: theme.primaryActive,
-        badgeColor: theme.primarySoft,
-        badgeForeground: theme.primaryActive,
-      ),
-      AnimalStatusTone.error => _AnimalStatusConfig(
-        title: '刚刚那张通知被风吹跑了',
-        message: '海边的信号有些不稳定。重新整理一下公告板，就能继续查看岛上的消息。',
-        badge: '需要重试',
-        fill: theme.error.withValues(alpha: 0.12),
-        accent: theme.error,
-        border: theme.error.withValues(alpha: 0.32),
-        shadow: theme.errorActive,
-        foreground: theme.errorActive,
-        badgeColor: theme.surfaceSoft,
-        badgeForeground: theme.errorActive,
-      ),
-      AnimalStatusTone.empty => _AnimalStatusConfig(
-        title: '公告板今天还没有新内容',
-        message: '现在先去海边散步或者逛逛商店吧。等岛民留下新消息，这里会再热闹起来。',
-        badge: '暂时空白',
-        fill: theme.warning.withValues(alpha: 0.18),
-        accent: theme.focusYellowDark,
-        border: theme.warning.withValues(alpha: 0.34),
-        shadow: theme.buttonShadow,
-        foreground: theme.textBody,
-        badgeColor: theme.surfaceSoft,
-        badgeForeground: theme.textBody,
-      ),
-    };
   }
 }
 
@@ -241,7 +116,7 @@ class _AnimalStatusBody extends StatelessWidget {
   final Widget? action;
   final Widget? icon;
   final bool compact;
-  final _AnimalStatusConfig config;
+  final AnimalStatusConfig config;
 
   @override
   Widget build(BuildContext context) {
@@ -334,7 +209,7 @@ class _WestworldStatusBody extends StatefulWidget {
   final String message;
   final Widget? action;
   final bool compact;
-  final _AnimalStatusConfig config;
+  final AnimalStatusConfig config;
 
   @override
   State<_WestworldStatusBody> createState() => _WestworldStatusBodyState();
@@ -930,7 +805,7 @@ class _NesStatusBody extends StatefulWidget {
   final String badge;
   final Widget? action;
   final bool compact;
-  final _AnimalStatusConfig config;
+  final AnimalStatusConfig config;
 
   @override
   State<_NesStatusBody> createState() => _NesStatusBodyState();
@@ -1414,30 +1289,4 @@ class _AnimalStatusMedallionState extends State<_AnimalStatusMedallion>
       ),
     };
   }
-}
-
-class _AnimalStatusConfig {
-  const _AnimalStatusConfig({
-    required this.title,
-    required this.message,
-    required this.badge,
-    required this.fill,
-    required this.accent,
-    required this.border,
-    required this.shadow,
-    required this.foreground,
-    required this.badgeColor,
-    required this.badgeForeground,
-  });
-
-  final String title;
-  final String message;
-  final String badge;
-  final Color fill;
-  final Color accent;
-  final Color border;
-  final Color shadow;
-  final Color foreground;
-  final Color badgeColor;
-  final Color badgeForeground;
 }
