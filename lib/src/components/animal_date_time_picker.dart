@@ -8,6 +8,7 @@ import '../theme/animal_island_tokens.dart';
 import 'animal_button.dart';
 import 'animal_bottom_sheet.dart';
 import 'animal_modal.dart';
+import 'theme_strategies/animal_date_time_picker_theme_strategy.dart';
 
 Future<DateTime?> showAnimalDateTimePicker({
   required BuildContext context,
@@ -254,6 +255,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
     final compact = MediaQuery.sizeOf(context).width < 720;
 
     return Opacity(
@@ -261,36 +263,15 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
       child: AnimatedContainer(
         duration: AnimalIslandTokens.base,
         curve: AnimalIslandTokens.motionCurve,
-        padding: EdgeInsets.all(
-          theme.isWestworld
-              ? compact
-                    ? 10
-                    : 12
-              : compact
-              ? 14
-              : 18,
-        ),
-        decoration: theme.isWestworld
-            ? theme.westworldPanelDecoration(emphasized: true)
-            : BoxDecoration(
-                color: theme.surfaceRaised,
-                borderRadius: BorderRadius.circular(compact ? 26 : 30),
-                border: Border.all(color: theme.borderLight, width: 2.5),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.inputShadow.withValues(alpha: 0.42),
-                    blurRadius: 0,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
+        padding: strategy.rootPadding(compact: compact),
+        decoration: strategy.rootDecoration(theme, compact: compact),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_showsDate) _buildCalendar(context),
             if (_showsTime) ...[
-              if (_showsDate) SizedBox(height: theme.isWestworld ? 8 : 14),
+              if (_showsDate) SizedBox(height: strategy.sectionGap()),
               _buildTimePanel(context),
             ],
           ],
@@ -301,9 +282,17 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
 
   Widget _buildCalendar(BuildContext context) {
     final theme = context.animalIslandTheme;
+    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
     final daysInMonth = DateUtils.getDaysInMonth(
       _displayMonth.year,
       _displayMonth.month,
+    );
+    final systemHeader = strategy.buildSystemHeader(
+      context,
+      theme,
+      label: 'CALENDAR VECTOR',
+      value:
+          '${_displayMonth.year}.${_displayMonth.month.toString().padLeft(2, '0')}',
     );
     final firstWeekday =
         DateTime(_displayMonth.year, _displayMonth.month, 1).weekday % 7;
@@ -335,19 +324,15 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
     return Container(
       padding: EdgeInsets.fromLTRB(
         12,
-        theme.isWestworld ? 8 : 10,
+        strategy.panelPadding(AnimalDateTimePickerPanelKind.calendar).top,
         12,
-        theme.isWestworld ? 10 : 12,
+        strategy.panelPadding(AnimalDateTimePickerPanelKind.calendar).bottom,
       ),
-      decoration: _pickerPanelDecoration(theme),
+      decoration: strategy.pickerPanelDecoration(theme),
       child: Column(
         children: [
-          if (theme.isWestworld) ...[
-            _WestworldPickerHeader(
-              label: 'CALENDAR VECTOR',
-              value:
-                  '${_displayMonth.year}.${_displayMonth.month.toString().padLeft(2, '0')}',
-            ),
+          if (systemHeader != null) ...[
+            systemHeader,
             const SizedBox(height: 6),
           ],
           Row(
@@ -365,12 +350,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
                 child: Text(
                   '${_displayMonth.year}年 ${_monthLabels[_displayMonth.month - 1]}',
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: theme.textPrimary,
-                    fontSize: AnimalIslandTokens.fontBody,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: theme.isWestworld ? 1.2 : null,
-                  ),
+                  style: strategy.monthTitleStyle(context, theme),
                 ),
               ),
               _RoundActionButton(
@@ -384,7 +364,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
               ),
             ],
           ),
-          SizedBox(height: theme.isWestworld ? 6 : 10),
+          SizedBox(height: strategy.calendarHeaderGap()),
           Row(
             children: _weekdayLabels
                 .map(
@@ -392,27 +372,21 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
                     child: Center(
                       child: Text(
                         label,
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              fontSize: AnimalIslandTokens.fontCaption,
-                              color: theme.textMuted,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: theme.isWestworld ? 1.0 : null,
-                            ),
+                        style: strategy.weekdayStyle(context, theme),
                       ),
                     ),
                   ),
                 )
                 .toList(),
           ),
-          SizedBox(height: theme.isWestworld ? 4 : 6),
+          SizedBox(height: strategy.weekdayGap()),
           GridView.count(
             crossAxisCount: 7,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: theme.isWestworld ? 3 : 4,
-            crossAxisSpacing: theme.isWestworld ? 3 : 4,
-            childAspectRatio: theme.isWestworld ? 1.18 : 1.06,
+            mainAxisSpacing: strategy.gridMainAxisSpacing(),
+            crossAxisSpacing: strategy.gridCrossAxisSpacing(),
+            childAspectRatio: strategy.gridChildAspectRatio(),
             children: cells,
           ),
         ],
@@ -422,35 +396,33 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
 
   Widget _buildTimePanel(BuildContext context) {
     final theme = context.animalIslandTheme;
+    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
     final compact = MediaQuery.sizeOf(context).width < 720;
     final minuteValues = _minuteChoices(
       _normalizedMinuteStep(widget.minuteStep),
+    );
+    final systemHeader = strategy.buildSystemHeader(
+      context,
+      theme,
+      label: 'TIME WINDOW',
+      value:
+          '${widget.value.hour.toString().padLeft(2, '0')}:${widget.value.minute.toString().padLeft(2, '0')}',
     );
 
     return Container(
       padding: EdgeInsets.fromLTRB(
         12,
-        theme.isWestworld ? 8 : 12,
+        strategy.panelPadding(AnimalDateTimePickerPanelKind.time).top,
         12,
-        theme.isWestworld ? 10 : 14,
+        strategy.panelPadding(AnimalDateTimePickerPanelKind.time).bottom,
       ),
-      decoration: _pickerPanelDecoration(theme),
+      decoration: strategy.pickerPanelDecoration(theme),
       child: SizedBox(
-        height: theme.isWestworld
-            ? compact
-                  ? 150
-                  : 160
-            : compact
-            ? 196
-            : 208,
+        height: strategy.timePanelHeight(compact: compact),
         child: Column(
           children: [
-            if (theme.isWestworld) ...[
-              _WestworldPickerHeader(
-                label: 'TIME WINDOW',
-                value:
-                    '${widget.value.hour.toString().padLeft(2, '0')}:${widget.value.minute.toString().padLeft(2, '0')}',
-              ),
+            if (systemHeader != null) ...[
+              systemHeader,
               const SizedBox(height: 6),
             ],
             Expanded(
@@ -470,14 +442,11 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
                     padding: const EdgeInsets.symmetric(horizontal: 6),
                     child: Text(
                       ':',
-                      style: Theme.of(context).textTheme.headlineMedium
-                          ?.copyWith(
-                            color: theme.textPrimary,
-                            fontSize: compact ? 28 : 32,
-                            fontWeight: theme.isWestworld
-                                ? FontWeight.w400
-                                : FontWeight.w900,
-                          ),
+                      style: strategy.timeSeparatorStyle(
+                        context,
+                        theme,
+                        compact: compact,
+                      ),
                     ),
                   ),
                   Expanded(
@@ -499,28 +468,6 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
     );
   }
 
-  BoxDecoration _pickerPanelDecoration(AnimalIslandThemeData theme) {
-    if (theme.isWestworld) {
-      return theme.westworldPanelDecoration(color: theme.surface);
-    }
-
-    return BoxDecoration(
-      color: theme.surface,
-      borderRadius: BorderRadius.circular(24),
-      border: Border.all(
-        color: theme.borderLight.withValues(alpha: 0.75),
-        width: 2,
-      ),
-      boxShadow: [
-        BoxShadow(
-          color: theme.inputShadow.withValues(alpha: 0.16),
-          blurRadius: 0,
-          offset: const Offset(0, 2),
-        ),
-      ],
-    );
-  }
-
   bool _canDisplayMonth(DateTime month) {
     final start = DateTime(month.year, month.month, 1);
     final end = DateTime(month.year, month.month + 1, 0);
@@ -532,44 +479,6 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
       return false;
     }
     return true;
-  }
-}
-
-class _WestworldPickerHeader extends StatelessWidget {
-  const _WestworldPickerHeader({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = context.animalIslandTheme;
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: theme.textMuted,
-              letterSpacing: 1.8,
-            ),
-          ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-          decoration: BoxDecoration(
-            border: Border.all(color: theme.panelLineColor()),
-          ),
-          child: Text(
-            value,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: theme.textPrimary,
-              letterSpacing: 1.1,
-            ),
-          ),
-        ),
-      ],
-    );
   }
 }
 
@@ -591,56 +500,26 @@ class _CalendarCell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
 
     return GestureDetector(
       onTap: disabled ? null : onTap,
       child: AnimatedContainer(
         duration: AnimalIslandTokens.fast,
         curve: AnimalIslandTokens.motionCurve,
-        decoration: theme.isWestworld
-            ? BoxDecoration(
-                color: selected
-                    ? theme.primary.withValues(alpha: 0.12)
-                    : today
-                    ? theme.textMuted.withValues(alpha: 0.08)
-                    : theme.surfaceRaised.withValues(alpha: 0.36),
-                border: Border.all(
-                  color: selected
-                      ? theme.primary
-                      : today
-                      ? theme.textMuted.withValues(alpha: 0.52)
-                      : theme.panelLineColor(),
-                  width: selected ? 1.4 : 1,
-                ),
-              )
-            : BoxDecoration(
-                color: selected
-                    ? theme.focusYellow
-                    : today
-                    ? theme.primarySoft
-                    : theme.surfaceRaised,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: selected
-                      ? theme.focusYellowDark
-                      : today
-                      ? theme.primary
-                      : theme.borderLight.withValues(alpha: 0.28),
-                  width: selected ? 2.4 : 1.5,
-                ),
-              ),
+        decoration: strategy.calendarCellDecoration(
+          theme,
+          selected: selected,
+          today: today,
+        ),
         alignment: Alignment.center,
         child: Text(
-          theme.isWestworld ? day.toString().padLeft(2, '0') : '$day',
-          style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            fontSize: AnimalIslandTokens.fontCaption,
-            color: disabled
-                ? theme.textDisabled
-                : selected
-                ? theme.textPrimary
-                : theme.textBody,
-            fontWeight: theme.isWestworld ? FontWeight.w500 : FontWeight.w800,
-            letterSpacing: theme.isWestworld ? 0.8 : null,
+          strategy.calendarCellText(day),
+          style: strategy.calendarCellTextStyle(
+            context,
+            theme,
+            selected: selected,
+            disabled: disabled,
           ),
         ),
       ),
@@ -668,25 +547,10 @@ class _WheelPicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
 
     return Container(
-      decoration: theme.isWestworld
-          ? theme.westworldPanelDecoration(color: theme.surfaceRaised)
-          : BoxDecoration(
-              color: theme.surfaceRaised,
-              borderRadius: BorderRadius.circular(22),
-              border: Border.all(
-                color: theme.borderLight.withValues(alpha: 0.75),
-                width: 2,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.inputShadow.withValues(alpha: 0.16),
-                  blurRadius: 0,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
+      decoration: strategy.wheelDecoration(theme),
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -696,20 +560,7 @@ class _WheelPicker extends StatelessWidget {
             child: IgnorePointer(
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: theme.isWestworld
-                      ? theme.primary.withValues(alpha: 0.08)
-                      : theme.focusYellow.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(
-                    theme.isWestworld ? 0 : 14,
-                  ),
-                  border: Border.all(
-                    color: theme.isWestworld
-                        ? theme.primary.withValues(alpha: 0.6)
-                        : theme.focusYellow.withValues(alpha: 0.58),
-                    width: theme.isWestworld ? 1 : 1.8,
-                  ),
-                ),
+                decoration: strategy.wheelSelectionDecoration(theme),
               ),
             ),
           ),
@@ -732,18 +583,17 @@ class _WheelPicker extends StatelessWidget {
                   child: AnimatedDefaultTextStyle(
                     duration: AnimalIslandTokens.fast,
                     curve: AnimalIslandTokens.motionCurve,
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: selected ? theme.textPrimary : theme.textMuted,
-                      fontSize: selected
-                          ? (theme.isWestworld ? 30 : 28)
-                          : (theme.isWestworld ? 19 : 20),
-                      fontWeight: theme.isWestworld
-                          ? FontWeight.w400
-                          : selected
-                          ? FontWeight.w900
-                          : FontWeight.w700,
-                      letterSpacing: theme.isWestworld ? 1.2 : null,
-                    ),
+                    style: Theme.of(context).textTheme.headlineMedium!
+                        .copyWith(
+                          color: selected ? theme.textPrimary : theme.textMuted,
+                        )
+                        .merge(
+                          strategy.wheelTextStyle(
+                            context,
+                            theme,
+                            selected: selected,
+                          ),
+                        ),
                     child: Text(formatter(value)),
                   ),
                 );
@@ -751,26 +601,7 @@ class _WheelPicker extends StatelessWidget {
             ),
           ),
           IgnorePointer(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(theme.isWestworld ? 0 : 22),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    theme.surfaceRaised.withValues(
-                      alpha: theme.isWestworld ? 0.96 : 1,
-                    ),
-                    theme.surfaceRaised.withValues(alpha: 0),
-                    theme.surfaceRaised.withValues(alpha: 0),
-                    theme.surfaceRaised.withValues(
-                      alpha: theme.isWestworld ? 0.96 : 1,
-                    ),
-                  ],
-                  stops: const [0, 0.16, 0.84, 1],
-                ),
-              ),
-            ),
+            child: Container(decoration: strategy.wheelFadeDecoration(theme)),
           ),
         ],
       ),
