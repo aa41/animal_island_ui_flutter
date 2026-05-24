@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../models/animal_island_models.dart';
 import '../../theme/animal_island_theme.dart';
 import '../../theme/animal_island_tokens.dart';
+import '../../utils/animal_island_assets.dart';
 
 abstract final class AnimalModalThemeStrategy {
   const AnimalModalThemeStrategy();
@@ -38,7 +38,16 @@ final class _AnimalIslandModalThemeStrategy extends AnimalModalThemeStrategy {
   @override
   BoxDecoration panelDecoration(AnimalIslandThemeData theme) {
     return BoxDecoration(
-      color: theme.surfaceRaised,
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: <Color>[theme.surfaceRaised, theme.surface],
+      ),
+      image: DecorationImage(
+        image: AnimalIslandAssets.raster(AnimalIslandAssets.demoGuideLine),
+        fit: BoxFit.cover,
+        opacity: theme.mode == AnimalIslandThemeMode.day ? 0.02 : 0.015,
+      ),
     );
   }
 
@@ -104,10 +113,12 @@ final class _NesAnimalModalThemeStrategy extends AnimalModalThemeStrategy {
   FontWeight bodyFontWeight(AnimalIslandThemeData theme) => FontWeight.w600;
 
   @override
-  BorderRadius? clipRadius(AnimalIslandThemeData theme) => null;
+  BorderRadius? clipRadius(AnimalIslandThemeData theme) =>
+      BorderRadius.circular(theme.radiusBase);
 }
 
-final class _WestworldAnimalModalThemeStrategy extends AnimalModalThemeStrategy {
+final class _WestworldAnimalModalThemeStrategy
+    extends AnimalModalThemeStrategy {
   const _WestworldAnimalModalThemeStrategy();
 
   @override
@@ -135,5 +146,6 @@ final class _WestworldAnimalModalThemeStrategy extends AnimalModalThemeStrategy 
   FontWeight bodyFontWeight(AnimalIslandThemeData theme) => FontWeight.w400;
 
   @override
-  BorderRadius? clipRadius(AnimalIslandThemeData theme) => null;
+  BorderRadius? clipRadius(AnimalIslandThemeData theme) =>
+      BorderRadius.circular(theme.radiusBase);
 }

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:path_drawing/path_drawing.dart';
 
 import '../theme/animal_island_theme.dart';
-import '../theme/animal_island_tokens.dart';
 import '../models/animal_island_models.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
@@ -182,7 +181,7 @@ class _AnimalModalPanel extends StatelessWidget {
       ],
     );
 
-    final panel = DecoratedBox(
+    final panelSurface = DecoratedBox(
       decoration: strategy.panelDecoration(theme),
       child: Padding(
         padding: strategy.panelPadding(theme),
@@ -228,15 +227,29 @@ class _AnimalModalPanel extends StatelessWidget {
         ),
       ),
     );
+    final clipRadius = strategy.clipRadius(theme);
+    final panel = clipRadius == null
+        ? PhysicalShape(
+            clipper: const _AnimalModalClipper(),
+            color: theme.borderLight,
+            shadowColor: theme.buttonShadow.withValues(alpha: 0.34),
+            elevation: 12,
+            child: Padding(
+              padding: const EdgeInsets.all(2.5),
+              child: ClipPath(
+                clipper: const _AnimalModalClipper(),
+                child: panelSurface,
+              ),
+            ),
+          )
+        : panelSurface;
 
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: math.min(MediaQuery.sizeOf(context).width - 32, width),
         maxHeight: MediaQuery.sizeOf(context).height - 64,
       ),
-      child: strategy.clipRadius(theme) == null
-          ? panel
-          : ClipPath(clipper: _AnimalModalClipper(), child: panel),
+      child: panel,
     );
   }
 }
@@ -278,6 +291,8 @@ class _AnimalModalBody extends StatelessWidget {
 }
 
 class _AnimalModalClipper extends CustomClipper<Path> {
+  const _AnimalModalClipper();
+
   static final Path _path = parseSvgPathData(
     'M0.501,0.005 L0.501,0.005 L0.523,0.005 L0.549,0.006 '
     'C0.704,0.01,0.796,0.017,0.825,0.027 '
