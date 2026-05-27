@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
+import 'animal_component_dispatcher.dart';
 import 'animal_button.dart';
 import 'animal_bottom_sheet.dart';
 import 'animal_modal.dart';
+import 'guofeng_components.dart';
 import 'theme_strategies/animal_date_time_picker_theme_strategy.dart';
 
 Future<DateTime?> showAnimalDateTimePicker({
@@ -103,7 +105,7 @@ Future<DateTime?> showAnimalDateTimePicker({
   );
 }
 
-class AnimalDateTimePicker extends StatefulWidget {
+class AnimalDateTimePicker extends StatelessWidget {
   const AnimalDateTimePicker({
     super.key,
     required this.value,
@@ -132,10 +134,165 @@ class AnimalDateTimePicker extends StatefulWidget {
   final ValueChanged<bool>? onHourFormatChanged;
 
   @override
-  State<AnimalDateTimePicker> createState() => _AnimalDateTimePickerState();
+  Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandDateTimePicker(
+        value: value,
+        onChanged: onChanged,
+        firstDate: firstDate,
+        lastDate: lastDate,
+        mode: mode,
+        minuteStep: minuteStep,
+        use24Hour: use24Hour,
+        allowHourFormatToggle: allowHourFormatToggle,
+        showQuickActions: showQuickActions,
+        enabled: enabled,
+        onHourFormatChanged: onHourFormatChanged,
+      ),
+      nes: (_) => _NesAnimalDateTimePicker(
+        value: value,
+        onChanged: onChanged,
+        firstDate: firstDate,
+        lastDate: lastDate,
+        mode: mode,
+        minuteStep: minuteStep,
+        use24Hour: use24Hour,
+        allowHourFormatToggle: allowHourFormatToggle,
+        showQuickActions: showQuickActions,
+        enabled: enabled,
+        onHourFormatChanged: onHourFormatChanged,
+      ),
+      westworld: (_) => _WestworldAnimalDateTimePicker(
+        value: value,
+        onChanged: onChanged,
+        firstDate: firstDate,
+        lastDate: lastDate,
+        mode: mode,
+        minuteStep: minuteStep,
+        use24Hour: use24Hour,
+        allowHourFormatToggle: allowHourFormatToggle,
+        showQuickActions: showQuickActions,
+        enabled: enabled,
+        onHourFormatChanged: onHourFormatChanged,
+      ),
+      guofeng: (_) => _GuofengAnimalDateTimePicker(
+        value: value,
+        onChanged: onChanged,
+        firstDate: firstDate,
+        lastDate: lastDate,
+        mode: mode,
+        minuteStep: minuteStep,
+        use24Hour: use24Hour,
+        allowHourFormatToggle: allowHourFormatToggle,
+        showQuickActions: showQuickActions,
+        enabled: enabled,
+        onHourFormatChanged: onHourFormatChanged,
+      ),
+    );
+  }
 }
 
-class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
+class _AnimalIslandDateTimePicker extends _ThemedAnimalDateTimePicker {
+  const _AnimalIslandDateTimePicker({
+    required super.value,
+    required super.onChanged,
+    required super.firstDate,
+    required super.lastDate,
+    required super.mode,
+    required super.minuteStep,
+    required super.use24Hour,
+    required super.allowHourFormatToggle,
+    required super.showQuickActions,
+    required super.enabled,
+    required super.onHourFormatChanged,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalDateTimePicker extends _ThemedAnimalDateTimePicker {
+  const _NesAnimalDateTimePicker({
+    required super.value,
+    required super.onChanged,
+    required super.firstDate,
+    required super.lastDate,
+    required super.mode,
+    required super.minuteStep,
+    required super.use24Hour,
+    required super.allowHourFormatToggle,
+    required super.showQuickActions,
+    required super.enabled,
+    required super.onHourFormatChanged,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalDateTimePicker extends _ThemedAnimalDateTimePicker {
+  const _WestworldAnimalDateTimePicker({
+    required super.value,
+    required super.onChanged,
+    required super.firstDate,
+    required super.lastDate,
+    required super.mode,
+    required super.minuteStep,
+    required super.use24Hour,
+    required super.allowHourFormatToggle,
+    required super.showQuickActions,
+    required super.enabled,
+    required super.onHourFormatChanged,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalDateTimePicker extends _ThemedAnimalDateTimePicker {
+  const _GuofengAnimalDateTimePicker({
+    required super.value,
+    required super.onChanged,
+    required super.firstDate,
+    required super.lastDate,
+    required super.mode,
+    required super.minuteStep,
+    required super.use24Hour,
+    required super.allowHourFormatToggle,
+    required super.showQuickActions,
+    required super.enabled,
+    required super.onHourFormatChanged,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalDateTimePicker extends StatefulWidget {
+  const _ThemedAnimalDateTimePicker({
+    required this.gameStyle,
+    required this.value,
+    required this.onChanged,
+    required this.firstDate,
+    required this.lastDate,
+    required this.mode,
+    required this.minuteStep,
+    required this.use24Hour,
+    required this.allowHourFormatToggle,
+    required this.showQuickActions,
+    required this.enabled,
+    required this.onHourFormatChanged,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final DateTime value;
+  final ValueChanged<DateTime> onChanged;
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+  final AnimalDateTimePickerMode mode;
+  final int minuteStep;
+  final bool use24Hour;
+  final bool allowHourFormatToggle;
+  final bool showQuickActions;
+  final bool enabled;
+  final ValueChanged<bool>? onHourFormatChanged;
+
+  @override
+  State<_ThemedAnimalDateTimePicker> createState() =>
+      _ThemedAnimalDateTimePickerState();
+}
+
+class _ThemedAnimalDateTimePickerState
+    extends State<_ThemedAnimalDateTimePicker> {
   late DateTime _displayMonth = _monthStart(widget.value);
   late final FixedExtentScrollController _hourController =
       FixedExtentScrollController(initialItem: widget.value.hour);
@@ -156,7 +313,7 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
       widget.mode == AnimalDateTimePickerMode.dateTime;
 
   @override
-  void didUpdateWidget(covariant AnimalDateTimePicker oldWidget) {
+  void didUpdateWidget(covariant _ThemedAnimalDateTimePicker oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_isSameMonth(oldWidget.value, widget.value)) {
       _displayMonth = _monthStart(widget.value);
@@ -255,10 +412,12 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
-    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
+    final strategy = AnimalDateTimePickerThemeStrategy.forGameStyle(
+      widget.gameStyle,
+    );
     final compact = MediaQuery.sizeOf(context).width < 720;
 
-    return Opacity(
+    final picker = Opacity(
       opacity: widget.enabled ? 1 : 0.58,
       child: AnimatedContainer(
         duration: AnimalIslandTokens.base,
@@ -278,11 +437,35 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
         ),
       ),
     );
+    if (widget.gameStyle != AnimalIslandGameStyle.guofengDoodle) {
+      return picker;
+    }
+    return Stack(
+      children: [
+        picker,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: GuofengPaperTexturePainter(theme: theme, seed: 89),
+              foregroundPainter: GuofengInkOutlinePainter(
+                color: theme.border,
+                radius: theme.radiusLg,
+                strokeWidth: theme.borderWidth,
+                seed: 89,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildCalendar(BuildContext context) {
     final theme = context.animalIslandTheme;
-    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
+    final isGuofeng = widget.gameStyle == AnimalIslandGameStyle.guofengDoodle;
+    final strategy = AnimalDateTimePickerThemeStrategy.forGameStyle(
+      widget.gameStyle,
+    );
     final daysInMonth = DateUtils.getDaysInMonth(
       _displayMonth.year,
       _displayMonth.month,
@@ -321,11 +504,11 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
       );
     }
 
-    return Container(
+    final panel = Container(
       padding: EdgeInsets.fromLTRB(
-        12,
+        isGuofeng ? 10 : 12,
         strategy.panelPadding(AnimalDateTimePickerPanelKind.calendar).top,
-        12,
+        isGuofeng ? 10 : 12,
         strategy.panelPadding(AnimalDateTimePickerPanelKind.calendar).bottom,
       ),
       decoration: strategy.pickerPanelDecoration(theme),
@@ -380,23 +563,58 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
                 .toList(),
           ),
           SizedBox(height: strategy.weekdayGap()),
-          GridView.count(
-            crossAxisCount: 7,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: strategy.gridMainAxisSpacing(),
-            crossAxisSpacing: strategy.gridCrossAxisSpacing(),
-            childAspectRatio: strategy.gridChildAspectRatio(),
-            children: cells,
+          CustomPaint(
+            painter: isGuofeng
+                ? _GuofengCalendarGridPainter(
+                    color: theme.border.withValues(alpha: 0.18),
+                    accent: theme.primary.withValues(alpha: 0.16),
+                  )
+                : null,
+            child: Padding(
+              padding: EdgeInsets.all(isGuofeng ? 3 : 0),
+              child: GridView.count(
+                crossAxisCount: 7,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                mainAxisSpacing: strategy.gridMainAxisSpacing(),
+                crossAxisSpacing: strategy.gridCrossAxisSpacing(),
+                childAspectRatio: strategy.gridChildAspectRatio(),
+                children: cells,
+              ),
+            ),
           ),
         ],
       ),
+    );
+    if (!isGuofeng) {
+      return panel;
+    }
+    return Stack(
+      children: [
+        panel,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: GuofengPaperTexturePainter(theme: theme, seed: 91),
+              foregroundPainter: GuofengInkOutlinePainter(
+                color: theme.border.withValues(alpha: 0.74),
+                radius: 12,
+                strokeWidth: 1.5,
+                seed: 91,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   Widget _buildTimePanel(BuildContext context) {
     final theme = context.animalIslandTheme;
-    final strategy = AnimalDateTimePickerThemeStrategy.of(theme);
+    final isGuofeng = widget.gameStyle == AnimalIslandGameStyle.guofengDoodle;
+    final strategy = AnimalDateTimePickerThemeStrategy.forGameStyle(
+      widget.gameStyle,
+    );
     final compact = MediaQuery.sizeOf(context).width < 720;
     final minuteValues = _minuteChoices(
       _normalizedMinuteStep(widget.minuteStep),
@@ -409,11 +627,11 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
           '${widget.value.hour.toString().padLeft(2, '0')}:${widget.value.minute.toString().padLeft(2, '0')}',
     );
 
-    return Container(
+    final panel = Container(
       padding: EdgeInsets.fromLTRB(
-        12,
+        isGuofeng ? 10 : 12,
         strategy.panelPadding(AnimalDateTimePickerPanelKind.time).top,
-        12,
+        isGuofeng ? 10 : 12,
         strategy.panelPadding(AnimalDateTimePickerPanelKind.time).bottom,
       ),
       decoration: strategy.pickerPanelDecoration(theme),
@@ -466,6 +684,27 @@ class _AnimalDateTimePickerState extends State<AnimalDateTimePicker> {
         ),
       ),
     );
+    if (!isGuofeng) {
+      return panel;
+    }
+    return Stack(
+      children: [
+        panel,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: GuofengPaperTexturePainter(theme: theme, seed: 92),
+              foregroundPainter: GuofengInkOutlinePainter(
+                color: theme.border.withValues(alpha: 0.72),
+                radius: 12,
+                strokeWidth: 1.5,
+                seed: 92,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 
   bool _canDisplayMonth(DateTime month) {
@@ -513,17 +752,142 @@ class _CalendarCell extends StatelessWidget {
           today: today,
         ),
         alignment: Alignment.center,
-        child: Text(
-          strategy.calendarCellText(day),
-          style: strategy.calendarCellTextStyle(
-            context,
-            theme,
-            selected: selected,
-            disabled: disabled,
-          ),
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (theme.isGuofengDoodle && (selected || today))
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(
+                    painter: _GuofengCalendarSelectionPainter(
+                      color: selected
+                          ? theme.primary
+                          : theme.focusYellowDark.withValues(alpha: 0.72),
+                      fill: selected
+                          ? theme.primary.withValues(alpha: 0.14)
+                          : theme.focusYellow.withValues(alpha: 0.1),
+                      selected: selected,
+                    ),
+                  ),
+                ),
+              ),
+            Text(
+              strategy.calendarCellText(day),
+              style: strategy.calendarCellTextStyle(
+                context,
+                theme,
+                selected: selected,
+                disabled: disabled,
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+}
+
+class _GuofengCalendarGridPainter extends CustomPainter {
+  const _GuofengCalendarGridPainter({
+    required this.color,
+    required this.accent,
+  });
+
+  final Color color;
+  final Color accent;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final line = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 0.8
+      ..strokeCap = StrokeCap.round
+      ..color = color;
+    for (var i = 1; i < 7; i += 1) {
+      final x = size.width * i / 7;
+      canvas.drawLine(
+        Offset(x, 2 + math.sin(i * 1.3) * 0.6),
+        Offset(x + math.sin(i * 0.8) * 0.6, size.height - 2),
+        line,
+      );
+    }
+    for (var i = 1; i < 6; i += 1) {
+      final y = size.height * i / 6;
+      canvas.drawLine(
+        Offset(2, y + math.sin(i * 1.1) * 0.5),
+        Offset(size.width - 2, y + math.sin(i * 1.7) * 0.5),
+        line,
+      );
+    }
+    canvas.drawLine(
+      Offset(size.width * 0.08, size.height + 1),
+      Offset(size.width * 0.92, size.height - 1),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..strokeCap = StrokeCap.round
+        ..color = accent,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengCalendarGridPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.accent != accent;
+  }
+}
+
+class _GuofengCalendarSelectionPainter extends CustomPainter {
+  const _GuofengCalendarSelectionPainter({
+    required this.color,
+    required this.fill,
+    required this.selected,
+  });
+
+  final Color color;
+  final Color fill;
+  final bool selected;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final rect = Rect.fromLTWH(3, 3, size.width - 6, size.height - 6);
+    final fillPath = Path()
+      ..moveTo(rect.left + 3, rect.top + 2)
+      ..lineTo(rect.right - 2, rect.top + 3.4)
+      ..lineTo(rect.right - 3.2, rect.bottom - 2)
+      ..lineTo(rect.left + 2, rect.bottom - 3)
+      ..close();
+    canvas.drawPath(fillPath, Paint()..color = fill);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = selected ? 1.7 : 1.2
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = color;
+    canvas.drawPath(fillPath, paint);
+    if (selected) {
+      canvas.drawLine(
+        Offset(rect.left + 5, rect.bottom - 3),
+        Offset(rect.right - 5, rect.bottom - 4.2),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.2
+          ..strokeCap = StrokeCap.round
+          ..color = color.withValues(alpha: 0.52),
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengCalendarSelectionPainter oldDelegate) {
+    return oldDelegate.color != color ||
+        oldDelegate.fill != fill ||
+        oldDelegate.selected != selected;
   }
 }
 
@@ -554,6 +918,18 @@ class _WheelPicker extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          if (theme.isGuofengDoodle)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: GuofengPaperTexturePainter(theme: theme, seed: 93),
+                  foregroundPainter: _GuofengWheelFramePainter(
+                    ink: theme.border.withValues(alpha: 0.68),
+                    active: theme.primary.withValues(alpha: 0.56),
+                  ),
+                ),
+              ),
+            ),
           Positioned.fill(
             top: 72,
             bottom: 72,
@@ -561,15 +937,22 @@ class _WheelPicker extends StatelessWidget {
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 14),
                 decoration: strategy.wheelSelectionDecoration(theme),
+                foregroundDecoration: theme.isGuofengDoodle
+                    ? ShapeDecoration(
+                        shape: _GuofengWheelSelectionBorder(
+                          color: theme.primary,
+                        ),
+                      )
+                    : null,
               ),
             ),
           ),
           ListWheelScrollView.useDelegate(
             controller: controller,
             itemExtent: 44,
-            diameterRatio: 1.18,
+            diameterRatio: theme.isGuofengDoodle ? 1.28 : 1.18,
             perspective: 0.003,
-            squeeze: 0.94,
+            squeeze: theme.isGuofengDoodle ? 0.98 : 0.94,
             physics: enabled
                 ? const FixedExtentScrollPhysics()
                 : const NeverScrollableScrollPhysics(),
@@ -609,6 +992,88 @@ class _WheelPicker extends StatelessWidget {
   }
 }
 
+class _GuofengWheelFramePainter extends CustomPainter {
+  const _GuofengWheelFramePainter({required this.ink, required this.active});
+
+  final Color ink;
+  final Color active;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    GuofengInkOutlinePainter(
+      color: ink,
+      radius: 12,
+      strokeWidth: 1.4,
+      seed: 93,
+    ).paint(canvas, size);
+    final centerY = size.height / 2;
+    canvas.drawLine(
+      Offset(14, centerY),
+      Offset(size.width - 14, centerY + 0.6),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.2
+        ..strokeCap = StrokeCap.round
+        ..color = active,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengWheelFramePainter oldDelegate) {
+    return oldDelegate.ink != ink || oldDelegate.active != active;
+  }
+}
+
+class _GuofengWheelSelectionBorder extends ShapeBorder {
+  const _GuofengWheelSelectionBorder({required this.color});
+
+  final Color color;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) =>
+      getOuterPath(rect.deflate(1.5), textDirection: textDirection);
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    return Path()
+      ..moveTo(rect.left + 8, rect.top + 1)
+      ..lineTo(rect.right - 8, rect.top + 0.2)
+      ..quadraticBezierTo(rect.right, rect.top, rect.right - 1, rect.center.dy)
+      ..quadraticBezierTo(
+        rect.right,
+        rect.bottom,
+        rect.right - 8,
+        rect.bottom - 1,
+      )
+      ..lineTo(rect.left + 8, rect.bottom - 0.2)
+      ..quadraticBezierTo(rect.left, rect.bottom, rect.left + 1, rect.center.dy)
+      ..quadraticBezierTo(rect.left, rect.top, rect.left + 8, rect.top + 1)
+      ..close();
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    canvas.drawPath(
+      getOuterPath(rect, textDirection: textDirection),
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..color = color.withValues(alpha: 0.68),
+    );
+  }
+
+  @override
+  ShapeBorder scale(double t) => _GuofengWheelSelectionBorder(color: color);
+}
+
 class _RoundActionButton extends StatelessWidget {
   const _RoundActionButton({
     required this.icon,
@@ -623,6 +1088,25 @@ class _RoundActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+    if (theme.isGuofengDoodle) {
+      return GestureDetector(
+        onTap: enabled ? onTap : null,
+        behavior: HitTestBehavior.opaque,
+        child: Opacity(
+          opacity: enabled ? 1 : 0.42,
+          child: SizedBox.square(
+            dimension: 34,
+            child: CustomPaint(
+              painter: _GuofengArrowButtonPainter(
+                color: enabled ? theme.border : theme.textDisabled,
+                active: theme.primary,
+                left: icon == Icons.chevron_left_rounded,
+              ),
+            ),
+          ),
+        ),
+      );
+    }
     return SizedBox(
       width: 42,
       child: AnimalButton(
@@ -637,6 +1121,59 @@ class _RoundActionButton extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _GuofengArrowButtonPainter extends CustomPainter {
+  const _GuofengArrowButtonPainter({
+    required this.color,
+    required this.active,
+    required this.left,
+  });
+
+  final Color color;
+  final Color active;
+  final bool left;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    GuofengInkOutlinePainter(
+      color: color.withValues(alpha: 0.72),
+      radius: 8,
+      strokeWidth: 1.4,
+      seed: left ? 101 : 102,
+    ).paint(canvas, size);
+    final center = size.center(Offset.zero);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2.2
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = active;
+    if (left) {
+      canvas.drawPath(
+        Path()
+          ..moveTo(center.dx + 5, center.dy - 8)
+          ..lineTo(center.dx - 4, center.dy)
+          ..lineTo(center.dx + 5, center.dy + 8),
+        paint,
+      );
+    } else {
+      canvas.drawPath(
+        Path()
+          ..moveTo(center.dx - 5, center.dy - 8)
+          ..lineTo(center.dx + 4, center.dy)
+          ..lineTo(center.dx - 5, center.dy + 8),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengArrowButtonPainter oldDelegate) {
+    return oldDelegate.color != color ||
+        oldDelegate.active != active ||
+        oldDelegate.left != left;
   }
 }
 

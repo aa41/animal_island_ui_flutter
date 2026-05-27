@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../models/animal_island_models.dart';
 import '../../theme/animal_island_theme.dart';
 import '../../theme/animal_island_tokens.dart';
 import '../../utils/animal_island_assets.dart';
@@ -10,11 +9,19 @@ abstract final class AnimalBottomSheetThemeStrategy {
   const AnimalBottomSheetThemeStrategy();
 
   static AnimalBottomSheetThemeStrategy of(AnimalIslandThemeData theme) {
-    return switch (theme.gameStyle) {
+    return forGameStyle(theme.gameStyle);
+  }
+
+  static AnimalBottomSheetThemeStrategy forGameStyle(
+    AnimalIslandGameStyle gameStyle,
+  ) {
+    return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit =>
         const _NesAnimalBottomSheetThemeStrategy(),
       AnimalIslandGameStyle.westworld =>
         const _WestworldAnimalBottomSheetThemeStrategy(),
+      AnimalIslandGameStyle.guofengDoodle =>
+        const _GuofengAnimalBottomSheetThemeStrategy(),
       AnimalIslandGameStyle.animalIsland =>
         const _AnimalIslandBottomSheetThemeStrategy(),
     };
@@ -82,11 +89,6 @@ final class _AnimalIslandBottomSheetThemeStrategy
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: <Color>[theme.surfaceRaised, theme.surface],
-      ),
-      image: DecorationImage(
-        image: AnimalIslandAssets.raster(AnimalIslandAssets.demoGuideLine),
-        fit: BoxFit.cover,
-        opacity: theme.mode == AnimalIslandThemeMode.day ? 0.02 : 0.015,
       ),
       border: Border.all(
         color: theme.border.withValues(
@@ -171,6 +173,99 @@ final class _AnimalIslandBottomSheetThemeStrategy
         bottomRight: Radius.circular(18),
       ),
       showLeaf: true,
+    );
+  }
+}
+
+final class _GuofengAnimalBottomSheetThemeStrategy
+    extends AnimalBottomSheetThemeStrategy {
+  const _GuofengAnimalBottomSheetThemeStrategy();
+
+  @override
+  BorderRadius? clipRadius(AnimalIslandThemeData theme) =>
+      BorderRadius.circular(theme.radiusLg);
+
+  @override
+  Color outerColor(AnimalIslandThemeData theme) => Colors.transparent;
+
+  @override
+  double elevation(AnimalIslandThemeData theme) => 0;
+
+  @override
+  double framePadding(AnimalIslandThemeData theme) => 0;
+
+  @override
+  EdgeInsets contentPadding(AnimalIslandThemeData theme) =>
+      const EdgeInsets.fromLTRB(24, 18, 24, 22);
+
+  @override
+  CustomClipper<Path>? panelClipper(AnimalIslandThemeData theme) => null;
+
+  @override
+  BoxDecoration panelDecoration(AnimalIslandThemeData theme) {
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.circular(theme.radiusLg),
+      border: Border.all(color: Colors.transparent, width: theme.borderWidth),
+      boxShadow: [
+        BoxShadow(
+          color: theme.inputShadow.withValues(alpha: 0.38),
+          blurRadius: theme.mode == AnimalIslandThemeMode.day ? 10 : 18,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    );
+  }
+
+  @override
+  bool bodyScrolls(AnimalIslandThemeData theme) => true;
+
+  @override
+  double maxHeightRatio(AnimalIslandThemeData theme) => 0.76;
+
+  @override
+  TextStyle titleStyle(BuildContext context, AnimalIslandThemeData theme) {
+    return Theme.of(context).textTheme.titleLarge!.copyWith(
+      color: theme.textPrimary,
+      fontSize: AnimalIslandTokens.fontTitle,
+      fontWeight: FontWeight.w700,
+    );
+  }
+
+  @override
+  TextStyle bodyStyle(BuildContext context, AnimalIslandThemeData theme) {
+    return Theme.of(context).textTheme.bodyLarge!.copyWith(
+      fontSize: AnimalIslandTokens.fontBodyLg,
+      color: theme.textBody,
+      height: 1.5,
+      fontWeight: FontWeight.w500,
+    );
+  }
+
+  @override
+  Widget buildHandle(AnimalIslandThemeData theme) {
+    return Container(
+      width: 52,
+      height: 7,
+      decoration: BoxDecoration(
+        color: theme.primary.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(theme.radiusPill),
+        border: Border.all(color: theme.border, width: 1.4),
+      ),
+    );
+  }
+
+  @override
+  Widget buildCloseButton(
+    BuildContext context,
+    AnimalIslandThemeData theme, {
+    required VoidCallback? onTap,
+  }) {
+    return AnimalBottomSheetCloseButton(
+      theme: theme,
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(theme.radiusSm),
+      showLeaf: false,
     );
   }
 }

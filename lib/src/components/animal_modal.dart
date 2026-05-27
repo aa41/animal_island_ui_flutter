@@ -5,8 +5,10 @@ import 'package:path_drawing/path_drawing.dart';
 
 import '../theme/animal_island_theme.dart';
 import '../models/animal_island_models.dart';
+import 'animal_component_dispatcher.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
+import 'guofeng_components.dart';
 import 'theme_strategies/animal_modal_theme_strategy.dart';
 
 const Object _defaultModalFooterMarker = Object();
@@ -92,11 +94,155 @@ class AnimalModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandModal(
+        open: open,
+        title: title,
+        width: width,
+        maskClosable: maskClosable,
+        footer: footer,
+        onClose: onClose,
+        onOk: onOk,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+      nes: (_) => _NesAnimalModal(
+        open: open,
+        title: title,
+        width: width,
+        maskClosable: maskClosable,
+        footer: footer,
+        onClose: onClose,
+        onOk: onOk,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+      westworld: (_) => _WestworldAnimalModal(
+        open: open,
+        title: title,
+        width: width,
+        maskClosable: maskClosable,
+        footer: footer,
+        onClose: onClose,
+        onOk: onOk,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+      guofeng: (_) => _GuofengAnimalModal(
+        open: open,
+        title: title,
+        width: width,
+        maskClosable: maskClosable,
+        footer: footer,
+        onClose: onClose,
+        onOk: onOk,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+    );
+  }
+}
+
+class _AnimalIslandModal extends _ThemedAnimalModal {
+  const _AnimalIslandModal({
+    required super.open,
+    required super.title,
+    required super.width,
+    required super.maskClosable,
+    required super.footer,
+    required super.onClose,
+    required super.onOk,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalModal extends _ThemedAnimalModal {
+  const _NesAnimalModal({
+    required super.open,
+    required super.title,
+    required super.width,
+    required super.maskClosable,
+    required super.footer,
+    required super.onClose,
+    required super.onOk,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalModal extends _ThemedAnimalModal {
+  const _WestworldAnimalModal({
+    required super.open,
+    required super.title,
+    required super.width,
+    required super.maskClosable,
+    required super.footer,
+    required super.onClose,
+    required super.onOk,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalModal extends _ThemedAnimalModal {
+  const _GuofengAnimalModal({
+    required super.open,
+    required super.title,
+    required super.width,
+    required super.maskClosable,
+    required super.footer,
+    required super.onClose,
+    required super.onOk,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalModal extends StatelessWidget {
+  const _ThemedAnimalModal({
+    required this.gameStyle,
+    required this.open,
+    required this.title,
+    required this.width,
+    required this.maskClosable,
+    required this.footer,
+    required this.onClose,
+    required this.onOk,
+    required this.child,
+    required this.typeSpeed,
+    required this.typewriter,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final bool open;
+  final Widget? title;
+  final double width;
+  final bool maskClosable;
+  final Object? footer;
+  final VoidCallback? onClose;
+  final VoidCallback? onOk;
+  final Widget? child;
+  final int typeSpeed;
+  final bool typewriter;
+
+  @override
+  Widget build(BuildContext context) {
     if (!open) {
       return const SizedBox.shrink();
     }
 
     final modal = _AnimalModalPanel(
+      gameStyle: gameStyle,
       title: title,
       width: width,
       footer: footer,
@@ -135,6 +281,7 @@ class AnimalModal extends StatelessWidget {
 
 class _AnimalModalPanel extends StatelessWidget {
   const _AnimalModalPanel({
+    required this.gameStyle,
     required this.title,
     required this.width,
     required this.footer,
@@ -145,6 +292,7 @@ class _AnimalModalPanel extends StatelessWidget {
     required this.typewriter,
   });
 
+  final AnimalIslandGameStyle gameStyle;
   final Widget? title;
   final double width;
   final Object? footer;
@@ -157,7 +305,7 @@ class _AnimalModalPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
-    final strategy = AnimalModalThemeStrategy.of(theme);
+    final strategy = AnimalModalThemeStrategy.forGameStyle(gameStyle);
     final useDefaultFooter = identical(footer, _defaultModalFooterMarker);
     final showFooter = useDefaultFooter || footer != null;
     final customFooter = footer is Widget ? footer as Widget : null;
@@ -181,51 +329,69 @@ class _AnimalModalPanel extends StatelessWidget {
       ],
     );
 
-    final panelSurface = DecoratedBox(
-      decoration: strategy.panelDecoration(theme),
-      child: Padding(
-        padding: strategy.panelPadding(theme),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (title != null) ...[
-              DefaultTextStyle(
-                style: Theme.of(context).textTheme.headlineLarge!.copyWith(
-                  color: theme.textBody,
-                  fontSize: strategy.titleFontSize(theme),
-                ),
-                child: title!,
-              ),
-              const SizedBox(height: 15),
-            ],
-            Flexible(
-              child: SingleChildScrollView(
-                child: DefaultTextStyle(
-                  style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    color: theme.textMuted,
-                    fontSize: strategy.bodyFontSize(theme),
-                    fontWeight: strategy.bodyFontWeight(theme),
-                    height: strategy.bodyHeight(theme),
-                  ),
-                  child: _AnimalModalBody(
-                    typeSpeed: typeSpeed,
-                    typewriter: typewriter,
-                    child: child,
-                  ),
+    final panelSurface = Stack(
+      children: [
+        Positioned.fill(
+          child: DecoratedBox(decoration: strategy.panelDecoration(theme)),
+        ),
+        if (gameStyle == AnimalIslandGameStyle.guofengDoodle)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: GuofengPaperTexturePainter(theme: theme, seed: 41),
+                foregroundPainter: GuofengInkOutlinePainter(
+                  color: theme.border,
+                  radius: theme.radiusLg,
+                  strokeWidth: theme.borderWidth,
+                  seed: 41,
                 ),
               ),
             ),
-            if (showFooter) ...[
-              const SizedBox(height: 20),
-              Align(
-                alignment: Alignment.centerRight,
-                child: useDefaultFooter ? defaultFooter : customFooter,
+          ),
+        Padding(
+          padding: strategy.panelPadding(theme),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title != null) ...[
+                DefaultTextStyle(
+                  style: Theme.of(context).textTheme.headlineLarge!.copyWith(
+                    color: theme.textBody,
+                    fontSize: strategy.titleFontSize(theme),
+                  ),
+                  child: title!,
+                ),
+                const SizedBox(height: 15),
+              ],
+              Flexible(
+                child: SingleChildScrollView(
+                  child: DefaultTextStyle(
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                      color: theme.textMuted,
+                      fontSize: strategy.bodyFontSize(theme),
+                      fontWeight: strategy.bodyFontWeight(theme),
+                      height: strategy.bodyHeight(theme),
+                    ),
+                    child: _AnimalModalBody(
+                      typeSpeed: typeSpeed,
+                      typewriter: typewriter,
+                      child: child,
+                    ),
+                  ),
+                ),
               ),
+              if (showFooter) ...[
+                const SizedBox(height: 20),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: useDefaultFooter ? defaultFooter : customFooter,
+                ),
+              ],
             ],
-          ],
+          ),
         ),
-      ),
+      ],
     );
     final clipRadius = strategy.clipRadius(theme);
     final panel = clipRadius == null

@@ -171,8 +171,6 @@ Flutter 包主入口：
 - `AnimalSelect`
 - `AnimalCheckboxGroup`
 - `AnimalIcon`
-- `AnimalTime`
-- `AnimalPhone`
 - `AnimalFooter`
 - `AnimalDivider`
 - `AnimalCursor`
@@ -193,7 +191,7 @@ NES 主题特别注意：
 - `AnimalCard(type: AnimalCardType.dashed)` 内容默认居中，适合像素占位/上传/空容器
 - `AnimalLoading` / `AnimalEmptyState` / `AnimalErrorState` 使用 NES 专属像素状态图标
 - `AnimalDivider` / `AnimalFooter` 在 NES 下使用 painter 生成像素线条/地形，不复用动森资源
-- `AnimalIcon` / `AnimalPhone` 在 NES 下优先使用块状符号和字母 glyph，避免现代 SVG 质感
+- `AnimalIcon` 在 NES 下优先使用块状符号和字母 glyph，避免现代 SVG 质感
 
 Westworld 主题特别注意：
 

@@ -16,9 +16,7 @@
 | `Select` | `AnimalSelect` |
 | `Checkbox` | `AnimalCheckboxGroup` |
 | `Icon` | `AnimalIcon` |
-| `Time` | `AnimalTime` |
 | `Date / Time Picker` | `AnimalDateTimePicker` / `showAnimalDateTimePicker` |
-| `Phone` | `AnimalPhone` |
 | `Footer` | `AnimalFooter` |
 | `Divider` | `AnimalDivider` |
 | `Cursor` | `AnimalCursor` |
@@ -141,7 +139,7 @@
 - `AnimalButton` / `AnimalInput` / `AnimalCheckboxGroup` / `AnimalTabs` 默认使用紧凑交互字号，通常不超过 `14`
 - `AnimalModal` 标题与正文必须明显收敛于移动端尺度，避免 `28+` 或大段 `18+` 文本
 - `AnimalBottomSheet` 与 `AnimalModal` 应共享同一套色板与字级，但底部锚定、轮廓和操作布局要更偏移动端
-- `AnimalTime` / `AnimalPhone` 虽然允许展示型数字，但仍需保留“掌机 UI”感，不做桌面大屏信息牌
+- 展示型数字与复杂 demo 作品应留在 example，不作为通用组件 API 暴露
 
 ## 缺省优先级
 

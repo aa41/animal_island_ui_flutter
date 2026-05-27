@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../models/animal_island_models.dart';
+import '../../components/guofeng_components.dart';
 import '../../theme/animal_island_theme.dart';
 import '../../theme/animal_island_tokens.dart';
 
@@ -10,10 +10,18 @@ abstract final class AnimalSwitchThemeStrategy {
   const AnimalSwitchThemeStrategy();
 
   static AnimalSwitchThemeStrategy of(AnimalIslandThemeData theme) {
-    return switch (theme.gameStyle) {
+    return forGameStyle(theme.gameStyle);
+  }
+
+  static AnimalSwitchThemeStrategy forGameStyle(
+    AnimalIslandGameStyle gameStyle,
+  ) {
+    return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit => const _NesAnimalSwitchThemeStrategy(),
       AnimalIslandGameStyle.westworld =>
         const _WestworldAnimalSwitchThemeStrategy(),
+      AnimalIslandGameStyle.guofengDoodle =>
+        const _GuofengAnimalSwitchThemeStrategy(),
       AnimalIslandGameStyle.animalIsland =>
         const _AnimalIslandSwitchThemeStrategy(),
     };
@@ -95,7 +103,212 @@ final class _NesAnimalSwitchThemeStrategy extends AnimalSwitchThemeStrategy {
   }
 }
 
-final class _WestworldAnimalSwitchThemeStrategy extends AnimalSwitchThemeStrategy {
+final class _GuofengAnimalSwitchThemeStrategy
+    extends AnimalSwitchThemeStrategy {
+  const _GuofengAnimalSwitchThemeStrategy();
+
+  @override
+  Widget buildControl({
+    required BuildContext context,
+    required AnimalIslandThemeData theme,
+    required bool checked,
+    required bool enabled,
+    required bool loading,
+    required bool small,
+    required Animation<double> progress,
+    required Widget? checkedChild,
+    required Widget? uncheckedChild,
+    required VoidCallback onTap,
+  }) {
+    return _GuofengSwitchControl(
+      theme: theme,
+      checked: checked,
+      enabled: enabled,
+      loading: loading,
+      small: small,
+      progress: progress,
+      checkedChild: checkedChild,
+      uncheckedChild: uncheckedChild,
+      onTap: onTap,
+    );
+  }
+}
+
+class _GuofengSwitchControl extends StatelessWidget {
+  const _GuofengSwitchControl({
+    required this.theme,
+    required this.checked,
+    required this.enabled,
+    required this.loading,
+    required this.small,
+    required this.progress,
+    required this.checkedChild,
+    required this.uncheckedChild,
+    required this.onTap,
+  });
+
+  final AnimalIslandThemeData theme;
+  final bool checked;
+  final bool enabled;
+  final bool loading;
+  final bool small;
+  final Animation<double> progress;
+  final Widget? checkedChild;
+  final Widget? uncheckedChild;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = small ? 42.0 : 58.0;
+    final height = small ? 22.0 : 30.0;
+    final knob = small ? 15.0 : 21.0;
+    final label = checked ? checkedChild : uncheckedChild;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Opacity(
+        opacity: enabled ? 1 : 0.48,
+        child: AnimatedBuilder(
+          animation: loading ? progress : kAlwaysDismissedAnimation,
+          builder: (context, child) => SizedBox(
+            width: label == null ? width : width + 44,
+            height: height + 4,
+            child: CustomPaint(
+              painter: _GuofengSwitchPainter(
+                checked: checked,
+                loading: loading,
+                progress: progress.value,
+                ink: theme.border,
+                active: theme.primary,
+                paper: theme.surface,
+                muted: theme.borderLight,
+                width: width,
+                height: height,
+                knob: knob,
+              ),
+              child: label == null
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: EdgeInsets.only(
+                        left: checked ? 8 : width + 6,
+                        right: checked ? width - 8 : 0,
+                      ),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: DefaultTextStyle(
+                          style: Theme.of(context).textTheme.labelMedium!
+                              .copyWith(
+                                color: checked ? Colors.white : theme.textBody,
+                                fontSize: small ? 9 : 11,
+                                fontWeight: FontWeight.w700,
+                                height: 1,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          child: label,
+                        ),
+                      ),
+                    ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _GuofengSwitchPainter extends CustomPainter {
+  const _GuofengSwitchPainter({
+    required this.checked,
+    required this.loading,
+    required this.progress,
+    required this.ink,
+    required this.active,
+    required this.paper,
+    required this.muted,
+    required this.width,
+    required this.height,
+    required this.knob,
+  });
+
+  final bool checked;
+  final bool loading;
+  final double progress;
+  final Color ink;
+  final Color active;
+  final Color paper;
+  final Color muted;
+  final double width;
+  final double height;
+  final double knob;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final track = Rect.fromLTWH(1.5, 2, width, height);
+    final radius = height / 2;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(track, Radius.circular(radius)),
+      Paint()
+        ..color = checked
+            ? active.withValues(alpha: 0.9)
+            : paper.withValues(alpha: 0.96),
+    );
+    GuofengInkOutlinePainter(
+      color: checked ? ink : muted,
+      radius: radius,
+      strokeWidth: 1.8,
+      seed: checked ? 38 : 37,
+    ).paint(canvas, Size(width + 3, height + 4));
+
+    final knobX = checked
+        ? track.right - knob / 2 - 4
+        : track.left + knob / 2 + 4;
+    final center = Offset(knobX, track.center.dy);
+    canvas.drawCircle(
+      center,
+      knob / 2,
+      Paint()..color = paper.withValues(alpha: 0.98),
+    );
+    canvas.drawCircle(
+      center,
+      knob / 2,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.7
+        ..color = ink.withValues(alpha: 0.78),
+    );
+    if (loading) {
+      canvas.drawArc(
+        Rect.fromCircle(center: center, radius: knob * 0.34),
+        progress * math.pi * 2,
+        math.pi * 1.35,
+        false,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 1.6
+          ..strokeCap = StrokeCap.round
+          ..color = checked ? active : ink,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengSwitchPainter oldDelegate) {
+    return oldDelegate.checked != checked ||
+        oldDelegate.loading != loading ||
+        oldDelegate.progress != progress ||
+        oldDelegate.ink != ink ||
+        oldDelegate.active != active ||
+        oldDelegate.paper != paper ||
+        oldDelegate.muted != muted ||
+        oldDelegate.width != width ||
+        oldDelegate.height != height ||
+        oldDelegate.knob != knob;
+  }
+}
+
+final class _WestworldAnimalSwitchThemeStrategy
+    extends AnimalSwitchThemeStrategy {
   const _WestworldAnimalSwitchThemeStrategy();
 
   @override
@@ -245,10 +458,11 @@ class _DefaultSwitchControl extends StatelessWidget {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: (checked
-                                      ? theme.successActive
-                                      : theme.buttonShadow)
-                                  .withValues(alpha: 0.2),
+                              color:
+                                  (checked
+                                          ? theme.successActive
+                                          : theme.buttonShadow)
+                                      .withValues(alpha: 0.2),
                               blurRadius: 0,
                               offset: Offset(0, small ? 2 : 3),
                             ),
@@ -540,72 +754,5 @@ class _NesSwitchLoadingPainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant _NesSwitchLoadingPainter oldDelegate) {
     return oldDelegate.frame != frame || oldDelegate.color != color;
-  }
-}
-
-class _WestworldSwitchLoading extends StatelessWidget {
-  const _WestworldSwitchLoading({
-    required this.controller,
-    required this.color,
-  });
-
-  final Animation<double> controller;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: controller,
-      builder: (context, child) => SizedBox(
-        width: 12,
-        height: 12,
-        child: CustomPaint(
-          painter: _WestworldSwitchLoadingPainter(
-            progress: controller.value,
-            color: color,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _WestworldSwitchLoadingPainter extends CustomPainter {
-  const _WestworldSwitchLoadingPainter({
-    required this.progress,
-    required this.color,
-  });
-
-  final double progress;
-  final Color color;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty || !size.isFinite) {
-      return;
-    }
-    final center = size.center(Offset.zero);
-    final x = 2 + (size.width - 4) * progress;
-    canvas.drawLine(
-      Offset(2, center.dy),
-      Offset(size.width - 2, center.dy),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = color.withValues(alpha: 0.28),
-    );
-    canvas.drawLine(
-      Offset(x, 2),
-      Offset(x, size.height - 2),
-      Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 1
-        ..color = color.withValues(alpha: 0.8),
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _WestworldSwitchLoadingPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.color != color;
   }
 }

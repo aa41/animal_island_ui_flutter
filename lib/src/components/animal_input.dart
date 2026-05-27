@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
+import 'animal_component_dispatcher.dart';
+import 'guofeng_components.dart';
 import 'theme_strategies/animal_input_theme_strategy.dart';
 
-class AnimalInput extends StatefulWidget {
+class AnimalInput extends StatelessWidget {
   const AnimalInput({
     super.key,
     this.controller,
@@ -36,10 +38,173 @@ class AnimalInput extends StatefulWidget {
   final VoidCallback? onClear;
 
   @override
-  State<AnimalInput> createState() => _AnimalInputState();
+  Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandInput(
+        controller: controller,
+        focusNode: focusNode,
+        size: size,
+        prefix: prefix,
+        suffix: suffix,
+        allowClear: allowClear,
+        status: status,
+        shadow: shadow,
+        enabled: enabled,
+        hintText: hintText,
+        onChanged: onChanged,
+        onClear: onClear,
+      ),
+      nes: (_) => _NesAnimalInput(
+        controller: controller,
+        focusNode: focusNode,
+        size: size,
+        prefix: prefix,
+        suffix: suffix,
+        allowClear: allowClear,
+        status: status,
+        shadow: shadow,
+        enabled: enabled,
+        hintText: hintText,
+        onChanged: onChanged,
+        onClear: onClear,
+      ),
+      westworld: (_) => _WestworldAnimalInput(
+        controller: controller,
+        focusNode: focusNode,
+        size: size,
+        prefix: prefix,
+        suffix: suffix,
+        allowClear: allowClear,
+        status: status,
+        shadow: shadow,
+        enabled: enabled,
+        hintText: hintText,
+        onChanged: onChanged,
+        onClear: onClear,
+      ),
+      guofeng: (_) => _GuofengAnimalInput(
+        controller: controller,
+        focusNode: focusNode,
+        size: size,
+        prefix: prefix,
+        suffix: suffix,
+        allowClear: allowClear,
+        status: status,
+        shadow: shadow,
+        enabled: enabled,
+        hintText: hintText,
+        onChanged: onChanged,
+        onClear: onClear,
+      ),
+    );
+  }
 }
 
-class _AnimalInputState extends State<AnimalInput> {
+class _AnimalIslandInput extends _ThemedAnimalInput {
+  const _AnimalIslandInput({
+    required super.controller,
+    required super.focusNode,
+    required super.size,
+    required super.prefix,
+    required super.suffix,
+    required super.allowClear,
+    required super.status,
+    required super.shadow,
+    required super.enabled,
+    required super.hintText,
+    required super.onChanged,
+    required super.onClear,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalInput extends _ThemedAnimalInput {
+  const _NesAnimalInput({
+    required super.controller,
+    required super.focusNode,
+    required super.size,
+    required super.prefix,
+    required super.suffix,
+    required super.allowClear,
+    required super.status,
+    required super.shadow,
+    required super.enabled,
+    required super.hintText,
+    required super.onChanged,
+    required super.onClear,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalInput extends _ThemedAnimalInput {
+  const _WestworldAnimalInput({
+    required super.controller,
+    required super.focusNode,
+    required super.size,
+    required super.prefix,
+    required super.suffix,
+    required super.allowClear,
+    required super.status,
+    required super.shadow,
+    required super.enabled,
+    required super.hintText,
+    required super.onChanged,
+    required super.onClear,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalInput extends _ThemedAnimalInput {
+  const _GuofengAnimalInput({
+    required super.controller,
+    required super.focusNode,
+    required super.size,
+    required super.prefix,
+    required super.suffix,
+    required super.allowClear,
+    required super.status,
+    required super.shadow,
+    required super.enabled,
+    required super.hintText,
+    required super.onChanged,
+    required super.onClear,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalInput extends StatefulWidget {
+  const _ThemedAnimalInput({
+    required this.gameStyle,
+    required this.controller,
+    required this.focusNode,
+    required this.size,
+    required this.prefix,
+    required this.suffix,
+    required this.allowClear,
+    required this.status,
+    required this.shadow,
+    required this.enabled,
+    required this.hintText,
+    required this.onChanged,
+    required this.onClear,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final TextEditingController? controller;
+  final FocusNode? focusNode;
+  final AnimalInputSize size;
+  final Widget? prefix;
+  final Widget? suffix;
+  final bool allowClear;
+  final AnimalInputStatus? status;
+  final bool shadow;
+  final bool enabled;
+  final String? hintText;
+  final ValueChanged<String>? onChanged;
+  final VoidCallback? onClear;
+
+  @override
+  State<_ThemedAnimalInput> createState() => _ThemedAnimalInputState();
+}
+
+class _ThemedAnimalInputState extends State<_ThemedAnimalInput> {
   late final TextEditingController _controller =
       widget.controller ?? TextEditingController();
   late final FocusNode _focusNode = widget.focusNode ?? FocusNode();
@@ -53,7 +218,7 @@ class _AnimalInputState extends State<AnimalInput> {
   }
 
   @override
-  void didUpdateWidget(covariant AnimalInput oldWidget) {
+  void didUpdateWidget(covariant _ThemedAnimalInput oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller &&
         widget.controller != null) {
@@ -96,7 +261,7 @@ class _AnimalInputState extends State<AnimalInput> {
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
-    final strategy = AnimalInputThemeStrategy.of(theme);
+    final strategy = AnimalInputThemeStrategy.forGameStyle(widget.gameStyle);
     final focused = _focusNode.hasFocus;
     final hasText = _controller.text.isNotEmpty;
 
@@ -127,14 +292,17 @@ class _AnimalInputState extends State<AnimalInput> {
       ),
     };
 
-    return MouseRegion(
+    final input = MouseRegion(
       onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
       onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
       child: AnimatedContainer(
         duration: theme.interactionDuration,
         curve: theme.interactionCurve,
         height: metrics.height,
-        padding: EdgeInsets.symmetric(horizontal: metrics.horizontal),
+        padding: EdgeInsets.symmetric(
+          horizontal: metrics.horizontal,
+          vertical: theme.isGuofengDoodle ? 1 : 0,
+        ),
         decoration: strategy.decoration(
           theme,
           hovered: _hovered,
@@ -219,6 +387,52 @@ class _AnimalInputState extends State<AnimalInput> {
           ],
         ),
       ),
+    );
+    if (widget.gameStyle != AnimalIslandGameStyle.guofengDoodle) {
+      return input;
+    }
+
+    final outlineColor = switch (widget.status) {
+      AnimalInputStatus.error => theme.error,
+      AnimalInputStatus.warning => theme.warning,
+      _ =>
+        focused
+            ? theme.primary
+            : _hovered
+            ? theme.borderHover
+            : theme.border,
+    };
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        input,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: GuofengInkOutlinePainter(
+                color: outlineColor,
+                radius: metrics.radius,
+                strokeWidth: theme.inputBorderWidth,
+                seed: widget.size.index + 11,
+              ),
+            ),
+          ),
+        ),
+        if (focused)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: GuofengBrushFocusPainter(
+                  color: outlineColor,
+                  radius: metrics.radius,
+                  strokeWidth: 1.2,
+                  seed: widget.size.index + 19,
+                ),
+              ),
+            ),
+          ),
+      ],
     );
   }
 }

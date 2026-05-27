@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
 
 import 'component_page.dart';
+import 'example_assets.dart';
 import 'home_page.dart';
 import 'page_info.dart';
 
@@ -89,8 +90,7 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
                         bottom: 0,
                         child: IgnorePointer(
                           child: Image.asset(
-                            AnimalIslandAssets.demoGuideLine,
-                            package: AnimalIslandAssets.package,
+                            ExampleAssets.demoGuideLine,
                             fit: BoxFit.fitWidth,
                           ),
                         ),
@@ -162,7 +162,9 @@ class _AnimalIslandExampleAppState extends State<AnimalIslandExampleApp> {
       _gameStyle = switch (_gameStyle) {
         AnimalIslandGameStyle.animalIsland => AnimalIslandGameStyle.nes8Bit,
         AnimalIslandGameStyle.nes8Bit => AnimalIslandGameStyle.westworld,
-        AnimalIslandGameStyle.westworld => AnimalIslandGameStyle.animalIsland,
+        AnimalIslandGameStyle.westworld => AnimalIslandGameStyle.guofengDoodle,
+        AnimalIslandGameStyle.guofengDoodle =>
+          AnimalIslandGameStyle.animalIsland,
       };
     });
   }
@@ -220,10 +222,10 @@ class _ThemedDemoBackground extends StatelessWidget {
               )
             : null,
         image: DecorationImage(
-          image: AnimalIslandAssets.raster(
+          image: AssetImage(
             home
-                ? AnimalIslandAssets.demoHomeBackground
-                : AnimalIslandAssets.demoContentBackground,
+                ? ExampleAssets.demoHomeBackground
+                : ExampleAssets.demoContentBackground,
           ),
           fit: home ? BoxFit.cover : BoxFit.none,
           repeat: ImageRepeat.repeat,
@@ -303,8 +305,7 @@ class _Sidebar extends StatelessWidget {
             fit: StackFit.expand,
             children: [
               SvgPicture.asset(
-                AnimalIslandAssets.demoMenuBackground,
-                package: AnimalIslandAssets.package,
+                ExampleAssets.demoMenuBackground,
                 fit: BoxFit.cover,
                 colorFilter: gameStyle == AnimalIslandGameStyle.westworld
                     ? ColorFilter.mode(
@@ -329,8 +330,7 @@ class _Sidebar extends StatelessWidget {
                       child: Row(
                         children: [
                           SvgPicture.asset(
-                            AnimalIslandAssets.nookPhoneNook1,
-                            package: AnimalIslandAssets.package,
+                            ExampleAssets.nookPhoneNook1,
                             width: 24,
                             height: 24,
                           ),
@@ -396,6 +396,7 @@ IconData _animalStyleIcon(AnimalIslandGameStyle style) {
     AnimalIslandGameStyle.animalIsland => Icons.videogame_asset_outlined,
     AnimalIslandGameStyle.nes8Bit => Icons.radar_outlined,
     AnimalIslandGameStyle.westworld => Icons.park_outlined,
+    AnimalIslandGameStyle.guofengDoodle => Icons.brush_outlined,
   };
 }
 

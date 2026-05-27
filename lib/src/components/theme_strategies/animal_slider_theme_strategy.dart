@@ -2,17 +2,24 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import '../../models/animal_island_models.dart';
 import '../../theme/animal_island_theme.dart';
 
 abstract final class AnimalSliderThemeStrategy {
   const AnimalSliderThemeStrategy();
 
   static AnimalSliderThemeStrategy of(AnimalIslandThemeData theme) {
-    return switch (theme.gameStyle) {
+    return forGameStyle(theme.gameStyle);
+  }
+
+  static AnimalSliderThemeStrategy forGameStyle(
+    AnimalIslandGameStyle gameStyle,
+  ) {
+    return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit => const _NesAnimalSliderThemeStrategy(),
       AnimalIslandGameStyle.westworld =>
         const _WestworldAnimalSliderThemeStrategy(),
+      AnimalIslandGameStyle.guofengDoodle =>
+        const _GuofengAnimalSliderThemeStrategy(),
       AnimalIslandGameStyle.animalIsland =>
         const _AnimalIslandSliderThemeStrategy(),
     };
@@ -71,6 +78,249 @@ final class _AnimalIslandSliderThemeStrategy extends AnimalSliderThemeStrategy {
         onChangeEnd: enabled ? onChangeEnd : null,
       ),
     );
+  }
+}
+
+final class _GuofengAnimalSliderThemeStrategy
+    extends AnimalSliderThemeStrategy {
+  const _GuofengAnimalSliderThemeStrategy();
+
+  @override
+  Widget buildControl({
+    required BuildContext context,
+    required AnimalIslandThemeData theme,
+    required double currentValue,
+    required double min,
+    required double max,
+    required int? divisions,
+    required bool enabled,
+    required Animation<double> scan,
+    required ValueChanged<double> onChanged,
+    required ValueChanged<double>? onChangeEnd,
+  }) {
+    return _GuofengSliderTrack(
+      value: currentValue,
+      min: min,
+      max: max,
+      divisions: divisions,
+      enabled: enabled,
+      onChanged: onChanged,
+      onChangeEnd: onChangeEnd,
+    );
+  }
+}
+
+class _GuofengSliderTrack extends StatelessWidget {
+  const _GuofengSliderTrack({
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.enabled,
+    required this.onChanged,
+    required this.onChangeEnd,
+  });
+
+  final double value;
+  final double min;
+  final double max;
+  final int? divisions;
+  final bool enabled;
+  final ValueChanged<double> onChanged;
+  final ValueChanged<double>? onChangeEnd;
+
+  static const double _horizontalInset = 16;
+
+  double _valueFromLocalPosition(Offset localPosition, double width) {
+    final usableWidth = math.max(1.0, width - _horizontalInset * 2);
+    final rawRatio = ((localPosition.dx - _horizontalInset) / usableWidth)
+        .clamp(0.0, 1.0);
+    final snappedRatio = switch (divisions) {
+      final int count when count > 0 => (rawRatio * count).round() / count,
+      _ => rawRatio,
+    };
+    return min + (max - min) * snappedRatio;
+  }
+
+  void _update(Offset localPosition, double width, {required bool ended}) {
+    if (!enabled) {
+      return;
+    }
+    final next = _valueFromLocalPosition(localPosition, width);
+    onChanged(next);
+    if (ended) {
+      onChangeEnd?.call(next);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : 320.0;
+        return GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTapDown: enabled
+              ? (details) => _update(details.localPosition, width, ended: false)
+              : null,
+          onTapUp: enabled
+              ? (details) => _update(details.localPosition, width, ended: true)
+              : null,
+          onHorizontalDragUpdate: enabled
+              ? (details) => _update(details.localPosition, width, ended: false)
+              : null,
+          onHorizontalDragEnd: enabled ? (_) => onChangeEnd?.call(value) : null,
+          child: SizedBox(
+            height: 40,
+            width: width,
+            child: CustomPaint(
+              painter: _GuofengSliderPainter(
+                value: value,
+                min: min,
+                max: max,
+                divisions: divisions,
+                enabled: enabled,
+                ink: theme.border,
+                active: theme.primary,
+                gold: theme.focusYellow,
+                paper: theme.surface,
+                muted: theme.textDisabled,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _GuofengSliderPainter extends CustomPainter {
+  const _GuofengSliderPainter({
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.divisions,
+    required this.enabled,
+    required this.ink,
+    required this.active,
+    required this.gold,
+    required this.paper,
+    required this.muted,
+  });
+
+  final double value;
+  final double min;
+  final double max;
+  final int? divisions;
+  final bool enabled;
+  final Color ink;
+  final Color active;
+  final Color gold;
+  final Color paper;
+  final Color muted;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+
+    const inset = _GuofengSliderTrack._horizontalInset;
+    final start = inset;
+    final end = math.max(start + 1, size.width - inset);
+    final width = end - start;
+    final y = size.height * 0.5;
+    final ratio = max == min ? 0.0 : ((value - min) / (max - min)).clamp(0, 1);
+    final thumbX = start + width * ratio;
+    final opacity = enabled ? 1.0 : 0.42;
+
+    Path brushLine(double from, double to, double wave) {
+      final path = Path()..moveTo(from, y);
+      for (var i = 1; i <= 18; i += 1) {
+        final t = i / 18;
+        final x = from + (to - from) * t;
+        final wobble = math.sin(i * 1.7) * wave + math.sin(i * 0.83) * wave;
+        path.lineTo(x, y + wobble);
+      }
+      return path;
+    }
+
+    final inactive = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 3.2
+      ..color = (enabled ? ink : muted).withValues(alpha: 0.66 * opacity);
+    canvas.drawPath(brushLine(start, end, 0.42), inactive);
+
+    final wash = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 7.5
+      ..color = active.withValues(alpha: 0.16 * opacity)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 1.8);
+    canvas.drawPath(brushLine(start, thumbX, 0.6), wash);
+
+    final activePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 4.2
+      ..color = active.withValues(alpha: 0.88 * opacity);
+    canvas.drawPath(brushLine(start, thumbX, 0.6), activePaint);
+
+    if (divisions != null && divisions! > 0) {
+      final tick = Paint()
+        ..strokeCap = StrokeCap.round
+        ..strokeWidth = 1.5
+        ..color = ink.withValues(alpha: 0.34 * opacity);
+      for (var i = 0; i <= divisions!; i += 1) {
+        final x = start + width * i / divisions!;
+        canvas.drawLine(Offset(x, y - 6), Offset(x, y + 6), tick);
+      }
+    }
+
+    final center = Offset(thumbX, y);
+    canvas.drawCircle(
+      center,
+      12,
+      Paint()
+        ..color = gold.withValues(alpha: enabled ? 0.16 : 0.06)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 3),
+    );
+    canvas.drawCircle(
+      center,
+      8.8,
+      Paint()..color = (enabled ? active : paper).withValues(alpha: opacity),
+    );
+    canvas.drawCircle(
+      center.translate(-2.2, -2.4),
+      2.2,
+      Paint()..color = paper.withValues(alpha: 0.72 * opacity),
+    );
+    canvas.drawCircle(
+      center,
+      8.8,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = ink.withValues(alpha: 0.82 * opacity),
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengSliderPainter oldDelegate) {
+    return oldDelegate.value != value ||
+        oldDelegate.min != min ||
+        oldDelegate.max != max ||
+        oldDelegate.divisions != divisions ||
+        oldDelegate.enabled != enabled ||
+        oldDelegate.ink != ink ||
+        oldDelegate.active != active ||
+        oldDelegate.gold != gold ||
+        oldDelegate.paper != paper ||
+        oldDelegate.muted != muted;
   }
 }
 

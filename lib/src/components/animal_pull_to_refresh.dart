@@ -7,8 +7,10 @@ import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
 import '../utils/animal_island_assets.dart';
 import 'animal_badge.dart';
+import 'animal_component_dispatcher.dart';
+import 'guofeng_components.dart';
 
-class AnimalPullToRefresh extends StatefulWidget {
+class AnimalPullToRefresh extends StatelessWidget {
   const AnimalPullToRefresh({
     super.key,
     required this.onRefresh,
@@ -31,14 +33,139 @@ class AnimalPullToRefresh extends StatefulWidget {
   final String completeText;
 
   @override
-  State<AnimalPullToRefresh> createState() => _AnimalPullToRefreshState();
+  Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandPullToRefresh(
+        onRefresh: onRefresh,
+        notificationPredicate: notificationPredicate,
+        triggerMode: triggerMode,
+        pullText: pullText,
+        releaseText: releaseText,
+        refreshingText: refreshingText,
+        completeText: completeText,
+        child: child,
+      ),
+      nes: (_) => _NesAnimalPullToRefresh(
+        onRefresh: onRefresh,
+        notificationPredicate: notificationPredicate,
+        triggerMode: triggerMode,
+        pullText: pullText,
+        releaseText: releaseText,
+        refreshingText: refreshingText,
+        completeText: completeText,
+        child: child,
+      ),
+      westworld: (_) => _WestworldAnimalPullToRefresh(
+        onRefresh: onRefresh,
+        notificationPredicate: notificationPredicate,
+        triggerMode: triggerMode,
+        pullText: pullText,
+        releaseText: releaseText,
+        refreshingText: refreshingText,
+        completeText: completeText,
+        child: child,
+      ),
+      guofeng: (_) => _GuofengAnimalPullToRefresh(
+        onRefresh: onRefresh,
+        notificationPredicate: notificationPredicate,
+        triggerMode: triggerMode,
+        pullText: pullText,
+        releaseText: releaseText,
+        refreshingText: refreshingText,
+        completeText: completeText,
+        child: child,
+      ),
+    );
+  }
 }
 
 bool _defaultRefreshNotificationPredicate(ScrollNotification notification) {
   return notification.metrics.axis == Axis.vertical;
 }
 
-class _AnimalPullToRefreshState extends State<AnimalPullToRefresh> {
+class _AnimalIslandPullToRefresh extends _ThemedAnimalPullToRefresh {
+  const _AnimalIslandPullToRefresh({
+    required super.onRefresh,
+    required super.child,
+    required super.notificationPredicate,
+    required super.triggerMode,
+    required super.pullText,
+    required super.releaseText,
+    required super.refreshingText,
+    required super.completeText,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalPullToRefresh extends _ThemedAnimalPullToRefresh {
+  const _NesAnimalPullToRefresh({
+    required super.onRefresh,
+    required super.child,
+    required super.notificationPredicate,
+    required super.triggerMode,
+    required super.pullText,
+    required super.releaseText,
+    required super.refreshingText,
+    required super.completeText,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalPullToRefresh extends _ThemedAnimalPullToRefresh {
+  const _WestworldAnimalPullToRefresh({
+    required super.onRefresh,
+    required super.child,
+    required super.notificationPredicate,
+    required super.triggerMode,
+    required super.pullText,
+    required super.releaseText,
+    required super.refreshingText,
+    required super.completeText,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalPullToRefresh extends _ThemedAnimalPullToRefresh {
+  const _GuofengAnimalPullToRefresh({
+    required super.onRefresh,
+    required super.child,
+    required super.notificationPredicate,
+    required super.triggerMode,
+    required super.pullText,
+    required super.releaseText,
+    required super.refreshingText,
+    required super.completeText,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalPullToRefresh extends StatefulWidget {
+  const _ThemedAnimalPullToRefresh({
+    required this.gameStyle,
+    required this.onRefresh,
+    required this.child,
+    required this.notificationPredicate,
+    required this.triggerMode,
+    required this.pullText,
+    required this.releaseText,
+    required this.refreshingText,
+    required this.completeText,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final RefreshCallback onRefresh;
+  final Widget child;
+  final ScrollNotificationPredicate notificationPredicate;
+  final RefreshIndicatorTriggerMode triggerMode;
+  final String pullText;
+  final String releaseText;
+  final String refreshingText;
+  final String completeText;
+
+  @override
+  State<_ThemedAnimalPullToRefresh> createState() =>
+      _ThemedAnimalPullToRefreshState();
+}
+
+class _ThemedAnimalPullToRefreshState
+    extends State<_ThemedAnimalPullToRefresh> {
   static const double _triggerDistance = 92;
   static const double _maxVisibleDistance = 132;
 
@@ -260,6 +387,16 @@ class _AnimalRefreshIndicator extends StatelessWidget {
     if (theme.isWestworld) {
       return _WestworldRefreshIndicator(stage: stage, progress: progress);
     }
+    if (theme.isGuofengDoodle) {
+      return _GuofengRefreshIndicator(
+        stage: stage,
+        progress: progress,
+        pullText: pullText,
+        releaseText: releaseText,
+        refreshingText: refreshingText,
+        completeText: completeText,
+      );
+    }
 
     final label = switch (stage) {
       _AnimalRefreshStage.armed => releaseText,
@@ -479,6 +616,269 @@ class _WestworldRefreshIndicatorState extends State<_WestworldRefreshIndicator>
         ),
       ),
     );
+  }
+}
+
+class _GuofengRefreshIndicator extends StatefulWidget {
+  const _GuofengRefreshIndicator({
+    required this.stage,
+    required this.progress,
+    required this.pullText,
+    required this.releaseText,
+    required this.refreshingText,
+    required this.completeText,
+  });
+
+  final _AnimalRefreshStage stage;
+  final double progress;
+  final String pullText;
+  final String releaseText;
+  final String refreshingText;
+  final String completeText;
+
+  @override
+  State<_GuofengRefreshIndicator> createState() =>
+      _GuofengRefreshIndicatorState();
+}
+
+class _GuofengRefreshIndicatorState extends State<_GuofengRefreshIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1300),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    final label = switch (widget.stage) {
+      _AnimalRefreshStage.armed => '松开续写新章',
+      _AnimalRefreshStage.refreshing => '正在铺开画卷...',
+      _AnimalRefreshStage.done => '新章已至',
+      _ => '下拉查看新卷',
+    };
+    final progressLabel = switch (widget.stage) {
+      _AnimalRefreshStage.armed => '松开',
+      _AnimalRefreshStage.refreshing => '汲取',
+      _AnimalRefreshStage.done => '完成',
+      _ => '${(widget.progress * 100).round()}%',
+    };
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: theme.surface.withValues(alpha: 0.94),
+            borderRadius: BorderRadius.circular(theme.radiusPill),
+            boxShadow: [
+              BoxShadow(
+                color: theme.inputShadow.withValues(alpha: 0.28),
+                blurRadius: theme.mode == AnimalIslandThemeMode.day ? 10 : 16,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: CustomPaint(
+            painter: GuofengPaperTexturePainter(theme: theme, seed: 84),
+            foregroundPainter: GuofengInkOutlinePainter(
+              color: widget.stage == _AnimalRefreshStage.armed
+                  ? theme.focusYellow
+                  : widget.stage == _AnimalRefreshStage.done
+                  ? theme.success
+                  : theme.border,
+              radius: theme.radiusPill,
+              strokeWidth: theme.borderWidth,
+              seed: 84,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 14, 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox.square(
+                    dimension: 38,
+                    child: AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) => CustomPaint(
+                        painter: _GuofengRefreshGlyphPainter(
+                          stage: widget.stage,
+                          progress:
+                              widget.stage == _AnimalRefreshStage.refreshing
+                              ? _controller.value
+                              : widget.progress,
+                          ink: theme.border,
+                          active: theme.primary,
+                          gold: theme.focusYellow,
+                          success: theme.success,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 280),
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: theme.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    progressLabel,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: widget.stage == _AnimalRefreshStage.armed
+                          ? theme.focusYellowDark
+                          : widget.stage == _AnimalRefreshStage.done
+                          ? theme.success
+                          : theme.textSecondary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        if (widget.stage == _AnimalRefreshStage.armed)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: GuofengBrushFocusPainter(
+                  color: theme.focusYellow,
+                  radius: theme.radiusPill,
+                  strokeWidth: 1.2,
+                  seed: 84,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _GuofengRefreshGlyphPainter extends CustomPainter {
+  const _GuofengRefreshGlyphPainter({
+    required this.stage,
+    required this.progress,
+    required this.ink,
+    required this.active,
+    required this.gold,
+    required this.success,
+  });
+
+  final _AnimalRefreshStage stage;
+  final double progress;
+  final Color ink;
+  final Color active;
+  final Color gold;
+  final Color success;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final center = size.center(Offset.zero);
+    final radius = size.shortestSide * 0.34;
+    final base = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.8
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = ink.withValues(alpha: 0.54);
+    canvas.drawArc(
+      Rect.fromCircle(center: center, radius: radius),
+      math.pi * 0.82,
+      math.pi * 1.12,
+      false,
+      base,
+    );
+
+    final activePaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = switch (stage) {
+        _AnimalRefreshStage.done => success,
+        _AnimalRefreshStage.armed => gold,
+        _ => active,
+      };
+
+    switch (stage) {
+      case _AnimalRefreshStage.refreshing:
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: radius + 1),
+          progress * math.pi * 2,
+          math.pi * 1.25,
+          false,
+          activePaint,
+        );
+      case _AnimalRefreshStage.done:
+        canvas.drawPath(
+          Path()
+            ..moveTo(center.dx - 9, center.dy)
+            ..lineTo(center.dx - 2, center.dy + 7)
+            ..lineTo(center.dx + 10, center.dy - 8),
+          activePaint,
+        );
+      case _AnimalRefreshStage.armed:
+        canvas.drawLine(
+          Offset(center.dx, center.dy + 11),
+          Offset(center.dx, center.dy - 10),
+          activePaint,
+        );
+        canvas.drawLine(
+          Offset(center.dx, center.dy - 10),
+          Offset(center.dx - 7, center.dy - 3),
+          activePaint,
+        );
+        canvas.drawLine(
+          Offset(center.dx, center.dy - 10),
+          Offset(center.dx + 7, center.dy - 3),
+          activePaint,
+        );
+      case _:
+        final endY = center.dy - 9 + 18 * progress.clamp(0, 1);
+        canvas.drawLine(
+          Offset(center.dx, center.dy - 11),
+          Offset(center.dx, endY),
+          activePaint,
+        );
+        canvas.drawLine(
+          Offset(center.dx, endY),
+          Offset(center.dx - 7, endY - 7),
+          activePaint,
+        );
+        canvas.drawLine(
+          Offset(center.dx, endY),
+          Offset(center.dx + 7, endY - 7),
+          activePaint,
+        );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengRefreshGlyphPainter oldDelegate) {
+    return oldDelegate.stage != stage ||
+        oldDelegate.progress != progress ||
+        oldDelegate.ink != ink ||
+        oldDelegate.active != active ||
+        oldDelegate.gold != gold ||
+        oldDelegate.success != success;
   }
 }
 

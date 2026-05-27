@@ -29,8 +29,16 @@ flutter:
   uses-material-design: true
   assets:
     - assets/animal_island/src/img/icons/
+    - assets/animal_island/src/img/icons/animal/
+    - assets/animal_island/src/img/icons/nes/
+    - assets/animal_island/src/img/icons/westworld/
+    - assets/animal_island/src/img/icons/guofeng/
     - assets/animal_island/src/img/dividers/
     - assets/animal_island/src/img/cursor/
     - assets/animal_island/src/img/footer/
-    - assets/animal_island/demo/img/
-    - assets/animal_island/demo/img/nook-phone/
+    - assets/animal_island/src/img/animal/status/
+    - assets/animal_island/src/img/guofeng/footer/
+    - assets/animal_island/src/img/guofeng/status/
+    - assets/animal_island/src/img/nes/footer/
+    - assets/animal_island/src/img/nes/status/
+    - assets/animal_island/src/img/westworld/footer/

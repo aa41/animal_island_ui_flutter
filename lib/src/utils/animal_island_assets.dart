@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../models/animal_island_models.dart';
+import '../theme/animal_island_theme.dart';
+
 abstract final class AnimalIslandAssets {
   static const String package = 'animal_island_ui_flutter';
 
@@ -25,37 +28,39 @@ abstract final class AnimalIslandAssets {
       'assets/animal_island/src/img/footer/footer-sea.svg';
   static const String footerTree =
       'assets/animal_island/src/img/footer/footer-tree.webp';
+  static const String nesFooterTree =
+      'assets/animal_island/src/img/nes/footer/tree.png';
+  static const String nesFooterSea =
+      'assets/animal_island/src/img/nes/footer/sea.png';
+  static const String westworldFooterTree =
+      'assets/animal_island/src/img/westworld/footer/tree.png';
+  static const String westworldFooterSea =
+      'assets/animal_island/src/img/westworld/footer/sea.png';
+  static const String guofengFooterTree =
+      'assets/animal_island/src/img/guofeng/footer/tree.png';
+  static const String guofengFooterSea =
+      'assets/animal_island/src/img/guofeng/footer/sea.png';
 
-  static const String demoHomeBackground =
-      'assets/animal_island/demo/img/home_bg.webp';
-  static const String demoContentBackground =
-      'assets/animal_island/demo/img/content_bg_pc.jpg';
-  static const String demoGuideLine =
-      'assets/animal_island/demo/img/guide-bg-line.webp';
-  static const String demoMenuBackground =
-      'assets/animal_island/demo/img/menu_bg.svg';
-  static const String demoAnimalIcon =
-      'assets/animal_island/demo/img/animal_icon.png';
+  static const String animalStatusLoading =
+      'assets/animal_island/src/img/animal/status/loading.png';
+  static const String animalStatusEmpty =
+      'assets/animal_island/src/img/animal/status/empty.png';
+  static const String animalStatusError =
+      'assets/animal_island/src/img/animal/status/error.png';
 
-  static const String nookPhoneNook1 =
-      'assets/animal_island/demo/img/nook-phone/nook1.svg';
-  static const String nookPhoneNook2 =
-      'assets/animal_island/demo/img/nook-phone/nook2.svg';
-  static const String nookPhoneShopping =
-      'assets/animal_island/demo/img/nook-phone/Property-Shopping.svg';
-  static const String nookPhoneCamera =
-      'assets/animal_island/demo/img/nook-phone/Property-Camera.svg';
-  static const String nookPhoneChat =
-      'assets/animal_island/demo/img/nook-phone/Property-Chat.svg';
-  static const String nookPhoneRecipes =
-      'assets/animal_island/demo/img/nook-phone/Property-Recipes.svg';
-  static const String nookPhoneHelicopter =
-      'assets/animal_island/demo/img/nook-phone/Property-Helicopter.svg';
+  static const String guofengStatusLoading =
+      'assets/animal_island/src/img/guofeng/status/loading.png';
+  static const String guofengStatusEmpty =
+      'assets/animal_island/src/img/guofeng/status/empty.png';
+  static const String guofengStatusError =
+      'assets/animal_island/src/img/guofeng/status/error.png';
 
-  static const String iconWifi = 'assets/animal_island/src/img/icons/wifi.svg';
-  static const String iconLocation =
-      'assets/animal_island/src/img/icons/location.svg';
-  static const String iconPage = 'assets/animal_island/src/img/icons/page.svg';
+  static const String nesStatusLoading =
+      'assets/animal_island/src/img/nes/status/loading.png';
+  static const String nesStatusEmpty =
+      'assets/animal_island/src/img/nes/status/empty.png';
+  static const String nesStatusError =
+      'assets/animal_island/src/img/nes/status/error.png';
 
   static const Map<String, String> iconMap = <String, String>{
     'icon-miles': 'assets/animal_island/src/img/icons/icon-miles.svg',
@@ -71,8 +76,61 @@ abstract final class AnimalIslandAssets {
     'icon-variant': 'assets/animal_island/src/img/icons/icon-variant.svg',
   };
 
+  static String themedIcon(
+    AnimalIslandGameStyle gameStyle,
+    AnimalIconName name,
+  ) {
+    final themeDir = switch (gameStyle) {
+      AnimalIslandGameStyle.nes8Bit => 'nes',
+      AnimalIslandGameStyle.westworld => 'westworld',
+      AnimalIslandGameStyle.guofengDoodle => 'guofeng',
+      AnimalIslandGameStyle.animalIsland => 'animal',
+    };
+    return 'assets/animal_island/src/img/icons/$themeDir/${name.iconAssetName}.png';
+  }
+
   static String packageAsset(String path) => path;
 
   static ImageProvider<Object> raster(String path) =>
       AssetImage(path, package: package);
+}
+
+extension AnimalIconNameAsset on AnimalIconName {
+  String get iconAssetName {
+    return switch (this) {
+      AnimalIconName.cameraAlt || AnimalIconName.camera => 'camera_alt',
+      AnimalIconName.musicNote => 'music_note',
+      AnimalIconName.playArrow => 'play_arrow',
+      AnimalIconName.volumeUp => 'volume_up',
+      AnimalIconName.calendarToday => 'calendar_today',
+      AnimalIconName.accessTime => 'access_time',
+      AnimalIconName.locationOn => 'location_on',
+      AnimalIconName.directionsCar => 'directions_car',
+      AnimalIconName.directionsBike => 'directions_bike',
+      AnimalIconName.shoppingCart || AnimalIconName.shopping => 'shopping_cart',
+      AnimalIconName.localOffer => 'local_offer',
+      AnimalIconName.creditCard => 'credit_card',
+      AnimalIconName.accountBalance ||
+      AnimalIconName.miles => 'account_balance',
+      AnimalIconName.localCafe => 'local_cafe',
+      AnimalIconName.localHospital => 'local_hospital',
+      AnimalIconName.arrowBack => 'arrow_back',
+      AnimalIconName.arrowForward => 'arrow_forward',
+      AnimalIconName.expandMore => 'expand_more',
+      AnimalIconName.moreVert => 'more_vert',
+      AnimalIconName.filterList => 'filter_list',
+      AnimalIconName.batteryFull => 'battery_full',
+      AnimalIconName.cloudUpload => 'cloud_upload',
+      AnimalIconName.bugReport => 'bug_report',
+      AnimalIconName.barChart => 'bar_chart',
+      AnimalIconName.waterDrop => 'water_drop',
+      AnimalIconName.beachAccess => 'beach_access',
+      AnimalIconName.critterpedia => 'pets',
+      AnimalIconName.design => 'palette',
+      AnimalIconName.diy => 'build',
+      AnimalIconName.helicopter => 'flight',
+      AnimalIconName.variant => 'category',
+      _ => name,
+    };
+  }
 }

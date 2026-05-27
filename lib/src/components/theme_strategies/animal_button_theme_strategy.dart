@@ -23,10 +23,18 @@ abstract final class AnimalButtonThemeStrategy {
   const AnimalButtonThemeStrategy();
 
   static AnimalButtonThemeStrategy of(AnimalIslandThemeData theme) {
-    return switch (theme.gameStyle) {
+    return forGameStyle(theme.gameStyle);
+  }
+
+  static AnimalButtonThemeStrategy forGameStyle(
+    AnimalIslandGameStyle gameStyle,
+  ) {
+    return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit => const _NesAnimalButtonThemeStrategy(),
       AnimalIslandGameStyle.westworld =>
         const _WestworldAnimalButtonThemeStrategy(),
+      AnimalIslandGameStyle.guofengDoodle =>
+        const _GuofengAnimalButtonThemeStrategy(),
       AnimalIslandGameStyle.animalIsland =>
         const _AnimalIslandButtonThemeStrategy(),
     };
@@ -281,6 +289,92 @@ final class _WestworldAnimalButtonThemeStrategy
       AnimalButtonType.dashed => AnimalButtonColors(
         background: ghost ? Colors.transparent : theme.surface,
         border: theme.border,
+        foreground: theme.textPrimary,
+        shadow: Colors.transparent,
+      ),
+      AnimalButtonType.text => AnimalButtonColors(
+        background: Colors.transparent,
+        border: Colors.transparent,
+        foreground: theme.textPrimary,
+        shadow: Colors.transparent,
+      ),
+      AnimalButtonType.link => AnimalButtonColors(
+        background: Colors.transparent,
+        border: Colors.transparent,
+        foreground: theme.primary,
+        shadow: Colors.transparent,
+      ),
+    };
+  }
+}
+
+final class _GuofengAnimalButtonThemeStrategy
+    extends AnimalButtonThemeStrategy {
+  const _GuofengAnimalButtonThemeStrategy();
+
+  @override
+  AnimalButtonLoadingStyle get loadingStyle => AnimalButtonLoadingStyle.stripe;
+
+  @override
+  AnimalButtonColors resolveColors(
+    AnimalIslandThemeData theme, {
+    required AnimalButtonType type,
+    required bool danger,
+    required bool ghost,
+    required bool loading,
+  }) {
+    if (loading) {
+      return AnimalButtonColors(
+        background: theme.surface,
+        border: theme.border,
+        foreground: theme.primary,
+        shadow: theme.inputShadow,
+      );
+    }
+
+    if (danger) {
+      if (type == AnimalButtonType.primary) {
+        return AnimalButtonColors(
+          background: ghost ? Colors.transparent : theme.error,
+          border: theme.errorActive,
+          foreground: ghost ? theme.error : Colors.white,
+          shadow: ghost ? Colors.transparent : theme.errorActive,
+        );
+      }
+      return AnimalButtonColors(
+        background: ghost
+            ? Colors.transparent
+            : theme.error.withValues(alpha: 0.08),
+        border: theme.error,
+        foreground: theme.error,
+        shadow: ghost ? Colors.transparent : theme.inputShadow,
+      );
+    }
+
+    return switch (type) {
+      AnimalButtonType.primary => AnimalButtonColors(
+        background: ghost ? Colors.transparent : theme.primary,
+        border: theme.mode == AnimalIslandThemeMode.day
+            ? const Color(0xFF3B2F2F)
+            : theme.border,
+        foreground: ghost
+            ? theme.primary
+            : theme.mode == AnimalIslandThemeMode.day
+            ? theme.pageBackground
+            : theme.textPrimary,
+        shadow: ghost ? Colors.transparent : theme.buttonShadow,
+      ),
+      AnimalButtonType.defaultType => AnimalButtonColors(
+        background: ghost ? Colors.transparent : theme.surface,
+        border: theme.mode == AnimalIslandThemeMode.day
+            ? const Color(0xFF3B2F2F)
+            : theme.border.withValues(alpha: 0.82),
+        foreground: theme.textPrimary,
+        shadow: ghost ? Colors.transparent : theme.buttonShadow,
+      ),
+      AnimalButtonType.dashed => AnimalButtonColors(
+        background: ghost ? Colors.transparent : theme.surfaceRaised,
+        border: theme.border.withValues(alpha: 0.92),
         foreground: theme.textPrimary,
         shadow: Colors.transparent,
       ),

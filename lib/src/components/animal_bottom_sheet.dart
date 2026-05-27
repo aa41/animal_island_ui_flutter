@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
-import '../theme/animal_island_tokens.dart';
+import 'animal_component_dispatcher.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
+import 'guofeng_components.dart';
 import 'theme_strategies/animal_bottom_sheet_shared.dart';
 import 'theme_strategies/animal_bottom_sheet_theme_strategy.dart';
 
@@ -106,13 +107,187 @@ class AnimalBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandBottomSheet(
+        open: open,
+        title: title,
+        footer: footer,
+        maxWidth: maxWidth,
+        maxHeightRatio: maxHeightRatio,
+        maskClosable: maskClosable,
+        showHandle: showHandle,
+        showCloseButton: showCloseButton,
+        enableDrag: enableDrag,
+        onClose: onClose,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+      nes: (_) => _NesAnimalBottomSheet(
+        open: open,
+        title: title,
+        footer: footer,
+        maxWidth: maxWidth,
+        maxHeightRatio: maxHeightRatio,
+        maskClosable: maskClosable,
+        showHandle: showHandle,
+        showCloseButton: showCloseButton,
+        enableDrag: enableDrag,
+        onClose: onClose,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+      westworld: (_) => _WestworldAnimalBottomSheet(
+        open: open,
+        title: title,
+        footer: footer,
+        maxWidth: maxWidth,
+        maxHeightRatio: maxHeightRatio,
+        maskClosable: maskClosable,
+        showHandle: showHandle,
+        showCloseButton: showCloseButton,
+        enableDrag: enableDrag,
+        onClose: onClose,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+      guofeng: (_) => _GuofengAnimalBottomSheet(
+        open: open,
+        title: title,
+        footer: footer,
+        maxWidth: maxWidth,
+        maxHeightRatio: maxHeightRatio,
+        maskClosable: maskClosable,
+        showHandle: showHandle,
+        showCloseButton: showCloseButton,
+        enableDrag: enableDrag,
+        onClose: onClose,
+        typeSpeed: typeSpeed,
+        typewriter: typewriter,
+        child: child,
+      ),
+    );
+  }
+}
+
+class _AnimalIslandBottomSheet extends _ThemedAnimalBottomSheet {
+  const _AnimalIslandBottomSheet({
+    required super.open,
+    required super.title,
+    required super.footer,
+    required super.maxWidth,
+    required super.maxHeightRatio,
+    required super.maskClosable,
+    required super.showHandle,
+    required super.showCloseButton,
+    required super.enableDrag,
+    required super.onClose,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalBottomSheet extends _ThemedAnimalBottomSheet {
+  const _NesAnimalBottomSheet({
+    required super.open,
+    required super.title,
+    required super.footer,
+    required super.maxWidth,
+    required super.maxHeightRatio,
+    required super.maskClosable,
+    required super.showHandle,
+    required super.showCloseButton,
+    required super.enableDrag,
+    required super.onClose,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalBottomSheet extends _ThemedAnimalBottomSheet {
+  const _WestworldAnimalBottomSheet({
+    required super.open,
+    required super.title,
+    required super.footer,
+    required super.maxWidth,
+    required super.maxHeightRatio,
+    required super.maskClosable,
+    required super.showHandle,
+    required super.showCloseButton,
+    required super.enableDrag,
+    required super.onClose,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalBottomSheet extends _ThemedAnimalBottomSheet {
+  const _GuofengAnimalBottomSheet({
+    required super.open,
+    required super.title,
+    required super.footer,
+    required super.maxWidth,
+    required super.maxHeightRatio,
+    required super.maskClosable,
+    required super.showHandle,
+    required super.showCloseButton,
+    required super.enableDrag,
+    required super.onClose,
+    required super.child,
+    required super.typeSpeed,
+    required super.typewriter,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalBottomSheet extends StatelessWidget {
+  const _ThemedAnimalBottomSheet({
+    required this.gameStyle,
+    required this.open,
+    required this.title,
+    required this.footer,
+    required this.maxWidth,
+    required this.maxHeightRatio,
+    required this.maskClosable,
+    required this.showHandle,
+    required this.showCloseButton,
+    required this.enableDrag,
+    required this.onClose,
+    required this.child,
+    required this.typeSpeed,
+    required this.typewriter,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final bool open;
+  final Widget? title;
+  final Widget? footer;
+  final double maxWidth;
+  final double? maxHeightRatio;
+  final bool maskClosable;
+  final bool showHandle;
+  final bool showCloseButton;
+  final bool enableDrag;
+  final VoidCallback? onClose;
+  final Widget? child;
+  final int typeSpeed;
+  final bool typewriter;
+
+  @override
+  Widget build(BuildContext context) {
     if (!open) {
       return const SizedBox.shrink();
     }
     final theme = context.animalIslandTheme;
-    final strategy = AnimalBottomSheetThemeStrategy.of(theme);
+    final strategy = AnimalBottomSheetThemeStrategy.forGameStyle(gameStyle);
 
     final sheet = _AnimalBottomSheetPanel(
+      gameStyle: gameStyle,
       theme: theme,
       strategy: strategy,
       title: title,
@@ -160,6 +335,7 @@ class AnimalBottomSheet extends StatelessWidget {
 
 class _AnimalBottomSheetPanel extends StatefulWidget {
   const _AnimalBottomSheetPanel({
+    required this.gameStyle,
     required this.theme,
     required this.strategy,
     required this.title,
@@ -175,6 +351,7 @@ class _AnimalBottomSheetPanel extends StatefulWidget {
     required this.typewriter,
   });
 
+  final AnimalIslandGameStyle gameStyle;
   final AnimalIslandThemeData theme;
   final AnimalBottomSheetThemeStrategy strategy;
   final Widget? title;
@@ -290,50 +467,71 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
             ),
             maxHeight: size.height * maxHeightRatio,
           ),
-          child: PhysicalShape(
-            clipper: outerClipper,
-            color: strategy.outerColor(theme),
-            shadowColor: theme.buttonShadow.withValues(alpha: 0.34),
-            elevation: strategy.elevation(theme),
-            child: Padding(
-              padding: EdgeInsets.all(strategy.framePadding(theme)),
-              child: panelClipper == null
-                  ? _AnimalBottomSheetPanelSurface(
-                      decoration: strategy.panelDecoration(theme),
-                      contentPadding: strategy.contentPadding(theme),
-                      strategy: strategy,
-                      theme: theme,
-                      headerVisible: headerVisible,
-                      showHandle: widget.showHandle,
-                      showCloseButton: widget.showCloseButton,
-                      onVerticalDragUpdate: _handleVerticalDragUpdate,
-                      onVerticalDragEnd: _handleVerticalDragEnd,
-                      title: widget.title,
-                      onClose: widget.onClose,
-                      bodyScrolls: strategy.bodyScrolls(theme),
-                      body: body,
-                      footer: widget.footer,
-                    )
-                  : ClipPath(
-                      clipper: panelClipper,
-                      child: _AnimalBottomSheetPanelSurface(
-                        decoration: strategy.panelDecoration(theme),
-                        contentPadding: strategy.contentPadding(theme),
-                        strategy: strategy,
+          child: Stack(
+            children: [
+              PhysicalShape(
+                clipper: outerClipper,
+                color: strategy.outerColor(theme),
+                shadowColor: theme.buttonShadow.withValues(alpha: 0.34),
+                elevation: strategy.elevation(theme),
+                child: Padding(
+                  padding: EdgeInsets.all(strategy.framePadding(theme)),
+                  child: panelClipper == null
+                      ? _AnimalBottomSheetPanelSurface(
+                          decoration: strategy.panelDecoration(theme),
+                          contentPadding: strategy.contentPadding(theme),
+                          strategy: strategy,
+                          theme: theme,
+                          headerVisible: headerVisible,
+                          showHandle: widget.showHandle,
+                          showCloseButton: widget.showCloseButton,
+                          onVerticalDragUpdate: _handleVerticalDragUpdate,
+                          onVerticalDragEnd: _handleVerticalDragEnd,
+                          title: widget.title,
+                          onClose: widget.onClose,
+                          bodyScrolls: strategy.bodyScrolls(theme),
+                          body: body,
+                          footer: widget.footer,
+                        )
+                      : ClipPath(
+                          clipper: panelClipper,
+                          child: _AnimalBottomSheetPanelSurface(
+                            decoration: strategy.panelDecoration(theme),
+                            contentPadding: strategy.contentPadding(theme),
+                            strategy: strategy,
+                            theme: theme,
+                            headerVisible: headerVisible,
+                            showHandle: widget.showHandle,
+                            showCloseButton: widget.showCloseButton,
+                            onVerticalDragUpdate: _handleVerticalDragUpdate,
+                            onVerticalDragEnd: _handleVerticalDragEnd,
+                            title: widget.title,
+                            onClose: widget.onClose,
+                            bodyScrolls: strategy.bodyScrolls(theme),
+                            body: body,
+                            footer: widget.footer,
+                          ),
+                        ),
+                ),
+              ),
+              if (widget.gameStyle == AnimalIslandGameStyle.guofengDoodle)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: GuofengPaperTexturePainter(
                         theme: theme,
-                        headerVisible: headerVisible,
-                        showHandle: widget.showHandle,
-                        showCloseButton: widget.showCloseButton,
-                        onVerticalDragUpdate: _handleVerticalDragUpdate,
-                        onVerticalDragEnd: _handleVerticalDragEnd,
-                        title: widget.title,
-                        onClose: widget.onClose,
-                        bodyScrolls: strategy.bodyScrolls(theme),
-                        body: body,
-                        footer: widget.footer,
+                        seed: 73,
+                      ),
+                      foregroundPainter: GuofengInkOutlinePainter(
+                        color: theme.border,
+                        radius: theme.radiusLg,
+                        strokeWidth: theme.borderWidth,
+                        seed: 73,
                       ),
                     ),
-            ),
+                  ),
+                ),
+            ],
           ),
         ),
       ),

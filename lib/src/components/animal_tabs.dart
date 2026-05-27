@@ -7,8 +7,10 @@ import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
 import '../utils/animal_island_assets.dart';
+import 'animal_component_dispatcher.dart';
+import 'guofeng_components.dart';
 
-class AnimalTabs extends StatefulWidget {
+class AnimalTabs extends StatelessWidget {
   const AnimalTabs({
     super.key,
     required this.items,
@@ -27,10 +29,113 @@ class AnimalTabs extends StatefulWidget {
   final bool shadow;
 
   @override
-  State<AnimalTabs> createState() => _AnimalTabsState();
+  Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandTabs(
+        items: items,
+        defaultActiveId: defaultActiveId,
+        activeId: activeId,
+        onChanged: onChanged,
+        leafAnimation: leafAnimation,
+        shadow: shadow,
+      ),
+      nes: (_) => _NesAnimalTabs(
+        items: items,
+        defaultActiveId: defaultActiveId,
+        activeId: activeId,
+        onChanged: onChanged,
+        leafAnimation: leafAnimation,
+        shadow: shadow,
+      ),
+      westworld: (_) => _WestworldAnimalTabs(
+        items: items,
+        defaultActiveId: defaultActiveId,
+        activeId: activeId,
+        onChanged: onChanged,
+        leafAnimation: leafAnimation,
+        shadow: shadow,
+      ),
+      guofeng: (_) => _GuofengAnimalTabs(
+        items: items,
+        defaultActiveId: defaultActiveId,
+        activeId: activeId,
+        onChanged: onChanged,
+        leafAnimation: leafAnimation,
+        shadow: shadow,
+      ),
+    );
+  }
 }
 
-class _AnimalTabsState extends State<AnimalTabs>
+class _AnimalIslandTabs extends _ThemedAnimalTabs {
+  const _AnimalIslandTabs({
+    required super.items,
+    required super.defaultActiveId,
+    required super.activeId,
+    required super.onChanged,
+    required super.leafAnimation,
+    required super.shadow,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalTabs extends _ThemedAnimalTabs {
+  const _NesAnimalTabs({
+    required super.items,
+    required super.defaultActiveId,
+    required super.activeId,
+    required super.onChanged,
+    required super.leafAnimation,
+    required super.shadow,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalTabs extends _ThemedAnimalTabs {
+  const _WestworldAnimalTabs({
+    required super.items,
+    required super.defaultActiveId,
+    required super.activeId,
+    required super.onChanged,
+    required super.leafAnimation,
+    required super.shadow,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalTabs extends _ThemedAnimalTabs {
+  const _GuofengAnimalTabs({
+    required super.items,
+    required super.defaultActiveId,
+    required super.activeId,
+    required super.onChanged,
+    required super.leafAnimation,
+    required super.shadow,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalTabs extends StatefulWidget {
+  const _ThemedAnimalTabs({
+    required this.gameStyle,
+    required this.items,
+    required this.defaultActiveId,
+    required this.activeId,
+    required this.onChanged,
+    required this.leafAnimation,
+    required this.shadow,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final List<AnimalTabItem> items;
+  final String? defaultActiveId;
+  final String? activeId;
+  final ValueChanged<String>? onChanged;
+  final bool leafAnimation;
+  final bool shadow;
+
+  @override
+  State<_ThemedAnimalTabs> createState() => _ThemedAnimalTabsState();
+}
+
+class _ThemedAnimalTabsState extends State<_ThemedAnimalTabs>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   late String _activeId;
@@ -46,7 +151,7 @@ class _AnimalTabsState extends State<AnimalTabs>
   }
 
   @override
-  void didUpdateWidget(covariant AnimalTabs oldWidget) {
+  void didUpdateWidget(covariant _ThemedAnimalTabs oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (_itemsChanged(oldWidget.items, widget.items)) {
@@ -170,9 +275,25 @@ class _AnimalTabsState extends State<AnimalTabs>
     final activeItem = widget.items[_indexForId(_activeId)];
     final activeBodyHeight = _bodyHeights[_activeId];
 
-    return DecoratedBox(
+    final content = DecoratedBox(
       decoration: theme.isWestworld
           ? theme.westworldPanelDecoration()
+          : theme.isGuofengDoodle
+          ? BoxDecoration(
+              color: theme.surface,
+              borderRadius: BorderRadius.circular(theme.radiusLg),
+              border: Border.all(
+                color: Colors.transparent,
+                width: theme.borderWidth,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: theme.inputShadow.withValues(alpha: 0.24),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            )
           : BoxDecoration(
               color: theme.surfaceRaised,
               borderRadius: BorderRadius.circular(theme.radiusLg),
@@ -219,7 +340,9 @@ class _AnimalTabsState extends State<AnimalTabs>
           Divider(
             height: 0,
             thickness: theme.borderWidth,
-            color: theme.panelLineColor(),
+            color: theme.isGuofengDoodle
+                ? theme.border.withValues(alpha: 0.72)
+                : theme.panelLineColor(),
           ),
           Offstage(
             offstage: true,
@@ -248,6 +371,27 @@ class _AnimalTabsState extends State<AnimalTabs>
             ),
         ],
       ),
+    );
+    if (!theme.isGuofengDoodle) {
+      return content;
+    }
+    return Stack(
+      children: [
+        content,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: GuofengPaperTexturePainter(theme: theme, seed: 126),
+              foregroundPainter: GuofengInkOutlinePainter(
+                color: theme.border,
+                radius: theme.radiusLg,
+                strokeWidth: theme.borderWidth,
+                seed: 126,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -329,6 +473,56 @@ class _TabChipState extends State<_TabChip>
       );
     }
 
+    if (theme.isGuofengDoodle) {
+      return MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: theme.interactionDuration,
+          curve: theme.interactionCurve,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+          decoration: BoxDecoration(
+            color: widget.active
+                ? theme.primary.withValues(alpha: 0.14)
+                : _hovered
+                ? theme.primarySoft.withValues(alpha: 0.42)
+                : theme.surfaceRaised.withValues(alpha: 0.46),
+            borderRadius: BorderRadius.circular(theme.radiusBase),
+          ),
+          foregroundDecoration: ShapeDecoration(
+            shape: _GuofengTabBorder(
+              color: widget.active ? theme.primary : theme.border,
+              radius: theme.radiusBase,
+              seed: widget.index + 140,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              CustomPaint(
+                size: const Size(10, 10),
+                painter: _GuofengTabDotPainter(
+                  color: widget.active ? theme.primary : theme.border,
+                ),
+              ),
+              const SizedBox(width: AnimalIslandTokens.spacingSm),
+              DefaultTextStyle(
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  color: widget.active
+                      ? theme.primaryActive
+                      : theme.textPrimary,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.2,
+                ),
+                child: widget.item.label,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
@@ -400,7 +594,7 @@ class _TabChipState extends State<_TabChip>
                 ),
               ],
             ),
-            if (widget.active && theme.spec.isOrganic)
+            if (widget.active && theme.spec.isOrganic && !theme.isGuofengDoodle)
               Positioned(
                 right: -5,
                 top: -4,
@@ -526,6 +720,112 @@ class _WestworldTabLine extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _GuofengTabDotPainter extends CustomPainter {
+  const _GuofengTabDotPainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round
+      ..color = color;
+    canvas.drawCircle(center, size.shortestSide * 0.32, paint);
+    canvas.drawLine(
+      center.translate(-1.5, 1.5),
+      center.translate(2.5, -2.0),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengTabDotPainter oldDelegate) {
+    return oldDelegate.color != color;
+  }
+}
+
+class _GuofengTabBorder extends ShapeBorder {
+  const _GuofengTabBorder({
+    required this.color,
+    required this.radius,
+    required this.seed,
+  });
+
+  final Color color;
+  final double radius;
+  final int seed;
+
+  @override
+  EdgeInsetsGeometry get dimensions => EdgeInsets.zero;
+
+  @override
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
+    return getOuterPath(rect.deflate(2.5), textDirection: textDirection);
+  }
+
+  @override
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
+    final r = radius.clamp(0.0, rect.shortestSide / 2);
+    final path = Path()..moveTo(rect.left + r, rect.top + 0.6);
+    for (var i = 1; i <= 8; i += 1) {
+      final t = i / 8;
+      final x = rect.left + r + (rect.width - 2 * r) * t;
+      path.lineTo(x, rect.top + math.sin(i * 1.7 + seed) * 0.45);
+    }
+    path.quadraticBezierTo(rect.right, rect.top, rect.right, rect.top + r);
+    for (var i = 1; i <= 5; i += 1) {
+      final t = i / 5;
+      path.lineTo(
+        rect.right + math.sin(i + seed) * 0.35,
+        rect.top + r + (rect.height - 2 * r) * t,
+      );
+    }
+    path.quadraticBezierTo(
+      rect.right,
+      rect.bottom,
+      rect.right - r,
+      rect.bottom,
+    );
+    for (var i = 1; i <= 8; i += 1) {
+      final t = i / 8;
+      final x = rect.right - r - (rect.width - 2 * r) * t;
+      path.lineTo(x, rect.bottom + math.sin(i * 1.5 + seed) * 0.45);
+    }
+    path.quadraticBezierTo(rect.left, rect.bottom, rect.left, rect.bottom - r);
+    for (var i = 1; i <= 5; i += 1) {
+      final t = i / 5;
+      path.lineTo(
+        rect.left + math.sin(i * 1.3 + seed) * 0.35,
+        rect.bottom - r - (rect.height - 2 * r) * t,
+      );
+    }
+    path.quadraticBezierTo(rect.left, rect.top, rect.left + r, rect.top);
+    return path..close();
+  }
+
+  @override
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = color.withValues(alpha: 0.82);
+    canvas.drawPath(
+      getOuterPath(rect.deflate(0.8), textDirection: textDirection),
+      paint,
+    );
+  }
+
+  @override
+  ShapeBorder scale(double t) {
+    return _GuofengTabBorder(color: color, radius: radius * t, seed: seed);
   }
 }
 

@@ -26,6 +26,15 @@ void main() {
     );
   }
 
+  Widget wrapGuofeng(Widget child) {
+    return MaterialApp(
+      theme: buildAnimalIslandTheme(
+        gameStyle: AnimalIslandGameStyle.guofengDoodle,
+      ),
+      home: Scaffold(body: Center(child: child)),
+    );
+  }
+
   Widget wrapStyle(AnimalIslandGameStyle style, Widget child) {
     return MaterialApp(
       theme: buildAnimalIslandTheme(gameStyle: style),
@@ -62,6 +71,51 @@ void main() {
 
     expect(find.byType(CircularProgressIndicator), findsNothing);
     expect(find.byType(CustomPaint), findsWidgets);
+  });
+
+  testWidgets('Guofeng button shrink-wraps when block is false', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      wrapGuofeng(
+        AnimalButton(
+          type: AnimalButtonType.primary,
+          onPressed: () {},
+          child: const Text('确定'),
+        ),
+      ),
+    );
+
+    final buttonSize = tester.getSize(find.byType(AnimalButton));
+    expect(buttonSize.width, lessThan(140));
+    expect(buttonSize.height, equals(45));
+  });
+
+  testWidgets('Guofeng input focused state stays inside control bounds', (
+    tester,
+  ) async {
+    final focusNode = FocusNode();
+    addTearDown(focusNode.dispose);
+
+    await tester.pumpWidget(
+      wrapGuofeng(
+        SizedBox(
+          width: 220,
+          child: AnimalInput(
+            focusNode: focusNode,
+            hintText: '请输入',
+            shadow: true,
+          ),
+        ),
+      ),
+    );
+
+    focusNode.requestFocus();
+    await tester.pumpAndSettle();
+
+    final inputSize = tester.getSize(find.byType(AnimalInput));
+    expect(inputSize, const Size(220, 40));
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Dashed card centers its child content', (tester) async {
@@ -714,7 +768,7 @@ void main() {
     expect(find.text('暂时空白'), findsOneWidget);
   });
 
-  testWidgets('NES status states use pixel painters instead of image assets', (
+  testWidgets('NES status states use generated pixel status assets', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -734,8 +788,20 @@ void main() {
       ),
     );
 
-    expect(find.byType(Image), findsNothing);
-    expect(find.byType(CustomPaint), findsWidgets);
+    final images = tester.widgetList<Image>(find.byType(Image)).toList();
+    expect(images, hasLength(3));
+    expect(
+      images.map((image) => (image.image as AssetImage).assetName),
+      containsAll(<String>[
+        AnimalIslandAssets.nesStatusLoading,
+        AnimalIslandAssets.nesStatusEmpty,
+        AnimalIslandAssets.nesStatusError,
+      ]),
+    );
+    expect(
+      images.every((image) => image.filterQuality == FilterQuality.none),
+      isTrue,
+    );
   });
 
   testWidgets('Westworld date time picker renders system headers and wheels', (
@@ -761,7 +827,7 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('Westworld and NES footers use custom painters', (tester) async {
+  testWidgets('Theme footers use generated image assets', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
         home: Column(
@@ -774,7 +840,31 @@ void main() {
             ),
             Theme(
               data: buildAnimalIslandTheme(
+                gameStyle: AnimalIslandGameStyle.westworld,
+              ),
+              child: const AnimalFooter(type: AnimalFooterType.sea),
+            ),
+            Theme(
+              data: buildAnimalIslandTheme(
                 gameStyle: AnimalIslandGameStyle.nes8Bit,
+              ),
+              child: const AnimalFooter(type: AnimalFooterType.tree),
+            ),
+            Theme(
+              data: buildAnimalIslandTheme(
+                gameStyle: AnimalIslandGameStyle.nes8Bit,
+              ),
+              child: const AnimalFooter(type: AnimalFooterType.sea),
+            ),
+            Theme(
+              data: buildAnimalIslandTheme(
+                gameStyle: AnimalIslandGameStyle.guofengDoodle,
+              ),
+              child: const AnimalFooter(type: AnimalFooterType.tree),
+            ),
+            Theme(
+              data: buildAnimalIslandTheme(
+                gameStyle: AnimalIslandGameStyle.guofengDoodle,
               ),
               child: const AnimalFooter(type: AnimalFooterType.sea),
             ),
@@ -783,31 +873,64 @@ void main() {
       ),
     );
 
-    expect(find.byType(CustomPaint), findsAtLeastNWidgets(2));
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('Westworld icon and collapse use HUD rendering', (tester) async {
-    await tester.pumpWidget(
-      wrapWestworld(
-        const Column(
-          children: [
-            AnimalIcon(name: AnimalIconName.map, size: 32),
-            SizedBox(height: 12),
-            AnimalCollapse(
-              question: Text('CONTROL LOOP'),
-              answer: Text('Branch detail panel.'),
-              defaultExpanded: true,
-            ),
-          ],
-        ),
-      ),
+    final images = tester.widgetList<Image>(find.byType(Image)).toList();
+    expect(
+      images.map((image) => (image.image as AssetImage).assetName),
+      containsAll(<String>[
+        AnimalIslandAssets.westworldFooterTree,
+        AnimalIslandAssets.westworldFooterSea,
+        AnimalIslandAssets.nesFooterTree,
+        AnimalIslandAssets.nesFooterSea,
+        AnimalIslandAssets.guofengFooterTree,
+        AnimalIslandAssets.guofengFooterSea,
+      ]),
     );
-
-    expect(find.byType(SvgPicture), findsNothing);
-    expect(find.byType(CustomPaint), findsWidgets);
-    expect(find.text('CONTROL LOOP'), findsOneWidget);
-    expect(find.text('Branch detail panel.'), findsOneWidget);
+    expect(
+      images
+          .where(
+            (image) =>
+                (image.image as AssetImage).assetName ==
+                AnimalIslandAssets.nesFooterTree,
+          )
+          .single
+          .filterQuality,
+      FilterQuality.none,
+    );
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets(
+    'Westworld icon uses themed asset and collapse uses HUD rendering',
+    (tester) async {
+      await tester.pumpWidget(
+        wrapWestworld(
+          const Column(
+            children: [
+              AnimalIcon(name: AnimalIconName.map, size: 32),
+              SizedBox(height: 12),
+              AnimalCollapse(
+                question: Text('CONTROL LOOP'),
+                answer: Text('Branch detail panel.'),
+                defaultExpanded: true,
+              ),
+            ],
+          ),
+        ),
+      );
+
+      expect(find.byType(SvgPicture), findsNothing);
+      final iconImage = tester.widget<Image>(find.byType(Image).first);
+      expect(
+        (iconImage.image as AssetImage).assetName,
+        AnimalIslandAssets.themedIcon(
+          AnimalIslandGameStyle.westworld,
+          AnimalIconName.map,
+        ),
+      );
+      expect(find.byType(CustomPaint), findsWidgets);
+      expect(find.text('CONTROL LOOP'), findsOneWidget);
+      expect(find.text('Branch detail panel.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

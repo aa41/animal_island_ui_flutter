@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../theme/animal_island_theme.dart';
+import 'animal_component_dispatcher.dart';
 
-class AnimalBadge extends StatefulWidget {
+class AnimalBadge extends StatelessWidget {
   const AnimalBadge({
     super.key,
     required this.label,
@@ -17,10 +18,93 @@ class AnimalBadge extends StatefulWidget {
   final EdgeInsetsGeometry padding;
 
   @override
-  State<AnimalBadge> createState() => _AnimalBadgeState();
+  Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandBadge(
+        label: label,
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: padding,
+      ),
+      nes: (_) => _NesAnimalBadge(
+        label: label,
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: padding,
+      ),
+      westworld: (_) => _WestworldAnimalBadge(
+        label: label,
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: padding,
+      ),
+      guofeng: (_) => _GuofengAnimalBadge(
+        label: label,
+        backgroundColor: backgroundColor,
+        foregroundColor: foregroundColor,
+        padding: padding,
+      ),
+    );
+  }
 }
 
-class _AnimalBadgeState extends State<AnimalBadge>
+class _AnimalIslandBadge extends _ThemedAnimalBadge {
+  const _AnimalIslandBadge({
+    required super.label,
+    required super.backgroundColor,
+    required super.foregroundColor,
+    required super.padding,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalBadge extends _ThemedAnimalBadge {
+  const _NesAnimalBadge({
+    required super.label,
+    required super.backgroundColor,
+    required super.foregroundColor,
+    required super.padding,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalBadge extends _ThemedAnimalBadge {
+  const _WestworldAnimalBadge({
+    required super.label,
+    required super.backgroundColor,
+    required super.foregroundColor,
+    required super.padding,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalBadge extends _ThemedAnimalBadge {
+  const _GuofengAnimalBadge({
+    required super.label,
+    required super.backgroundColor,
+    required super.foregroundColor,
+    required super.padding,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalBadge extends StatefulWidget {
+  const _ThemedAnimalBadge({
+    required this.gameStyle,
+    required this.label,
+    required this.backgroundColor,
+    required this.foregroundColor,
+    required this.padding,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final String label;
+  final Color? backgroundColor;
+  final Color? foregroundColor;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  State<_ThemedAnimalBadge> createState() => _ThemedAnimalBadgeState();
+}
+
+class _ThemedAnimalBadgeState extends State<_ThemedAnimalBadge>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
@@ -48,6 +132,35 @@ class _AnimalBadgeState extends State<AnimalBadge>
   @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
+
+    if (theme.isGuofengDoodle) {
+      final background = widget.backgroundColor ?? theme.primary;
+      final foreground =
+          widget.foregroundColor ??
+          (theme.mode == AnimalIslandThemeMode.day
+              ? Colors.white
+              : theme.textPrimary);
+      return CustomPaint(
+        painter: _GuofengSealBadgePainter(
+          fill: background,
+          border: theme.border,
+          paper: theme.surface,
+        ),
+        child: Padding(
+          padding: widget.padding.add(
+            const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
+          ),
+          child: Text(
+            widget.label,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: foreground,
+              letterSpacing: 0.4,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      );
+    }
 
     final badge = DecoratedBox(
       decoration: BoxDecoration(
@@ -98,6 +211,52 @@ class _AnimalBadgeState extends State<AnimalBadge>
       ),
       child: badge,
     );
+  }
+}
+
+class _GuofengSealBadgePainter extends CustomPainter {
+  const _GuofengSealBadgePainter({
+    required this.fill,
+    required this.border,
+    required this.paper,
+  });
+
+  final Color fill;
+  final Color border;
+  final Color paper;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final rect = Offset.zero & size;
+    final radius = Radius.circular(size.height * 0.18);
+    final rrect = RRect.fromRectAndRadius(rect.deflate(1), radius);
+    canvas.drawRRect(rrect, Paint()..color = fill);
+    canvas.drawRRect(
+      rrect,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.8
+        ..color = border.withValues(alpha: 0.52),
+    );
+    final grainPaint = Paint()..color = paper.withValues(alpha: 0.24);
+    for (var i = 0; i < 6; i += 1) {
+      final x = 5.0 + i * (size.width - 10) / 5;
+      canvas.drawLine(
+        Offset(x, 4),
+        Offset(x + 7, size.height - 5),
+        grainPaint..strokeWidth = i.isEven ? 1.1 : 0.7,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengSealBadgePainter oldDelegate) {
+    return oldDelegate.fill != fill ||
+        oldDelegate.border != border ||
+        oldDelegate.paper != paper;
   }
 }
 

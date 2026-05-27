@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '_animal_dashed_outline.dart';
+import 'animal_component_dispatcher.dart';
+import 'guofeng_components.dart';
 
-class AnimalCard extends StatefulWidget {
+class AnimalCard extends StatelessWidget {
   const AnimalCard({
     super.key,
     this.type = AnimalCardType.defaultType,
@@ -21,10 +23,103 @@ class AnimalCard extends StatefulWidget {
   final Widget? child;
 
   @override
-  State<AnimalCard> createState() => _AnimalCardState();
+  Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandCard(
+        type: type,
+        color: color,
+        padding: padding,
+        onTap: onTap,
+        child: child,
+      ),
+      nes: (_) => _NesAnimalCard(
+        type: type,
+        color: color,
+        padding: padding,
+        onTap: onTap,
+        child: child,
+      ),
+      westworld: (_) => _WestworldAnimalCard(
+        type: type,
+        color: color,
+        padding: padding,
+        onTap: onTap,
+        child: child,
+      ),
+      guofeng: (_) => _GuofengAnimalCard(
+        type: type,
+        color: color,
+        padding: padding,
+        onTap: onTap,
+        child: child,
+      ),
+    );
+  }
 }
 
-class _AnimalCardState extends State<AnimalCard>
+class _AnimalIslandCard extends _ThemedAnimalCard {
+  const _AnimalIslandCard({
+    required super.type,
+    required super.color,
+    required super.padding,
+    required super.onTap,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalCard extends _ThemedAnimalCard {
+  const _NesAnimalCard({
+    required super.type,
+    required super.color,
+    required super.padding,
+    required super.onTap,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalCard extends _ThemedAnimalCard {
+  const _WestworldAnimalCard({
+    required super.type,
+    required super.color,
+    required super.padding,
+    required super.onTap,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalCard extends _ThemedAnimalCard {
+  const _GuofengAnimalCard({
+    required super.type,
+    required super.color,
+    required super.padding,
+    required super.onTap,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalCard extends StatefulWidget {
+  const _ThemedAnimalCard({
+    required this.gameStyle,
+    required this.type,
+    required this.color,
+    required this.padding,
+    required this.onTap,
+    required this.child,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final AnimalCardType type;
+  final String color;
+  final EdgeInsetsGeometry? padding;
+  final VoidCallback? onTap;
+  final Widget? child;
+
+  @override
+  State<_ThemedAnimalCard> createState() => _ThemedAnimalCardState();
+}
+
+class _ThemedAnimalCardState extends State<_ThemedAnimalCard>
     with SingleTickerProviderStateMixin {
   bool _hovered = false;
   late final AnimationController _westworldController;
@@ -63,83 +158,105 @@ class _AnimalCardState extends State<AnimalCard>
                 ? 22
                 : theme.isWestworld
                 ? 22
+                : theme.isGuofengDoodle
+                ? 20
                 : 32,
-            vertical: 12,
+            vertical: theme.isGuofengDoodle ? 10 : 12,
           ),
           _ => EdgeInsets.symmetric(
             horizontal: theme.isNes
                 ? 16
                 : theme.isWestworld
                 ? 18
+                : theme.isGuofengDoodle
+                ? 18
                 : 24,
-            vertical: 16,
+            vertical: theme.isGuofengDoodle ? 14 : 16,
           ),
         };
 
     final dashedBorderColor = theme.borderLight.withValues(
       alpha: _hovered ? 0.9 : 0.7,
     );
+    final isGuofeng = widget.gameStyle == AnimalIslandGameStyle.guofengDoodle;
 
-    final card = Stack(
-      children: [
-        AnimatedContainer(
-          duration: theme.interactionDuration,
-          curve: theme.interactionCurve,
-          transform: Matrix4.translationValues(
-            0,
-            _hovered &&
-                    widget.type != AnimalCardType.dashed &&
-                    theme.spec.isOrganic
-                ? -4
-                : 0,
-            0,
-          ),
-          padding: padding,
-          decoration: _cardDecoration(
-            theme: theme,
-            background: background,
-            radius: radius,
-            hovered: _hovered,
-          ),
-          child: DefaultTextStyle(
-            style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-              color:
-                  widget.type == AnimalCardType.defaultType &&
-                      widget.color == 'default'
-                  ? theme.textBody
-                  : foreground,
-              fontWeight: widget.type == AnimalCardType.title
-                  ? FontWeight.w600
-                  : FontWeight.w500,
-            ),
-            child: theme.isWestworld
-                ? _WestworldCardFrame(
-                    lineColor: theme.panelLineColor(
+    final card = AnimatedContainer(
+      duration: theme.interactionDuration,
+      curve: theme.interactionCurve,
+      transform: Matrix4.translationValues(
+        0,
+        _hovered && widget.type != AnimalCardType.dashed && theme.spec.isOrganic
+            ? -4
+            : 0,
+        0,
+      ),
+      decoration: _cardDecoration(
+        theme: theme,
+        background: background,
+        radius: radius,
+        hovered: _hovered,
+        handDrawn: isGuofeng,
+      ),
+      child: Stack(
+        fit: StackFit.passthrough,
+        children: [
+          Padding(
+            padding: padding,
+            child: DefaultTextStyle(
+              style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                color:
+                    widget.type == AnimalCardType.defaultType &&
+                        widget.color == 'default'
+                    ? theme.textBody
+                    : foreground,
+                fontWeight: widget.type == AnimalCardType.title
+                    ? FontWeight.w600
+                    : FontWeight.w500,
+              ),
+              child: theme.isWestworld
+                  ? _WestworldCardFrame(
+                      lineColor: theme.panelLineColor(
+                        hovered: _hovered,
+                        emphasized: widget.type == AnimalCardType.title,
+                      ),
+                      animation: _westworldController,
                       hovered: _hovered,
-                      emphasized: widget.type == AnimalCardType.title,
-                    ),
-                    animation: _westworldController,
-                    hovered: _hovered,
-                    child: _cardChild,
-                  )
-                : _cardChild,
+                      child: _cardChild,
+                    )
+                  : _cardChild,
+            ),
           ),
-        ),
-        if (widget.type == AnimalCardType.dashed)
-          Positioned.fill(
-            child: IgnorePointer(
-              child: CustomPaint(
-                painter: AnimalDashedOutlinePainter(
-                  color: dashedBorderColor,
-                  radius: theme.isWestworld ? 0 : 20,
-                  strokeWidth: theme.borderWidth,
-                  dashLength: theme.isNes ? 4 : 7,
-                  gapLength: theme.isNes ? 4 : 5,
+          if (isGuofeng)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: GuofengPaperTexturePainter(theme: theme, seed: 61),
+                  foregroundPainter: GuofengInkOutlinePainter(
+                    color: dashedBorderColor,
+                    radius: theme.radiusBase,
+                    strokeWidth: theme.borderWidth,
+                    seed: widget.type.index + 61,
+                    dashed: widget.type == AnimalCardType.dashed,
+                  ),
+                ),
+              ),
+            )
+          else if (widget.type == AnimalCardType.dashed)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: AnimalDashedOutlinePainter(
+                    color: dashedBorderColor,
+                    radius: theme.isWestworld ? 0 : 20,
+                    strokeWidth: theme.borderWidth,
+                    dashLength: theme.isNes ? 4 : 7,
+                    gapLength: theme.isNes ? 4 : 5,
+                  ),
                 ),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
 
     if (widget.onTap == null) {
@@ -162,7 +279,8 @@ class _AnimalCardState extends State<AnimalCard>
       return widget.child ?? const SizedBox.shrink();
     }
 
-    return Center(
+    return Align(
+      alignment: Alignment.center,
       widthFactor: widget.child == null ? 1 : null,
       heightFactor: widget.child == null ? 1 : null,
       child: widget.child ?? const SizedBox.shrink(),
@@ -174,6 +292,7 @@ class _AnimalCardState extends State<AnimalCard>
     required Color background,
     required BorderRadius radius,
     required bool hovered,
+    required bool handDrawn,
   }) {
     if (theme.isWestworld) {
       return theme.westworldPanelDecoration(
@@ -190,14 +309,18 @@ class _AnimalCardState extends State<AnimalCard>
           ? theme.surface.withValues(alpha: 0.92)
           : background,
       borderRadius: radius,
-      border: theme.isNes
+      border: handDrawn
+          ? Border.all(color: Colors.transparent, width: theme.borderWidth)
+          : theme.isNes
           ? Border.all(color: theme.border, width: theme.borderWidth)
           : null,
       boxShadow: widget.type == AnimalCardType.dashed
           ? null
           : [
               BoxShadow(
-                color: theme.isNes
+                color: handDrawn
+                    ? theme.inputShadow.withValues(alpha: 0.34)
+                    : theme.isNes
                     ? theme.buttonShadow
                     : const Color.fromRGBO(
                         107,
@@ -205,8 +328,19 @@ class _AnimalCardState extends State<AnimalCard>
                         67,
                         0.42,
                       ).withValues(alpha: hovered ? 0.34 : 0.24),
-                blurRadius: theme.isNes ? 0 : (hovered ? 20 : 10),
-                offset: Offset(0, theme.isNes ? 4 : (hovered ? 8 : 4)),
+                blurRadius: handDrawn
+                    ? (hovered ? 12 : 8)
+                    : theme.isNes
+                    ? 0
+                    : (hovered ? 20 : 10),
+                offset: Offset(
+                  0,
+                  handDrawn
+                      ? (hovered ? 5 : 3)
+                      : theme.isNes
+                      ? 4
+                      : (hovered ? 8 : 4),
+                ),
               ),
             ],
     );

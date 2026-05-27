@@ -6,9 +6,11 @@ import '../models/animal_island_models.dart';
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
 import '_animal_dashed_outline.dart';
+import 'animal_component_dispatcher.dart';
+import 'guofeng_components.dart';
 import 'theme_strategies/animal_button_theme_strategy.dart';
 
-class AnimalButton extends StatefulWidget {
+class AnimalButton extends StatelessWidget {
   const AnimalButton({
     super.key,
     this.type = AnimalButtonType.defaultType,
@@ -35,10 +37,153 @@ class AnimalButton extends StatefulWidget {
   final Widget child;
 
   @override
-  State<AnimalButton> createState() => _AnimalButtonState();
+  Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandButton(
+        type: type,
+        size: size,
+        danger: danger,
+        ghost: ghost,
+        block: block,
+        loading: loading,
+        enabled: enabled,
+        icon: icon,
+        onPressed: onPressed,
+        child: child,
+      ),
+      nes: (_) => _NesAnimalButton(
+        type: type,
+        size: size,
+        danger: danger,
+        ghost: ghost,
+        block: block,
+        loading: loading,
+        enabled: enabled,
+        icon: icon,
+        onPressed: onPressed,
+        child: child,
+      ),
+      westworld: (_) => _WestworldAnimalButton(
+        type: type,
+        size: size,
+        danger: danger,
+        ghost: ghost,
+        block: block,
+        loading: loading,
+        enabled: enabled,
+        icon: icon,
+        onPressed: onPressed,
+        child: child,
+      ),
+      guofeng: (_) => _GuofengAnimalButton(
+        type: type,
+        size: size,
+        danger: danger,
+        ghost: ghost,
+        block: block,
+        loading: loading,
+        enabled: enabled,
+        icon: icon,
+        onPressed: onPressed,
+        child: child,
+      ),
+    );
+  }
 }
 
-class _AnimalButtonState extends State<AnimalButton>
+class _AnimalIslandButton extends _ThemedAnimalButton {
+  const _AnimalIslandButton({
+    required super.type,
+    required super.size,
+    required super.danger,
+    required super.ghost,
+    required super.block,
+    required super.loading,
+    required super.enabled,
+    required super.icon,
+    required super.onPressed,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalButton extends _ThemedAnimalButton {
+  const _NesAnimalButton({
+    required super.type,
+    required super.size,
+    required super.danger,
+    required super.ghost,
+    required super.block,
+    required super.loading,
+    required super.enabled,
+    required super.icon,
+    required super.onPressed,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalButton extends _ThemedAnimalButton {
+  const _WestworldAnimalButton({
+    required super.type,
+    required super.size,
+    required super.danger,
+    required super.ghost,
+    required super.block,
+    required super.loading,
+    required super.enabled,
+    required super.icon,
+    required super.onPressed,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalButton extends _ThemedAnimalButton {
+  const _GuofengAnimalButton({
+    required super.type,
+    required super.size,
+    required super.danger,
+    required super.ghost,
+    required super.block,
+    required super.loading,
+    required super.enabled,
+    required super.icon,
+    required super.onPressed,
+    required super.child,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalButton extends StatefulWidget {
+  const _ThemedAnimalButton({
+    required this.gameStyle,
+    required this.type,
+    required this.size,
+    required this.danger,
+    required this.ghost,
+    required this.block,
+    required this.loading,
+    required this.enabled,
+    required this.icon,
+    required this.onPressed,
+    required this.child,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final AnimalButtonType type;
+  final AnimalButtonSize size;
+  final bool danger;
+  final bool ghost;
+  final bool block;
+  final bool loading;
+  final bool enabled;
+  final Widget? icon;
+  final VoidCallback? onPressed;
+  final Widget child;
+
+  @override
+  State<_ThemedAnimalButton> createState() => _ThemedAnimalButtonState();
+}
+
+class _ThemedAnimalButtonState extends State<_ThemedAnimalButton>
     with SingleTickerProviderStateMixin {
   bool _hovered = false;
   bool _pressed = false;
@@ -58,7 +203,7 @@ class _AnimalButtonState extends State<AnimalButton>
   }
 
   @override
-  void didUpdateWidget(covariant AnimalButton oldWidget) {
+  void didUpdateWidget(covariant _ThemedAnimalButton oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.loading != widget.loading) {
       _syncLoadingController();
@@ -108,7 +253,7 @@ class _AnimalButtonState extends State<AnimalButton>
       ),
     };
 
-    final strategy = AnimalButtonThemeStrategy.of(theme);
+    final strategy = AnimalButtonThemeStrategy.forGameStyle(widget.gameStyle);
     final colors = strategy.resolveColors(
       theme,
       type: widget.type,
@@ -140,20 +285,21 @@ class _AnimalButtonState extends State<AnimalButton>
         letterSpacing: theme.spec.isPixel ? 0 : theme.spec.labelSpacing,
       ),
       child: Row(
-        mainAxisSize: widget.block ? MainAxisSize.max : MainAxisSize.min,
+        mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if (widget.icon != null && !widget.loading) ...[
             widget.icon!,
             const SizedBox(width: AnimalIslandTokens.spacingSm),
           ],
-          Flexible(child: Center(child: widget.child)),
+          Flexible(child: widget.child),
         ],
       ),
     );
 
     final showDashedBorder =
         widget.type == AnimalButtonType.dashed && !widget.loading;
+    final isGuofeng = widget.gameStyle == AnimalIslandGameStyle.guofengDoodle;
 
     final buttonChild = Stack(
       children: [
@@ -163,7 +309,7 @@ class _AnimalButtonState extends State<AnimalButton>
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(metrics.radius),
               color: colors.background,
-              border: showDashedBorder
+              border: showDashedBorder || isGuofeng
                   ? null
                   : Border.all(color: colors.border, width: theme.borderWidth),
               boxShadow: shadowDepth == 0
@@ -178,7 +324,21 @@ class _AnimalButtonState extends State<AnimalButton>
             ),
           ),
         ),
-        if (showDashedBorder)
+        if (isGuofeng)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: GuofengInkOutlinePainter(
+                  color: colors.border,
+                  radius: metrics.radius,
+                  strokeWidth: theme.borderWidth,
+                  seed: widget.type.index + widget.size.index * 7,
+                  dashed: showDashedBorder,
+                ),
+              ),
+            ),
+          )
+        else if (showDashedBorder)
           Positioned.fill(
             child: IgnorePointer(
               child: CustomPaint(
@@ -190,37 +350,53 @@ class _AnimalButtonState extends State<AnimalButton>
               ),
             ),
           ),
-          if (widget.loading)
-            Positioned.fill(
-              child: AnimatedBuilder(
-                animation: _loadingController,
-                builder: (context, child) => CustomPaint(
-                  painter: _resolveLoadingPainter(
-                    strategy,
-                    theme,
-                    metrics.radius,
-                    _loadingController.value,
-                  ),
+        if (isGuofeng && (_hovered || _pressed) && enabled)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: GuofengBrushFocusPainter(
+                  color: _pressed ? theme.focusYellowDark : theme.focusYellow,
+                  radius: metrics.radius,
+                  seed: widget.type.index + 3,
                 ),
               ),
             ),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: metrics.horizontal,
-            vertical: (metrics.height - metrics.fontSize - 8) / 2,
           ),
-          child: Center(child: content),
+        if (widget.loading)
+          Positioned.fill(
+            child: AnimatedBuilder(
+              animation: _loadingController,
+              builder: (context, child) => CustomPaint(
+                painter: _resolveLoadingPainter(
+                  strategy,
+                  theme,
+                  metrics.radius,
+                  _loadingController.value,
+                ),
+              ),
+            ),
+          ),
+        Center(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: metrics.horizontal,
+              vertical: (metrics.height - metrics.fontSize - 8) / 2,
+            ),
+            child: content,
+          ),
         ),
       ],
     );
 
-    final child = AnimatedContainer(
+    final translated = AnimatedContainer(
       duration: theme.interactionDuration,
       transform: Matrix4.translationValues(0, offsetY, 0),
       height: metrics.height,
-      width: widget.block ? double.infinity : null,
       child: buttonChild,
     );
+    final child = widget.block
+        ? SizedBox(width: double.infinity, child: translated)
+        : IntrinsicWidth(child: translated);
 
     return MouseRegion(
       onEnter: enabled ? (_) => setState(() => _hovered = true) : null,
@@ -248,25 +424,27 @@ class _AnimalButtonState extends State<AnimalButton>
   ) {
     switch (strategy.loadingStyle) {
       case AnimalButtonLoadingStyle.pixel:
-      return _PixelLoadingPainter(
-        progress: progress,
-        base: theme.primary,
-        stripe: theme.focusYellow,
-      );
+        return _PixelLoadingPainter(
+          progress: progress,
+          base: theme.primary,
+          stripe: theme.focusYellow,
+        );
       case AnimalButtonLoadingStyle.scanline:
-      return _ScanlineLoadingPainter(
-        progress: progress,
-        base: theme.surfaceRaised.withValues(alpha: 0.14),
-        line: theme.primary.withValues(alpha: 0.56),
-        muted: theme.panelLineColor(),
-      );
+        return _ScanlineLoadingPainter(
+          progress: progress,
+          base: theme.surfaceRaised.withValues(alpha: 0.14),
+          line: theme.primary.withValues(alpha: 0.56),
+          muted: theme.panelLineColor(),
+        );
       case AnimalButtonLoadingStyle.stripe:
-      return _StripePainter(
-        progress: progress,
-        base: const Color(0xFF0EC4B6),
-        stripe: const Color(0xFF01B0A7),
-        radius: radius,
-      );
+        return _StripePainter(
+          progress: progress,
+          base: theme.isGuofengDoodle ? theme.primary : const Color(0xFF0EC4B6),
+          stripe: theme.isGuofengDoodle
+              ? theme.focusYellow.withValues(alpha: 0.34)
+              : const Color(0xFF01B0A7),
+          radius: radius,
+        );
     }
   }
 }

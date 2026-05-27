@@ -5,7 +5,7 @@ import 'animal_island_tokens.dart';
 
 enum AnimalIslandThemeMode { day, night }
 
-enum AnimalIslandGameStyle { animalIsland, nes8Bit, westworld }
+enum AnimalIslandGameStyle { animalIsland, nes8Bit, westworld, guofengDoodle }
 
 enum AnimalIslandThemeShape { organic, pixel, system }
 
@@ -183,6 +183,38 @@ class AnimalIslandThemeSpec {
     uppercaseLabels: true,
     hairlineAccents: true,
   );
+
+  static const guofengDoodle = AnimalIslandThemeSpec(
+    shape: AnimalIslandThemeShape.organic,
+    radiusSm: 14,
+    radiusBase: 20,
+    radiusLg: 28,
+    radiusPill: 50,
+    borderWidth: 2.4,
+    inputBorderWidth: 2.6,
+    interactionCurve: Curves.easeOut,
+    interactionDuration: Duration(milliseconds: 150),
+    bodyHeight: 1.5,
+    bodySmallHeight: 1.42,
+    labelSpacing: 0.08,
+    buttonHorizontalSmall: 16,
+    buttonHorizontalMiddle: 20,
+    buttonHorizontalLarge: 28,
+    buttonShadowRest: 4,
+    buttonShadowHover: 5,
+    buttonShadowPressed: 1,
+    buttonHoverOffsetY: -1,
+    buttonPressedOffsetY: 1,
+    inputHorizontalSmall: 14,
+    inputHorizontalMiddle: 16,
+    inputHorizontalLarge: 18,
+    inputShadowSmall: 3,
+    inputShadowMiddle: 4,
+    inputShadowLarge: 5,
+    cardTitleRadius: BorderRadius.all(Radius.circular(20)),
+    cardRadius: BorderRadius.all(Radius.circular(20)),
+    panelRadius: BorderRadius.all(Radius.circular(28)),
+  );
 }
 
 abstract final class AnimalIslandThemeFactory {
@@ -199,6 +231,10 @@ abstract final class AnimalIslandThemeFactory {
         AnimalIslandThemeData.westworldDay,
       (AnimalIslandGameStyle.westworld, AnimalIslandThemeMode.night) =>
         AnimalIslandThemeData.westworldNight,
+      (AnimalIslandGameStyle.guofengDoodle, AnimalIslandThemeMode.day) =>
+        AnimalIslandThemeData.guofengDay,
+      (AnimalIslandGameStyle.guofengDoodle, AnimalIslandThemeMode.night) =>
+        AnimalIslandThemeData.guofengNight,
       (_, AnimalIslandThemeMode.day) => AnimalIslandThemeData.day,
       (_, AnimalIslandThemeMode.night) => AnimalIslandThemeData.night,
     };
@@ -208,6 +244,8 @@ abstract final class AnimalIslandThemeFactory {
     return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit => AnimalIslandThemeSpec.nes,
       AnimalIslandGameStyle.westworld => AnimalIslandThemeSpec.westworld,
+      AnimalIslandGameStyle.guofengDoodle =>
+        AnimalIslandThemeSpec.guofengDoodle,
       AnimalIslandGameStyle.animalIsland => AnimalIslandThemeSpec.animalIsland,
     };
   }
@@ -297,6 +335,7 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
 
   bool get isNes => spec.isPixel;
   bool get isWestworld => spec.isSystem;
+  bool get isGuofengDoodle => gameStyle == AnimalIslandGameStyle.guofengDoodle;
 
   double get radiusSm => spec.radiusSm;
   double get radiusBase => spec.radiusBase;
@@ -548,6 +587,86 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
     codeDefault: Color(0xFFECECE8),
   );
 
+  static const AnimalIslandThemeData guofengDay = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.guofengDoodle,
+    mode: AnimalIslandThemeMode.day,
+    primary: Color(0xFF1C9C8E),
+    primaryHover: Color(0xFF35B8A8),
+    primaryActive: Color(0xFF0F756B),
+    primarySoft: Color(0xFFCFE9FF),
+    textPrimary: Color(0xFF5C3A21),
+    textBody: Color(0xFF6B5035),
+    textSecondary: Color(0xFF7B5D37),
+    textMuted: Color(0xFF9B7F54),
+    textDisabled: Color(0xFFC7BDA8),
+    border: Color(0xFF3B2F2F),
+    borderLight: Color(0xFFC9A56A),
+    borderHover: Color(0xFF1C9C8E),
+    surface: Color(0xFFFFF7EF),
+    surfaceRaised: Color(0xFFFFFAF2),
+    surfaceSoft: Color(0xFFEAF7FF),
+    surfaceMuted: Color(0xFFF0EADF),
+    pageBackground: Color(0xFFF7F0DE),
+    pageBackgroundAlt: Color(0xFFEBD9B8),
+    success: Color(0xFF4E8B45),
+    successActive: Color(0xFF386F32),
+    warning: Color(0xFFD9A441),
+    warningActive: Color(0xFFB47A1E),
+    error: Color(0xFFC83B2D),
+    errorActive: Color(0xFF9E291F),
+    focusYellow: Color(0xFFE8BF45),
+    focusYellowDark: Color(0xFFB98A2C),
+    sidebarActive: Color(0xFFE7C56C),
+    sidebarHover: Color(0xFFF2DC9C),
+    buttonShadow: Color(0x333B2F2F),
+    inputShadow: Color(0x333B2F2F),
+    heroGradientStart: Color(0xFFFFF7EF),
+    heroGradientEnd: Color(0xFFF7F0DE),
+    codeBackground: Color(0xFFFFFAF2),
+    codeBorder: Color(0xFF3B2F2F),
+    codeDefault: Color(0xFF5C3A21),
+  );
+
+  static const AnimalIslandThemeData guofengNight = AnimalIslandThemeData(
+    gameStyle: AnimalIslandGameStyle.guofengDoodle,
+    mode: AnimalIslandThemeMode.night,
+    primary: Color(0xFF55D0C3),
+    primaryHover: Color(0xFF7FE4D9),
+    primaryActive: Color(0xFF2BAEA1),
+    primarySoft: Color(0xFF143641),
+    textPrimary: Color(0xFFE9DCC3),
+    textBody: Color(0xFFDCCAAE),
+    textSecondary: Color(0xFFC4A978),
+    textMuted: Color(0xFF9A8A70),
+    textDisabled: Color(0xFF6E7891),
+    border: Color(0xFFE9DCC3),
+    borderLight: Color(0xFF7DA0C7),
+    borderHover: Color(0xFFE8C989),
+    surface: Color(0xFF0B111B),
+    surfaceRaised: Color(0xFF172235),
+    surfaceSoft: Color(0xFF20304A),
+    surfaceMuted: Color(0xFF0E1520),
+    pageBackground: Color(0xFF101827),
+    pageBackgroundAlt: Color(0xFF0B111B),
+    success: Color(0xFF83B96D),
+    successActive: Color(0xFF5B984A),
+    warning: Color(0xFFF0C15A),
+    warningActive: Color(0xFFC7942C),
+    error: Color(0xFFE45A44),
+    errorActive: Color(0xFFB93527),
+    focusYellow: Color(0xFFF0C15A),
+    focusYellowDark: Color(0xFFC7942C),
+    sidebarActive: Color(0xFF385467),
+    sidebarHover: Color(0xFF263A56),
+    buttonShadow: Color(0x66000000),
+    inputShadow: Color(0x66000000),
+    heroGradientStart: Color(0xFF101827),
+    heroGradientEnd: Color(0xFF0B111B),
+    codeBackground: Color(0xFF0B111B),
+    codeBorder: Color(0xFFE9DCC3),
+    codeDefault: Color(0xFFE9DCC3),
+  );
+
   Map<String, Color> get cardColors => {
     if (isWestworld) ...{
       'default': surfaceRaised,
@@ -577,6 +696,22 @@ class AnimalIslandThemeData extends ThemeExtension<AnimalIslandThemeData> {
       'yellow-green': const Color(0xFFA8E000),
       'brown': const Color(0xFF887000),
       'warm-peach-pink': const Color(0xFFF8A878),
+    } else if (isGuofengDoodle) ...{
+      'default': surfaceRaised,
+      'app-pink': error.withValues(alpha: 0.82),
+      'purple': const Color(0xFF7D6B93),
+      'app-blue': mode == AnimalIslandThemeMode.day
+          ? const Color(0xFFCFE9FF)
+          : const Color(0xFF273E5A),
+      'app-yellow': warning,
+      'app-orange': const Color(0xFFD99443),
+      'app-teal': primary,
+      'app-green': success,
+      'app-red': error,
+      'lime-green': const Color(0xFF8A9A54),
+      'yellow-green': const Color(0xFFB8A84A),
+      'brown': border,
+      'warm-peach-pink': const Color(0xFFDFA18B),
     } else ...{
       'default': surfaceRaised,
       'app-pink': const Color(0xFFF8A6B2),
@@ -860,6 +995,9 @@ ThemeData buildAnimalIslandTheme({
     AnimalIslandGameStyle.westworld => GoogleFonts.barlowCondensedTextTheme(
       base.textTheme,
     ),
+    AnimalIslandGameStyle.guofengDoodle => GoogleFonts.zcoolXiaoWeiTextTheme(
+      base.textTheme,
+    ),
     AnimalIslandGameStyle.animalIsland => GoogleFonts.nunitoTextTheme(
       base.textTheme,
     ),
@@ -867,6 +1005,7 @@ ThemeData buildAnimalIslandTheme({
   final textFont = switch (gameStyle) {
     AnimalIslandGameStyle.nes8Bit => GoogleFonts.pressStart2p,
     AnimalIslandGameStyle.westworld => GoogleFonts.barlowCondensed,
+    AnimalIslandGameStyle.guofengDoodle => GoogleFonts.zcoolXiaoWei,
     AnimalIslandGameStyle.animalIsland => GoogleFonts.nunito,
   };
   final bodyHeight = spec.bodyHeight;

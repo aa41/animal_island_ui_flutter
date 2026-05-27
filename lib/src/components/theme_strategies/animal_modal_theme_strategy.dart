@@ -2,16 +2,23 @@ import 'package:flutter/material.dart';
 
 import '../../theme/animal_island_theme.dart';
 import '../../theme/animal_island_tokens.dart';
-import '../../utils/animal_island_assets.dart';
 
 abstract final class AnimalModalThemeStrategy {
   const AnimalModalThemeStrategy();
 
   static AnimalModalThemeStrategy of(AnimalIslandThemeData theme) {
-    return switch (theme.gameStyle) {
+    return forGameStyle(theme.gameStyle);
+  }
+
+  static AnimalModalThemeStrategy forGameStyle(
+    AnimalIslandGameStyle gameStyle,
+  ) {
+    return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit => const _NesAnimalModalThemeStrategy(),
       AnimalIslandGameStyle.westworld =>
         const _WestworldAnimalModalThemeStrategy(),
+      AnimalIslandGameStyle.guofengDoodle =>
+        const _GuofengAnimalModalThemeStrategy(),
       AnimalIslandGameStyle.animalIsland =>
         const _AnimalIslandModalThemeStrategy(),
     };
@@ -42,11 +49,6 @@ final class _AnimalIslandModalThemeStrategy extends AnimalModalThemeStrategy {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: <Color>[theme.surfaceRaised, theme.surface],
-      ),
-      image: DecorationImage(
-        image: AnimalIslandAssets.raster(AnimalIslandAssets.demoGuideLine),
-        fit: BoxFit.cover,
-        opacity: theme.mode == AnimalIslandThemeMode.day ? 0.02 : 0.015,
       ),
     );
   }
@@ -148,4 +150,47 @@ final class _WestworldAnimalModalThemeStrategy
   @override
   BorderRadius? clipRadius(AnimalIslandThemeData theme) =>
       BorderRadius.circular(theme.radiusBase);
+}
+
+final class _GuofengAnimalModalThemeStrategy extends AnimalModalThemeStrategy {
+  const _GuofengAnimalModalThemeStrategy();
+
+  @override
+  BoxDecoration panelDecoration(AnimalIslandThemeData theme) {
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.circular(theme.radiusLg),
+      border: Border.all(color: Colors.transparent, width: theme.borderWidth),
+      boxShadow: [
+        BoxShadow(
+          color: theme.inputShadow.withValues(alpha: 0.38),
+          blurRadius: theme.mode == AnimalIslandThemeMode.day ? 10 : 18,
+          offset: const Offset(0, 5),
+        ),
+      ],
+    );
+  }
+
+  @override
+  EdgeInsets panelPadding(AnimalIslandThemeData theme) {
+    return const EdgeInsets.fromLTRB(28, 28, 28, 24);
+  }
+
+  @override
+  double titleFontSize(AnimalIslandThemeData theme) =>
+      AnimalIslandTokens.fontHeadlineSm;
+
+  @override
+  double bodyFontSize(AnimalIslandThemeData theme) =>
+      AnimalIslandTokens.fontBodyLg;
+
+  @override
+  double bodyHeight(AnimalIslandThemeData theme) => 1.5;
+
+  @override
+  FontWeight bodyFontWeight(AnimalIslandThemeData theme) => FontWeight.w500;
+
+  @override
+  BorderRadius? clipRadius(AnimalIslandThemeData theme) =>
+      BorderRadius.circular(theme.radiusLg);
 }

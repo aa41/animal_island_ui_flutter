@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
+import 'animal_component_dispatcher.dart';
 
 class AnimalCodeBlock extends StatelessWidget {
   const AnimalCodeBlock({
@@ -29,6 +30,49 @@ class AnimalCodeBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandCodeBlock(code: code, padding: padding),
+      nes: (_) => _NesAnimalCodeBlock(code: code, padding: padding),
+      westworld: (_) => _WestworldAnimalCodeBlock(code: code, padding: padding),
+      guofeng: (_) => _GuofengAnimalCodeBlock(code: code, padding: padding),
+    );
+  }
+}
+
+class _AnimalIslandCodeBlock extends _ThemedAnimalCodeBlock {
+  const _AnimalIslandCodeBlock({required super.code, required super.padding})
+    : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalCodeBlock extends _ThemedAnimalCodeBlock {
+  const _NesAnimalCodeBlock({required super.code, required super.padding})
+    : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldAnimalCodeBlock extends _ThemedAnimalCodeBlock {
+  const _WestworldAnimalCodeBlock({required super.code, required super.padding})
+    : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalCodeBlock extends _ThemedAnimalCodeBlock {
+  const _GuofengAnimalCodeBlock({required super.code, required super.padding})
+    : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalCodeBlock extends StatelessWidget {
+  const _ThemedAnimalCodeBlock({
+    required this.gameStyle,
+    required this.code,
+    required this.padding,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final String code;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
 
     return DecoratedBox(
@@ -52,7 +96,7 @@ class AnimalCodeBlock extends StatelessWidget {
         child: SelectableText.rich(
           TextSpan(
             style: TextStyle(
-              color: _colors['default'],
+              color: AnimalCodeBlock._colors['default'],
               fontFamily: 'monospace',
               fontSize: theme.isNes
                   ? AnimalIslandTokens.fontCaption
@@ -79,7 +123,11 @@ class AnimalCodeBlock extends StatelessWidget {
       );
       for (final match in re.allMatches(value)) {
         spans.add(
-          _CodeToken(start: match.start, end: match.end, color: _colors[key]!),
+          _CodeToken(
+            start: match.start,
+            end: match.end,
+            color: AnimalCodeBlock._colors[key]!,
+          ),
         );
       }
     }
@@ -126,7 +174,7 @@ class AnimalCodeBlock extends StatelessWidget {
         result.add(
           TextSpan(
             text: value.substring(cursor, token.start),
-            style: TextStyle(color: _colors['default']),
+            style: TextStyle(color: AnimalCodeBlock._colors['default']),
           ),
         );
       }
@@ -143,7 +191,7 @@ class AnimalCodeBlock extends StatelessWidget {
       result.add(
         TextSpan(
           text: value.substring(cursor),
-          style: TextStyle(color: _colors['default']),
+          style: TextStyle(color: AnimalCodeBlock._colors['default']),
         ),
       );
     }

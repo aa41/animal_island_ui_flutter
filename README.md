@@ -43,7 +43,7 @@
 - 容器与反馈：`AnimalCard`、`AnimalCollapse`、`AnimalModal`、`showAnimalDialog`
 - 选择与导航：`AnimalSelect`、`AnimalCheckboxGroup`、`AnimalTabs`
 - 装饰与展示：`AnimalBadge`、`AnimalDivider`、`AnimalFooter`、`AnimalCodeBlock`
-- 游戏化组件：`AnimalIcon`、`AnimalCursor`、`AnimalPhone`、`AnimalTime`、`AnimalTypewriter`
+- 游戏化组件：`AnimalIcon`、`AnimalCursor`、`AnimalTypewriter`
 - 状态与列表：`AnimalLoading`、`AnimalErrorState`、`AnimalEmptyState`、`AnimalStatusView`、`AnimalPullToRefresh`、`AnimalLoadMoreFooter`
 
 NES 八位机主题已覆盖上述组件，不是单独封装一批割裂 API。包括 `Switch.loading`、虚线卡片、`Loading / Empty / Error` 等反馈组件都使用像素化视觉与动效。

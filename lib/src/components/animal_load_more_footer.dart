@@ -7,6 +7,8 @@ import '../theme/animal_island_theme.dart';
 import '../utils/animal_island_assets.dart';
 import 'animal_badge.dart';
 import 'animal_button.dart';
+import 'animal_component_dispatcher.dart';
+import 'guofeng_components.dart';
 
 class AnimalLoadMoreFooter extends StatelessWidget {
   const AnimalLoadMoreFooter({
@@ -30,12 +32,136 @@ class AnimalLoadMoreFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandLoadMoreFooter(
+        state: state,
+        onLoadMore: onLoadMore,
+        idleText: idleText,
+        loadingText: loadingText,
+        noMoreText: noMoreText,
+        errorText: errorText,
+        retryText: retryText,
+      ),
+      nes: (_) => _NesAnimalLoadMoreFooter(
+        state: state,
+        onLoadMore: onLoadMore,
+        idleText: idleText,
+        loadingText: loadingText,
+        noMoreText: noMoreText,
+        errorText: errorText,
+        retryText: retryText,
+      ),
+      westworld: (_) => _WestworldThemedLoadMoreFooter(
+        state: state,
+        onLoadMore: onLoadMore,
+        idleText: idleText,
+        loadingText: loadingText,
+        noMoreText: noMoreText,
+        errorText: errorText,
+        retryText: retryText,
+      ),
+      guofeng: (_) => _GuofengAnimalLoadMoreFooter(
+        state: state,
+        onLoadMore: onLoadMore,
+        idleText: idleText,
+        loadingText: loadingText,
+        noMoreText: noMoreText,
+        errorText: errorText,
+        retryText: retryText,
+      ),
+    );
+  }
+}
+
+class _AnimalIslandLoadMoreFooter extends _ThemedAnimalLoadMoreFooter {
+  const _AnimalIslandLoadMoreFooter({
+    required super.state,
+    required super.onLoadMore,
+    required super.idleText,
+    required super.loadingText,
+    required super.noMoreText,
+    required super.errorText,
+    required super.retryText,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+}
+
+class _NesAnimalLoadMoreFooter extends _ThemedAnimalLoadMoreFooter {
+  const _NesAnimalLoadMoreFooter({
+    required super.state,
+    required super.onLoadMore,
+    required super.idleText,
+    required super.loadingText,
+    required super.noMoreText,
+    required super.errorText,
+    required super.retryText,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+}
+
+class _WestworldThemedLoadMoreFooter extends _ThemedAnimalLoadMoreFooter {
+  const _WestworldThemedLoadMoreFooter({
+    required super.state,
+    required super.onLoadMore,
+    required super.idleText,
+    required super.loadingText,
+    required super.noMoreText,
+    required super.errorText,
+    required super.retryText,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+}
+
+class _GuofengAnimalLoadMoreFooter extends _ThemedAnimalLoadMoreFooter {
+  const _GuofengAnimalLoadMoreFooter({
+    required super.state,
+    required super.onLoadMore,
+    required super.idleText,
+    required super.loadingText,
+    required super.noMoreText,
+    required super.errorText,
+    required super.retryText,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+}
+
+abstract class _ThemedAnimalLoadMoreFooter extends StatelessWidget {
+  const _ThemedAnimalLoadMoreFooter({
+    required this.gameStyle,
+    required this.state,
+    required this.onLoadMore,
+    required this.idleText,
+    required this.loadingText,
+    required this.noMoreText,
+    required this.errorText,
+    required this.retryText,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final AnimalLoadMoreState state;
+  final Future<void> Function()? onLoadMore;
+  final String idleText;
+  final String loadingText;
+  final String noMoreText;
+  final String errorText;
+  final String retryText;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
 
     if (theme.isWestworld) {
       return _WestworldLoadMoreFooter(
         state: state,
         onLoadMore: onLoadMore,
+        retryText: retryText,
+      );
+    }
+    if (theme.isGuofengDoodle) {
+      return _GuofengLoadMoreFooter(
+        state: state,
+        onLoadMore: onLoadMore,
+        idleText: idleText,
+        loadingText: loadingText,
+        noMoreText: noMoreText,
+        errorText: errorText,
         retryText: retryText,
       );
     }
@@ -281,6 +407,219 @@ class _WestworldLoadMoreFooterState extends State<_WestworldLoadMoreFooter>
         ),
       ),
     );
+  }
+}
+
+class _GuofengLoadMoreFooter extends StatefulWidget {
+  const _GuofengLoadMoreFooter({
+    required this.state,
+    required this.onLoadMore,
+    required this.idleText,
+    required this.loadingText,
+    required this.noMoreText,
+    required this.errorText,
+    required this.retryText,
+  });
+
+  final AnimalLoadMoreState state;
+  final Future<void> Function()? onLoadMore;
+  final String idleText;
+  final String loadingText;
+  final String noMoreText;
+  final String errorText;
+  final String retryText;
+
+  @override
+  State<_GuofengLoadMoreFooter> createState() => _GuofengLoadMoreFooterState();
+}
+
+class _GuofengLoadMoreFooterState extends State<_GuofengLoadMoreFooter>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1300),
+  )..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    final label = switch (widget.state) {
+      AnimalLoadMoreState.loading => '正在续写画卷...',
+      AnimalLoadMoreState.noMore => '今日卷末已至',
+      AnimalLoadMoreState.error => '墨迹中断，请重试',
+      AnimalLoadMoreState.idle => '继续翻阅下一卷',
+    };
+    final accent = switch (widget.state) {
+      AnimalLoadMoreState.error => theme.error,
+      AnimalLoadMoreState.noMore => theme.success,
+      AnimalLoadMoreState.loading => theme.primary,
+      AnimalLoadMoreState.idle => theme.focusYellowDark,
+    };
+
+    return Stack(
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(
+            color: theme.surface.withValues(alpha: 0.94),
+            borderRadius: BorderRadius.circular(theme.radiusBase),
+          ),
+          child: CustomPaint(
+            painter: GuofengPaperTexturePainter(theme: theme, seed: 117),
+            foregroundPainter: GuofengInkOutlinePainter(
+              color: accent,
+              radius: theme.radiusBase,
+              strokeWidth: theme.borderWidth,
+              seed: 117,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 13),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 12,
+                runSpacing: 10,
+                children: [
+                  SizedBox.square(
+                    dimension: 34,
+                    child: AnimatedBuilder(
+                      animation: _controller,
+                      builder: (context, child) => CustomPaint(
+                        painter: _GuofengLoadMoreGlyphPainter(
+                          state: widget.state,
+                          progress: _controller.value,
+                          ink: theme.border,
+                          accent: accent,
+                        ),
+                      ),
+                    ),
+                  ),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 280),
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: theme.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  if (widget.state == AnimalLoadMoreState.idle &&
+                      widget.onLoadMore != null)
+                    AnimalButton(
+                      type: AnimalButtonType.defaultType,
+                      size: AnimalButtonSize.small,
+                      onPressed: () => widget.onLoadMore!.call(),
+                      child: const Text('Load More'),
+                    ),
+                  if (widget.state == AnimalLoadMoreState.error &&
+                      widget.onLoadMore != null)
+                    AnimalButton(
+                      type: AnimalButtonType.primary,
+                      size: AnimalButtonSize.small,
+                      danger: true,
+                      onPressed: () => widget.onLoadMore!.call(),
+                      child: Text(widget.retryText),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _GuofengLoadMoreGlyphPainter extends CustomPainter {
+  const _GuofengLoadMoreGlyphPainter({
+    required this.state,
+    required this.progress,
+    required this.ink,
+    required this.accent,
+  });
+
+  final AnimalLoadMoreState state;
+  final double progress;
+  final Color ink;
+  final Color accent;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = size.center(Offset.zero);
+    final paint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..color = accent;
+    canvas.drawCircle(
+      center,
+      size.shortestSide * 0.36,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1.4
+        ..color = ink.withValues(alpha: 0.42),
+    );
+    switch (state) {
+      case AnimalLoadMoreState.loading:
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: size.shortestSide * 0.36),
+          progress * math.pi * 2,
+          math.pi * 1.25,
+          false,
+          paint,
+        );
+      case AnimalLoadMoreState.noMore:
+        canvas.drawPath(
+          Path()
+            ..moveTo(center.dx - 8, center.dy)
+            ..lineTo(center.dx - 2, center.dy + 6)
+            ..lineTo(center.dx + 9, center.dy - 7),
+          paint,
+        );
+      case AnimalLoadMoreState.error:
+        canvas.drawLine(
+          center - const Offset(7, 7),
+          center + const Offset(7, 7),
+          paint,
+        );
+        canvas.drawLine(
+          center + const Offset(7, -7),
+          center - const Offset(7, -7),
+          paint,
+        );
+      case AnimalLoadMoreState.idle:
+        canvas.drawLine(
+          center - const Offset(8, 0),
+          center + const Offset(8, 0),
+          paint,
+        );
+        canvas.drawLine(
+          center + const Offset(8, 0),
+          center + const Offset(2, -6),
+          paint,
+        );
+        canvas.drawLine(
+          center + const Offset(8, 0),
+          center + const Offset(2, 6),
+          paint,
+        );
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _GuofengLoadMoreGlyphPainter oldDelegate) {
+    return oldDelegate.state != state ||
+        oldDelegate.progress != progress ||
+        oldDelegate.ink != ink ||
+        oldDelegate.accent != accent;
   }
 }
 

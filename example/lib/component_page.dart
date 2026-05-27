@@ -95,7 +95,8 @@ class ComponentPage extends StatelessWidget {
     return switch (style) {
       AnimalIslandGameStyle.animalIsland => 'NES 八位机',
       AnimalIslandGameStyle.nes8Bit => 'Westworld',
-      AnimalIslandGameStyle.westworld => '动森风格',
+      AnimalIslandGameStyle.westworld => '国风手绘',
+      AnimalIslandGameStyle.guofengDoodle => '动森风格',
     };
   }
 
@@ -137,12 +138,8 @@ class ComponentPage extends StatelessWidget {
         return [_footerDemo(context)];
       case 'codeblock':
         return [_codeblockDemo(context)];
-      case 'time':
-        return [_timeDemo(context)];
       case 'datetime':
         return [_dateTimeDemo(context)];
-      case 'phone':
-        return [_phoneDemo(context)];
       case 'badge':
         return [_badgeDemo(context)];
       case 'loading':
@@ -637,31 +634,6 @@ class ComponentPage extends StatelessWidget {
         AnimalCodeBlock(
           code:
               "import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';\n\nAnimalButton(\n  type: AnimalButtonType.primary,\n  onPressed: () {},\n  child: const Text('按钮'),\n);",
-        ),
-      ],
-    );
-  }
-
-  Widget _timeDemo(BuildContext context) {
-    return DemoSection(
-      title: 'Time',
-      tag: 'HUD',
-      description: '经典 HUD 风格时间组件，实时刷新。',
-      children: const [DemoBox(child: Center(child: AnimalTime()))],
-    );
-  }
-
-  Widget _phoneDemo(BuildContext context) {
-    return DemoSection(
-      title: 'Phone',
-      tag: 'NookPhone',
-      description: '完整 3×3 应用布局、时间栏、徽章与底部分页图标。',
-      children: const [
-        DemoBox(
-          child: SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: AnimalPhone(),
-          ),
         ),
       ],
     );

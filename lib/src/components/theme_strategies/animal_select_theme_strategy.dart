@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
 
-import '../../models/animal_island_models.dart';
 import '../../theme/animal_island_theme.dart';
 
 abstract final class AnimalSelectThemeStrategy {
   const AnimalSelectThemeStrategy();
 
   static AnimalSelectThemeStrategy of(AnimalIslandThemeData theme) {
-    return switch (theme.gameStyle) {
+    return forGameStyle(theme.gameStyle);
+  }
+
+  static AnimalSelectThemeStrategy forGameStyle(
+    AnimalIslandGameStyle gameStyle,
+  ) {
+    return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit => const _NesAnimalSelectThemeStrategy(),
       AnimalIslandGameStyle.westworld =>
         const _WestworldAnimalSelectThemeStrategy(),
+      AnimalIslandGameStyle.guofengDoodle =>
+        const _GuofengAnimalSelectThemeStrategy(),
       AnimalIslandGameStyle.animalIsland =>
         const _AnimalIslandSelectThemeStrategy(),
     };
@@ -35,8 +42,7 @@ abstract final class AnimalSelectThemeStrategy {
   Color selectedMarkColor(AnimalIslandThemeData theme);
 }
 
-final class _AnimalIslandSelectThemeStrategy
-    extends AnimalSelectThemeStrategy {
+final class _AnimalIslandSelectThemeStrategy extends AnimalSelectThemeStrategy {
   const _AnimalIslandSelectThemeStrategy();
 
   @override
@@ -141,7 +147,8 @@ final class _NesAnimalSelectThemeStrategy extends AnimalSelectThemeStrategy {
   double? triggerLetterSpacing(AnimalIslandThemeData theme) => null;
 
   @override
-  Color selectedMarkColor(AnimalIslandThemeData theme) => const Color(0xFFFFCC00);
+  Color selectedMarkColor(AnimalIslandThemeData theme) =>
+      const Color(0xFFFFCC00);
 }
 
 final class _WestworldAnimalSelectThemeStrategy
@@ -186,4 +193,75 @@ final class _WestworldAnimalSelectThemeStrategy
   @override
   Color selectedMarkColor(AnimalIslandThemeData theme) =>
       theme.primary.withValues(alpha: 0.86);
+}
+
+final class _GuofengAnimalSelectThemeStrategy
+    extends AnimalSelectThemeStrategy {
+  const _GuofengAnimalSelectThemeStrategy();
+
+  @override
+  BoxDecoration menuDecoration(AnimalIslandThemeData theme) {
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.circular(theme.radiusBase),
+      border: Border.all(
+        color: theme.border.withValues(alpha: 0),
+        width: theme.borderWidth,
+      ),
+      boxShadow: [
+        BoxShadow(
+          color: theme.inputShadow.withValues(alpha: 0.42),
+          blurRadius: 0,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  @override
+  BoxDecoration triggerDecoration(AnimalIslandThemeData theme, bool open) {
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.circular(theme.radiusBase),
+      border: Border.all(
+        color: Colors.transparent,
+        width: theme.inputBorderWidth,
+      ),
+      boxShadow: open
+          ? [
+              BoxShadow(
+                color: theme.focusYellow.withValues(alpha: 0.18),
+                blurRadius: 0,
+                spreadRadius: 3,
+              ),
+            ]
+          : null,
+    );
+  }
+
+  @override
+  Color optionTextColor(
+    AnimalIslandThemeData theme, {
+    required bool selected,
+    required bool hovered,
+  }) {
+    if (selected) {
+      return theme.error;
+    }
+    return hovered ? theme.primary : theme.textBody;
+  }
+
+  @override
+  String optionLabel(String label, {required bool hovered}) => label;
+
+  @override
+  Color triggerTextColor(AnimalIslandThemeData theme, {required bool empty}) {
+    return empty ? theme.textDisabled : theme.textBody;
+  }
+
+  @override
+  double? triggerLetterSpacing(AnimalIslandThemeData theme) => 0;
+
+  @override
+  Color selectedMarkColor(AnimalIslandThemeData theme) => theme.error;
 }

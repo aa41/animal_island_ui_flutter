@@ -2,17 +2,24 @@ import 'package:flutter/material.dart';
 
 import '../../models/animal_island_models.dart';
 import '../../theme/animal_island_theme.dart';
-import '../../utils/animal_island_assets.dart';
 
 abstract final class AnimalStatusViewThemeStrategy {
   const AnimalStatusViewThemeStrategy();
 
   static AnimalStatusViewThemeStrategy of(AnimalIslandThemeData theme) {
-    return switch (theme.gameStyle) {
+    return forGameStyle(theme.gameStyle);
+  }
+
+  static AnimalStatusViewThemeStrategy forGameStyle(
+    AnimalIslandGameStyle gameStyle,
+  ) {
+    return switch (gameStyle) {
       AnimalIslandGameStyle.nes8Bit =>
         const _NesAnimalStatusViewThemeStrategy(),
       AnimalIslandGameStyle.westworld =>
         const _WestworldAnimalStatusViewThemeStrategy(),
+      AnimalIslandGameStyle.guofengDoodle =>
+        const _GuofengAnimalStatusViewThemeStrategy(),
       AnimalIslandGameStyle.animalIsland =>
         const _AnimalIslandStatusViewThemeStrategy(),
     };
@@ -37,7 +44,10 @@ final class _AnimalIslandStatusViewThemeStrategy
   const _AnimalIslandStatusViewThemeStrategy();
 
   @override
-  AnimalStatusConfig config(AnimalIslandThemeData theme, AnimalStatusTone tone) {
+  AnimalStatusConfig config(
+    AnimalIslandThemeData theme,
+    AnimalStatusTone tone,
+  ) {
     return switch (tone) {
       AnimalStatusTone.loading => AnimalStatusConfig(
         title: '狸克正在整理岛上的新消息',
@@ -92,10 +102,7 @@ final class _AnimalIslandStatusViewThemeStrategy
         colors: [theme.surfaceRaised, theme.surface],
       ),
       borderRadius: BorderRadius.circular(compact ? 26 : 34),
-      border: Border.all(
-        color: config.border,
-        width: theme.inputBorderWidth,
-      ),
+      border: Border.all(color: config.border, width: theme.inputBorderWidth),
       boxShadow: [
         BoxShadow(
           color: config.shadow.withValues(alpha: 0.26),
@@ -113,12 +120,8 @@ final class _AnimalIslandStatusViewThemeStrategy
   }) {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(compact ? 24 : 32),
-      image: DecorationImage(
-        image: AnimalIslandAssets.raster(
-          AnimalIslandAssets.demoHomeBackground,
-        ),
-        fit: BoxFit.cover,
-        opacity: theme.mode == AnimalIslandThemeMode.day ? 0.08 : 0.05,
+      color: theme.surfaceSoft.withValues(
+        alpha: theme.mode == AnimalIslandThemeMode.day ? 0.22 : 0.16,
       ),
     );
   }
@@ -129,7 +132,10 @@ final class _NesAnimalStatusViewThemeStrategy
   const _NesAnimalStatusViewThemeStrategy();
 
   @override
-  AnimalStatusConfig config(AnimalIslandThemeData theme, AnimalStatusTone tone) {
+  AnimalStatusConfig config(
+    AnimalIslandThemeData theme,
+    AnimalStatusTone tone,
+  ) {
     return switch (tone) {
       AnimalStatusTone.loading => AnimalStatusConfig(
         title: '狸克正在整理岛上的新消息',
@@ -179,10 +185,7 @@ final class _NesAnimalStatusViewThemeStrategy
     return BoxDecoration(
       color: theme.surfaceRaised,
       borderRadius: BorderRadius.circular(theme.radiusBase),
-      border: Border.all(
-        color: config.border,
-        width: theme.inputBorderWidth,
-      ),
+      border: Border.all(color: config.border, width: theme.inputBorderWidth),
       boxShadow: [
         BoxShadow(
           color: theme.buttonShadow,
@@ -211,7 +214,10 @@ final class _WestworldAnimalStatusViewThemeStrategy
   const _WestworldAnimalStatusViewThemeStrategy();
 
   @override
-  AnimalStatusConfig config(AnimalIslandThemeData theme, AnimalStatusTone tone) {
+  AnimalStatusConfig config(
+    AnimalIslandThemeData theme,
+    AnimalStatusTone tone,
+  ) {
     return switch (tone) {
       AnimalStatusTone.loading => AnimalStatusConfig(
         title: 'SYSTEM ANALYSIS IN PROGRESS',
@@ -270,5 +276,87 @@ final class _WestworldAnimalStatusViewThemeStrategy
     required bool compact,
   }) {
     return const BoxDecoration();
+  }
+}
+
+final class _GuofengAnimalStatusViewThemeStrategy
+    extends AnimalStatusViewThemeStrategy {
+  const _GuofengAnimalStatusViewThemeStrategy();
+
+  @override
+  AnimalStatusConfig config(
+    AnimalIslandThemeData theme,
+    AnimalStatusTone tone,
+  ) {
+    return switch (tone) {
+      AnimalStatusTone.loading => AnimalStatusConfig(
+        title: '正在铺开卷轴',
+        message: '墨迹还在晕开，新的内容马上显现。',
+        badge: '待墨',
+        fill: theme.primary.withValues(alpha: 0.14),
+        accent: theme.primary,
+        border: theme.primary.withValues(alpha: 0.72),
+        shadow: theme.inputShadow,
+        foreground: theme.primaryActive,
+        badgeColor: theme.primary,
+        badgeForeground: Colors.white,
+      ),
+      AnimalStatusTone.error => AnimalStatusConfig(
+        title: '朱印未成',
+        message: '这次落印没有对齐，请重新试一次。',
+        badge: '重试',
+        fill: theme.error.withValues(alpha: 0.1),
+        accent: theme.error,
+        border: theme.error.withValues(alpha: 0.76),
+        shadow: theme.errorActive,
+        foreground: theme.error,
+        badgeColor: theme.error,
+        badgeForeground: Colors.white,
+      ),
+      AnimalStatusTone.empty => AnimalStatusConfig(
+        title: '卷上留白',
+        message: '当前还没有可展示的内容。',
+        badge: '留白',
+        fill: theme.warning.withValues(alpha: 0.14),
+        accent: theme.focusYellow,
+        border: theme.border.withValues(alpha: 0.72),
+        shadow: theme.inputShadow,
+        foreground: theme.textBody,
+        badgeColor: theme.error.withValues(alpha: 0.88),
+        badgeForeground: Colors.white,
+      ),
+    };
+  }
+
+  @override
+  BoxDecoration outerDecoration(
+    AnimalIslandThemeData theme, {
+    required AnimalStatusConfig config,
+    required bool compact,
+  }) {
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.circular(compact ? 10 : 12),
+      border: Border.all(color: Colors.transparent, width: theme.borderWidth),
+      boxShadow: [
+        BoxShadow(
+          color: config.shadow.withValues(alpha: 0.34),
+          blurRadius: theme.mode == AnimalIslandThemeMode.day ? 8 : 16,
+          offset: const Offset(0, 4),
+        ),
+      ],
+    );
+  }
+
+  @override
+  BoxDecoration innerDecoration(
+    AnimalIslandThemeData theme, {
+    required bool compact,
+  }) {
+    return BoxDecoration(
+      color: theme.surface.withValues(alpha: 0.86),
+      borderRadius: BorderRadius.circular(compact ? 8 : 10),
+      border: Border.all(color: theme.border.withValues(alpha: 0.42), width: 1),
+    );
   }
 }

@@ -8,6 +8,8 @@ import '../theme/animal_island_tokens.dart';
 import '../utils/animal_island_assets.dart';
 import 'animal_badge.dart';
 import 'animal_button.dart';
+import 'animal_component_dispatcher.dart';
+import 'guofeng_components.dart';
 import 'theme_strategies/animal_status_view_theme_strategy.dart';
 
 class AnimalStatusView extends StatelessWidget {
@@ -30,39 +32,73 @@ class AnimalStatusView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = context.animalIslandTheme;
-    final strategy = AnimalStatusViewThemeStrategy.of(theme);
-    final config = strategy.config(theme, tone);
-    final statusBody = switch (theme.gameStyle) {
-      AnimalIslandGameStyle.westworld => _WestworldStatusBody(
+    return AnimalComponentDispatcher.dispatch(
+      context,
+      animalIsland: (_) => _AnimalIslandStatusView(
         tone: tone,
-        title: title ?? config.title,
-        message: message ?? config.message,
-        action: action,
-        compact: compact,
-        config: config,
-      ),
-      AnimalIslandGameStyle.nes8Bit => _NesStatusBody(
-        tone: tone,
-        title: title ?? config.title,
-        message: message ?? config.message,
-        badge: config.badge,
-        action: action,
-        compact: compact,
-        config: config,
-      ),
-      AnimalIslandGameStyle.animalIsland => _AnimalStatusBody(
-        tone: tone,
-        title: title ?? config.title,
-        message: message ?? config.message,
+        title: title,
+        message: message,
         action: action,
         icon: icon,
         compact: compact,
-        config: config,
       ),
-    };
+      nes: (_) => _NesAnimalStatusView(
+        tone: tone,
+        title: title,
+        message: message,
+        action: action,
+        icon: icon,
+        compact: compact,
+      ),
+      westworld: (_) => _WestworldAnimalStatusView(
+        tone: tone,
+        title: title,
+        message: message,
+        action: action,
+        icon: icon,
+        compact: compact,
+      ),
+      guofeng: (_) => _GuofengAnimalStatusView(
+        tone: tone,
+        title: title,
+        message: message,
+        action: action,
+        icon: icon,
+        compact: compact,
+      ),
+    );
+  }
+}
 
-    return DecoratedBox(
+abstract class _ThemedAnimalStatusView extends StatelessWidget {
+  const _ThemedAnimalStatusView({
+    required this.gameStyle,
+    required this.tone,
+    required this.title,
+    required this.message,
+    required this.action,
+    required this.icon,
+    required this.compact,
+  });
+
+  final AnimalIslandGameStyle gameStyle;
+  final AnimalStatusTone tone;
+  final String? title;
+  final String? message;
+  final Widget? action;
+  final Widget? icon;
+  final bool compact;
+
+  Widget buildStatusBody(AnimalStatusConfig config);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    final strategy = AnimalStatusViewThemeStrategy.forGameStyle(gameStyle);
+    final config = strategy.config(theme, tone);
+    final statusBody = buildStatusBody(config);
+
+    final status = DecoratedBox(
       decoration: strategy.outerDecoration(
         theme,
         config: config,
@@ -96,16 +132,151 @@ class AnimalStatusView extends StatelessWidget {
         child: statusBody,
       ),
     );
+    if (gameStyle != AnimalIslandGameStyle.guofengDoodle) {
+      return status;
+    }
+    return Stack(
+      children: [
+        status,
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              painter: GuofengPaperTexturePainter(theme: theme, seed: 97),
+              foregroundPainter: GuofengInkOutlinePainter(
+                color: config.border,
+                radius: compact ? 14 : 20,
+                strokeWidth: theme.borderWidth,
+                seed: 97,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 
-class _AnimalStatusBody extends StatelessWidget {
-  const _AnimalStatusBody({
+class _AnimalIslandStatusView extends _ThemedAnimalStatusView {
+  const _AnimalIslandStatusView({
+    required super.tone,
+    required super.title,
+    required super.message,
+    required super.action,
+    required super.icon,
+    required super.compact,
+  }) : super(gameStyle: AnimalIslandGameStyle.animalIsland);
+
+  @override
+  Widget buildStatusBody(AnimalStatusConfig config) {
+    return _ImageStatusBody(
+      tone: tone,
+      title: title ?? config.title,
+      message: message ?? config.message,
+      action: action,
+      compact: compact,
+      config: config,
+      assetForTone: _animalStatusAsset,
+      imageWidth: compact ? 172 : 224,
+      imageHeight: compact ? 118 : 152,
+    );
+  }
+
+  String _animalStatusAsset(AnimalStatusTone tone) {
+    return switch (tone) {
+      AnimalStatusTone.loading => AnimalIslandAssets.animalStatusLoading,
+      AnimalStatusTone.empty => AnimalIslandAssets.animalStatusEmpty,
+      AnimalStatusTone.error => AnimalIslandAssets.animalStatusError,
+    };
+  }
+}
+
+class _NesAnimalStatusView extends _ThemedAnimalStatusView {
+  const _NesAnimalStatusView({
+    required super.tone,
+    required super.title,
+    required super.message,
+    required super.action,
+    required super.icon,
+    required super.compact,
+  }) : super(gameStyle: AnimalIslandGameStyle.nes8Bit);
+
+  @override
+  Widget buildStatusBody(AnimalStatusConfig config) {
+    return _ImageStatusBody(
+      tone: tone,
+      title: title ?? config.title,
+      message: message ?? config.message,
+      action: action,
+      compact: compact,
+      config: config,
+      assetForTone: _nesStatusAsset,
+      imageWidth: compact ? 152 : 196,
+      imageHeight: compact ? 110 : 144,
+      pixelated: true,
+    );
+  }
+
+  String _nesStatusAsset(AnimalStatusTone tone) {
+    return switch (tone) {
+      AnimalStatusTone.loading => AnimalIslandAssets.nesStatusLoading,
+      AnimalStatusTone.empty => AnimalIslandAssets.nesStatusEmpty,
+      AnimalStatusTone.error => AnimalIslandAssets.nesStatusError,
+    };
+  }
+}
+
+class _WestworldAnimalStatusView extends _ThemedAnimalStatusView {
+  const _WestworldAnimalStatusView({
+    required super.tone,
+    required super.title,
+    required super.message,
+    required super.action,
+    required super.icon,
+    required super.compact,
+  }) : super(gameStyle: AnimalIslandGameStyle.westworld);
+
+  @override
+  Widget buildStatusBody(AnimalStatusConfig config) {
+    return _WestworldStatusBody(
+      tone: tone,
+      title: title ?? config.title,
+      message: message ?? config.message,
+      action: action,
+      compact: compact,
+      config: config,
+    );
+  }
+}
+
+class _GuofengAnimalStatusView extends _ThemedAnimalStatusView {
+  const _GuofengAnimalStatusView({
+    required super.tone,
+    required super.title,
+    required super.message,
+    required super.action,
+    required super.icon,
+    required super.compact,
+  }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
+
+  @override
+  Widget buildStatusBody(AnimalStatusConfig config) {
+    return _GuofengStatusBody(
+      tone: tone,
+      title: title ?? config.title,
+      message: message ?? config.message,
+      action: action,
+      compact: compact,
+      config: config,
+    );
+  }
+}
+
+class _GuofengStatusBody extends StatelessWidget {
+  const _GuofengStatusBody({
     required this.tone,
     required this.title,
     required this.message,
     required this.action,
-    required this.icon,
     required this.compact,
     required this.config,
   });
@@ -114,7 +285,6 @@ class _AnimalStatusBody extends StatelessWidget {
   final String title;
   final String message;
   final Widget? action;
-  final Widget? icon;
   final bool compact;
   final AnimalStatusConfig config;
 
@@ -124,24 +294,135 @@ class _AnimalStatusBody extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Align(
-          child: AnimalBadge(
-            label: config.badge,
-            backgroundColor: config.badgeColor,
-            foregroundColor: config.badgeForeground,
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        AnimalBadge(
+          label: config.badge,
+          backgroundColor: config.badgeColor,
+          foregroundColor: config.badgeForeground,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        ),
+        const SizedBox(height: AnimalIslandTokens.spacingMd),
+        SizedBox(
+          width: compact ? 180 : 240,
+          height: compact ? 122 : 154,
+          child: Image.asset(
+            _statusAsset,
+            package: AnimalIslandAssets.package,
+            fit: BoxFit.contain,
+            filterQuality: FilterQuality.medium,
           ),
         ),
         const SizedBox(height: AnimalIslandTokens.spacingMd),
-        _AnimalStatusMedallion(
-          tone: tone,
-          fillColor: config.fill,
-          accentColor: config.accent,
-          foregroundColor: config.foreground,
-          icon: icon,
-          compact: compact,
+        Container(
+          width: double.infinity,
+          constraints: const BoxConstraints(maxWidth: 460),
+          padding: EdgeInsets.symmetric(
+            horizontal: compact ? 14 : 18,
+            vertical: compact ? 14 : 16,
+          ),
+          decoration: BoxDecoration(
+            color: theme.surfaceRaised.withValues(alpha: 0.7),
+            borderRadius: BorderRadius.circular(theme.radiusBase),
+            border: Border.all(
+              color: theme.border.withValues(alpha: 0.58),
+              width: 1.4,
+            ),
+          ),
+          child: Column(
+            children: [
+              Text(
+                title,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: theme.textPrimary,
+                  fontSize: compact
+                      ? AnimalIslandTokens.fontBodyLg
+                      : AnimalIslandTokens.fontTitleSm,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              if (message.isNotEmpty) ...[
+                const SizedBox(height: AnimalIslandTokens.spacingSm),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: theme.textBody,
+                    height: 1.55,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
-        const SizedBox(height: AnimalIslandTokens.spacingLg),
+        if (action != null) ...[
+          const SizedBox(height: AnimalIslandTokens.spacingLg),
+          action!,
+        ],
+      ],
+    );
+  }
+
+  String get _statusAsset {
+    return switch (tone) {
+      AnimalStatusTone.loading => AnimalIslandAssets.guofengStatusLoading,
+      AnimalStatusTone.empty => AnimalIslandAssets.guofengStatusEmpty,
+      AnimalStatusTone.error => AnimalIslandAssets.guofengStatusError,
+    };
+  }
+}
+
+class _ImageStatusBody extends StatelessWidget {
+  const _ImageStatusBody({
+    required this.tone,
+    required this.title,
+    required this.message,
+    required this.action,
+    required this.compact,
+    required this.config,
+    required this.assetForTone,
+    required this.imageWidth,
+    required this.imageHeight,
+    this.pixelated = false,
+  });
+
+  final AnimalStatusTone tone;
+  final String title;
+  final String message;
+  final Widget? action;
+  final bool compact;
+  final AnimalStatusConfig config;
+  final String Function(AnimalStatusTone tone) assetForTone;
+  final double imageWidth;
+  final double imageHeight;
+  final bool pixelated;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.animalIslandTheme;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AnimalBadge(
+          label: config.badge,
+          backgroundColor: config.badgeColor,
+          foregroundColor: config.badgeForeground,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        ),
+        const SizedBox(height: AnimalIslandTokens.spacingMd),
+        SizedBox(
+          width: imageWidth,
+          height: imageHeight,
+          child: Image.asset(
+            assetForTone(tone),
+            package: AnimalIslandAssets.package,
+            fit: BoxFit.contain,
+            filterQuality: pixelated
+                ? FilterQuality.none
+                : FilterQuality.medium,
+          ),
+        ),
+        const SizedBox(height: AnimalIslandTokens.spacingMd),
         Container(
           width: double.infinity,
           constraints: const BoxConstraints(maxWidth: 460),
@@ -150,11 +431,15 @@ class _AnimalStatusBody extends StatelessWidget {
             vertical: compact ? 16 : 18,
           ),
           decoration: BoxDecoration(
-            color: theme.surface.withValues(alpha: 0.88),
-            borderRadius: BorderRadius.circular(22),
+            color: theme.surface.withValues(alpha: pixelated ? 1 : 0.88),
+            borderRadius: BorderRadius.circular(
+              pixelated ? theme.radiusSm : 22,
+            ),
             border: Border.all(
-              color: theme.borderLight.withValues(alpha: 0.88),
-              width: 1.5,
+              color: pixelated
+                  ? theme.border
+                  : theme.borderLight.withValues(alpha: 0.88),
+              width: pixelated ? theme.borderWidth : 1.5,
             ),
           ),
           child: Column(
@@ -168,6 +453,7 @@ class _AnimalStatusBody extends StatelessWidget {
                       ? AnimalIslandTokens.fontBodyLg
                       : AnimalIslandTokens.fontTitleSm,
                   fontWeight: FontWeight.w800,
+                  height: pixelated ? 1.8 : null,
                 ),
               ),
               if (message.isNotEmpty) ...[
@@ -177,8 +463,8 @@ class _AnimalStatusBody extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: theme.textBody,
-                    height: 1.65,
-                    fontWeight: FontWeight.w600,
+                    height: pixelated ? 1.8 : 1.65,
+                    fontWeight: pixelated ? null : FontWeight.w600,
                   ),
                 ),
               ],

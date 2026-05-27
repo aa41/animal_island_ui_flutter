@@ -3,6 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
 
+import 'example_assets.dart';
 import 'page_info.dart';
 
 class HomePage extends StatelessWidget {
@@ -81,22 +82,22 @@ class HomePage extends StatelessWidget {
                     childAspectRatio: isMobile ? 2.3 : 1.9,
                     children: const [
                       _FeatureCard(
-                        asset: AnimalIslandAssets.nookPhoneNook1,
+                        asset: ExampleAssets.nookPhoneNook1,
                         title: '1:1 视觉语言',
                         desc: '保留温暖自然底色、3D 按压按钮、有机轮廓与 NookPhone 色板。',
                       ),
                       _FeatureCard(
-                        asset: AnimalIslandAssets.nookPhoneShopping,
+                        asset: ExampleAssets.nookPhoneShopping,
                         title: '完整组件清单',
                         desc: '覆盖原版全部组件，并增补 Badge 等日常 Flutter UI 常用基础件。',
                       ),
                       _FeatureCard(
-                        asset: AnimalIslandAssets.nookPhoneCamera,
+                        asset: ExampleAssets.nookPhoneCamera,
                         title: '动态双主题',
                         desc: '在原始白天风格基础上扩展夜晚主题，保留动森傍晚与夜间氛围。',
                       ),
                       _FeatureCard(
-                        asset: AnimalIslandAssets.nookPhoneRecipes,
+                        asset: ExampleAssets.nookPhoneRecipes,
                         title: '跨项目技能复制',
                         desc: '内置可复制 Skill 与脚本，支持 Codex 与 Claude Code 项目快速接入。',
                       ),
@@ -228,7 +229,7 @@ class _HeroText extends StatelessWidget {
             AnimalButton(
               type: AnimalButtonType.defaultType,
               size: AnimalButtonSize.large,
-              onPressed: () => onNavigate('phone'),
+              onPressed: () => onNavigate('datetime'),
               child: const Text('查看 Demo'),
             ),
           ],
@@ -246,8 +247,7 @@ class _HeroImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Image.asset(
-      AnimalIslandAssets.demoAnimalIcon,
-      package: AnimalIslandAssets.package,
+      ExampleAssets.demoAnimalIcon,
       width: compact ? 220 : 320,
       height: compact ? 138 : 200,
       fit: BoxFit.contain,
@@ -299,12 +299,7 @@ class _FeatureCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(
-            asset,
-            package: AnimalIslandAssets.package,
-            width: 42,
-            height: 42,
-          ),
+          SvgPicture.asset(asset, width: 42, height: 42),
           const SizedBox(height: 12),
           Text(title, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: 6),
