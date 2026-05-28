@@ -115,8 +115,10 @@ class _ThemedAnimalIconState extends State<_ThemedAnimalIcon> {
       package: AnimalIslandAssets.package,
       width: widget.size,
       height: widget.size,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
+      alignment: Alignment.center,
       filterQuality: filterQuality,
+      gaplessPlayback: true,
       isAntiAlias: !theme.isNes,
     );
 
