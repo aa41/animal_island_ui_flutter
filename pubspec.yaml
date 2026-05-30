@@ -1,5 +1,5 @@
 name: animal_island_ui_flutter
-description: "A pure Flutter UI package that recreates the Animal Island visual language with day and night themes."
+description: "A pure Flutter UI package with Animal Island, NES, Westworld, and Guofeng day/night themes."
 version: 0.1.0
 homepage: https://github.com/aa41/animal_island_ui_flutter
 repository: https://github.com/aa41/animal_island_ui_flutter
@@ -29,10 +29,6 @@ flutter:
   uses-material-design: true
   assets:
     - assets/animal_island/src/img/icons/
-    - assets/animal_island/src/img/icons/animal/
-    - assets/animal_island/src/img/icons/nes/
-    - assets/animal_island/src/img/icons/westworld/
-    - assets/animal_island/src/img/icons/guofeng/
     - assets/animal_island/src/img/dividers/
     - assets/animal_island/src/img/cursor/
     - assets/animal_island/src/img/footer/

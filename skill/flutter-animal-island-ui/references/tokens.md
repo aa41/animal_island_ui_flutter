@@ -5,6 +5,13 @@
 - `AnimalIslandThemeMode.day`
 - `AnimalIslandThemeMode.night`
 
+## 游戏风格
+
+- `AnimalIslandGameStyle.animalIsland`：有机圆角、暖色、柔和阴影、NookPhone 氛围
+- `AnimalIslandGameStyle.nes8Bit`：像素字体、硬边框、有限色板、低帧率动效
+- `AnimalIslandGameStyle.westworld`：系统细线、黑白灰、编号、扫描线、Rehoboam 动态圆
+- `AnimalIslandGameStyle.guofengDoodle`：米纸底、墨线、朱砂/竹青点缀、手绘状态图
+
 ## 日间主色
 
 - primary: `#19C8B9`
@@ -41,6 +48,8 @@
 - base: `18`
 - lg: `24`
 - pill: `50`
+
+NES 使用 `pixelRadiusSm/base/lg` 与 3px 级硬边框；Westworld 使用 0 圆角与 1px hairline；Guofeng 使用偏有机圆角但边缘更像手绘笔触。
 
 ## 核心尺寸
 
@@ -80,8 +89,17 @@
 - slow: `350ms`
 - curve: `Cubic(0.4, 0, 0.2, 1)`
 
+风格节奏：
+
+- Animal Island：柔和、短促、带轻微浮起感
+- NES：阶梯式、低帧率、无 blur
+- Westworld：线性扫描、sweep、pulse，不夸张发光
+- Guofeng：轻量纸面/笔触显隐，不做弹跳或赛博扫描
+
 ## 视觉底线
 
 - 文字永远偏暖，不偏冷灰
 - 阴影优先使用暖棕或深青灰
 - 高亮使用黄色或薄荷青，不用纯蓝焦点
+- Westworld 例外：主色可保持黑白灰系统感，但不要变成霓虹紫蓝
+- Guofeng 例外：可用墨色、朱砂、竹青点缀，但不要大面积金红或厚重纹理

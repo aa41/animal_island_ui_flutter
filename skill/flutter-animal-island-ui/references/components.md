@@ -26,6 +26,13 @@
 
 ## Flutter 增量组件
 
+所有公开 `Animal*` 组件应随 `AnimalIslandGameStyle` 自动切换视觉。新增或修改组件时，优先检查是否需要同时覆盖：
+
+- Animal Island：暖色、有机圆角、柔和阴影
+- NES：像素字体、硬边框、有限色板、低帧率反馈
+- Westworld：细线折角、系统面板、Rehoboam 状态圆
+- Guofeng：米纸底、墨线、手绘边缘、国风状态图
+
 ### `AnimalBadge`
 
 适用场景：
@@ -141,6 +148,13 @@
 - `AnimalBottomSheet` 与 `AnimalModal` 应共享同一套色板与字级，但底部锚定、轮廓和操作布局要更偏移动端
 - 展示型数字与复杂 demo 作品应留在 example，不作为通用组件 API 暴露
 
+## 风格分支规则
+
+- 用 `context.animalIslandTheme.isNes`、`isWestworld`、`isGuofengDoodle` 判断分支
+- 复杂风格实现优先拆 `_NesXxx`、`_WestworldXxx`、`_GuofengXxx` widget / painter
+- 不要把某个主题的颜色、字体、资源路径写进通用默认分支
+- `AnimalStatusView`、`AnimalPullToRefresh`、`AnimalLoadMoreFooter` 的 loading 视觉必须同源：NES 像素、Westworld 动态圆、Guofeng 状态图/笔触
+
 ## 缺省优先级
 
 如果页面需要常见容器或展示辅助能力，优先顺序：
@@ -155,3 +169,4 @@
 - 纯黑科技风 HUD
 - 极简细线表单
 - 密集企业后台表格风
+- 古风营销海报式重纹理 UI

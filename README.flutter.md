@@ -65,6 +65,8 @@ import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
 - `buildAnimalIslandTheme(...)`
 - `AnimalIslandGameStyle.animalIsland`
 - `AnimalIslandGameStyle.nes8Bit`
+- `AnimalIslandGameStyle.westworld`
+- `AnimalIslandGameStyle.guofengDoodle`
 - `AnimalIslandThemeMode.day`
 - `AnimalIslandThemeMode.night`
 
@@ -72,9 +74,12 @@ import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
 
 ```dart
 setState(() {
-  gameStyle = gameStyle == AnimalIslandGameStyle.animalIsland
-      ? AnimalIslandGameStyle.nes8Bit
-      : AnimalIslandGameStyle.animalIsland;
+  gameStyle = switch (gameStyle) {
+    AnimalIslandGameStyle.animalIsland => AnimalIslandGameStyle.nes8Bit,
+    AnimalIslandGameStyle.nes8Bit => AnimalIslandGameStyle.westworld,
+    AnimalIslandGameStyle.westworld => AnimalIslandGameStyle.guofengDoodle,
+    AnimalIslandGameStyle.guofengDoodle => AnimalIslandGameStyle.animalIsland,
+  };
 });
 
 MaterialApp(

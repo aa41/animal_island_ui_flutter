@@ -900,7 +900,7 @@ void main() {
   });
 
   testWidgets(
-    'Westworld icon uses themed asset and collapse uses HUD rendering',
+    'Westworld icon falls back when themed asset is missing and collapse uses HUD rendering',
     (tester) async {
       await tester.pumpWidget(
         wrapWestworld(
@@ -917,16 +917,10 @@ void main() {
           ),
         ),
       );
+      await tester.pump();
 
       expect(find.byType(SvgPicture), findsNothing);
-      final iconImage = tester.widget<Image>(find.byType(Image).first);
-      expect(
-        (iconImage.image as AssetImage).assetName,
-        AnimalIslandAssets.themedIcon(
-          AnimalIslandGameStyle.westworld,
-          AnimalIconName.map,
-        ),
-      );
+      expect(find.byIcon(Icons.map_outlined), findsOneWidget);
       expect(find.byType(CustomPaint), findsWidgets);
       expect(find.text('CONTROL LOOP'), findsOneWidget);
       expect(find.text('Branch detail panel.'), findsOneWidget);

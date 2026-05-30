@@ -1,6 +1,6 @@
 # Integration Guide
 
-本文档面向业务项目接入 `animal_island_ui_flutter` 的场景。当前组件库支持 Animal Island / 动森风格与 NES 八位机像素风格，并保留统一 `Animal*` 组件 API。
+本文档面向业务项目接入 `animal_island_ui_flutter` 的场景。当前组件库支持 Animal Island / 动森、NES 八位机像素、Westworld / Rehoboam 科幻系统、国风手绘风格，并保留统一 `Animal*` 组件 API。
 
 ## 1. 选择接入方式
 
@@ -50,9 +50,12 @@ MaterialApp(
 final mode = isNight
     ? AnimalIslandThemeMode.night
     : AnimalIslandThemeMode.day;
-final gameStyle = useNes
-    ? AnimalIslandGameStyle.nes8Bit
-    : AnimalIslandGameStyle.animalIsland;
+final gameStyle = switch (selectedStyle) {
+  'nes' => AnimalIslandGameStyle.nes8Bit,
+  'westworld' => AnimalIslandGameStyle.westworld,
+  'guofeng' => AnimalIslandGameStyle.guofengDoodle,
+  _ => AnimalIslandGameStyle.animalIsland,
+};
 
 MaterialApp(
   theme: buildAnimalIslandTheme(mode: mode, gameStyle: gameStyle),
@@ -64,6 +67,8 @@ MaterialApp(
 
 - `AnimalIslandGameStyle.animalIsland`：动森系自然 UI，大圆角、暖色、NookPhone 氛围
 - `AnimalIslandGameStyle.nes8Bit`：NES 八位机像素 UI，像素字体、粗描边、硬阴影、低帧率动效
+- `AnimalIslandGameStyle.westworld`：Westworld / Rehoboam 科幻系统 UI，细线折角、编号式信息层级、动态状态圆
+- `AnimalIslandGameStyle.guofengDoodle`：国风手绘 UI，米纸底、墨线边框、朱砂/竹青点缀、手绘状态图
 
 如果业务希望显式使用 NES 入口：
 
@@ -119,6 +124,8 @@ showAnimalDialog<void>(
 - 动森夜间模式不是黑底霓虹，而是“夜里的岛”
 - NES 主题不要混入动森叶子、圆形奖章、柔光阴影和大圆角 pill 作为核心视觉
 - NES loading / empty / error / switch loading 等反馈应使用像素块、点阵或硬边 painter
+- Westworld 主题不要做成霓虹赛博朋克、玻璃拟态或复杂 3D HUD；控件必须保持可识别的移动端交互语义
+- 国风手绘主题不要做成古风营销海报或重纹理卷轴；组件应保持轻量、清晰、可操作
 - 交互状态保持克制，避免抖动和夸张发光
 
 ## 6. AI 技能接入

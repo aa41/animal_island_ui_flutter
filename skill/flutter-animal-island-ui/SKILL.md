@@ -2,15 +2,16 @@
 name: animal-island-ui-flutter-style
 description: >
   使用 animal-island-ui 的 Flutter 复刻版与 Animal Island、NES 八位机像素、Westworld / Rehoboam
-  科幻系统主题设计语言创建、复刻或扩展页面与组件。
+  科幻系统、国风手绘主题设计语言创建、复刻或扩展页面与组件。
   当用户需要：
   (1) 用动物森友会 / Animal Crossing 风格构建 Flutter UI；
   (2) 使用 animal_island_ui_flutter 组件库开发界面；
   (3) 用 NES / 八位机 / 像素游戏风格构建 Flutter UI；
   (4) 用西部世界 / Westworld / Rehoboam / 极简科幻 HUD 风格构建 Flutter UI；
-  (5) 在白天 / 夜晚、动森 / NES / Westworld 等游戏主题下保持统一组件 API；
-  (6) 复用本仓库的 Flutter 设计 token、组件规范、demo 布局或技能包；
-  (7) 审查 Flutter 页面是否偏离 Animal Island、NES 八位机或 Westworld/Rehoboam 设计语言时，必须使用此 skill。
+  (5) 用国风 / 手绘 / 水墨涂鸦风格构建 Flutter UI；
+  (6) 在白天 / 夜晚、动森 / NES / Westworld / 国风手绘等游戏主题下保持统一组件 API；
+  (7) 复用本仓库的 Flutter 设计 token、组件规范、demo 布局或技能包；
+  (8) 审查 Flutter 页面是否偏离 Animal Island、NES 八位机、Westworld/Rehoboam 或国风手绘设计语言时，必须使用此 skill。
 ---
 
 # Animal Game UI Flutter 设计技能
@@ -20,11 +21,10 @@ description: >
 > - `references/components.md`：组件映射、用法边界、补充组件规范
 > - `references/demo.md`：example 页面结构、布局比例、演示还原要求
 > - 仓库文档 `docs/NES_8BIT_UI_RESEARCH.md`：NES 八位机 UI 调研与实现映射
-> - 仓库参考 `.reference/Rehoboam-UI/`：Westworld / Rehoboam 动态圆、rings、sweep、divergence 视觉参考
 
 ## 概述
 
-这是 `animal_island-ui` 的 Flutter 纯 UI 复刻与多游戏风格主题技能。当前内置三套完整风格：
+这是 `animal_island-ui` 的 Flutter 纯 UI 复刻与多游戏风格主题技能。当前内置四套完整风格：
 
 ### Animal Island / 动森风格
 
@@ -52,6 +52,14 @@ description: >
 - `Loading / Empty / Error / Refresh / LoadMore / Status` 使用 Rehoboam 风格动态圆：基础圆 + 不规则扰动外圈 + sweep / pulse
 - 控件必须仍符合移动端交互：开关要一眼看出 ON/OFF，checkbox 要像可点击选项，tabs 横向使用 `TabBar` 语义时不得越界
 
+### 国风手绘 / Guofeng Doodle 风格
+
+- 米纸、墨色、朱砂、竹青等低饱和自然色，保留温润底色和手绘边缘
+- 圆角仍偏有机，但边框、阴影和图标应有手工线条感
+- 字体优先使用 `ZCOOL XiaoWei`，中文字号要精致克制，不做大字报
+- `Loading / Empty / Error` 优先使用国风熊猫/纸面插画状态图，不混用 NES 像素和 Westworld 圆环
+- 动效轻巧、短促，像纸面翻动或笔触显隐，不做夸张弹跳或赛博扫描
+
 Flutter 包主入口：
 
 - `lib/animal_island_ui_flutter.dart`
@@ -67,9 +75,13 @@ Flutter 包主入口：
 4. 如果任务涉及 Westworld / Rehoboam / 科幻 HUD：
    - 先确认 `AnimalIslandGameStyle.westworld` 与 `context.animalIslandTheme.isWestworld`
    - 优先查看 `lib/src/theme/animal_island_theme.dart` 中 `westworldDay` / `westworldNight`
-   - 若仓库包含 `.reference/Rehoboam-UI/`，优先参考其中 canvas2d `rings-pass` / `sweep-pass` / `divergence-pass`
    - 修改组件前先确认它是否已经有 Westworld 分支，避免在通用分支里堆 if/三元表达式
-5. 如果是页面开发：
+5. 如果任务涉及国风手绘：
+   - 先确认 `AnimalIslandGameStyle.guofengDoodle` 与 `context.animalIslandTheme.isGuofengDoodle`
+   - 优先查看 `lib/src/theme/animal_island_theme.dart` 中 `guofengDay` / `guofengNight`
+   - 状态图、footer、icon 优先走 `assets/animal_island/src/img/guofeng/...`
+   - 修改组件前先确认它是否已经有 Guofeng 分支，避免把手绘规则写进通用分支
+6. 如果是页面开发：
    - 优先使用现成组件
    - 缺失时允许增量补组件
    - 新组件必须复用同一套 token、主题扩展、圆角/像素边框、阴影、动画节奏
@@ -91,6 +103,8 @@ Flutter 包主入口：
 - Westworld 风格不要用随机圆点、复杂缠线、无意义装饰线来伪装科幻感
 - Westworld 控件必须保留明确的移动端 affordance：switch 有轨道与 knob，checkbox 有可点选状态，tabs 不破坏横向 `TabBar` 语义
 - Westworld Rehoboam 圆必须有基础圆与扰动圆同半径关系；error 状态可用确定性噪声/毛刺增强异常感
+- 国风手绘不要做成古风营销海报、厚重宣纸背景或大面积金红；组件仍要轻、清晰、可交互
+- 国风手绘不要复用 NES 像素状态、Westworld 动态圆或动森叶子作为主要状态图
 - 所有新组件优先复用：
   - `AnimalIslandThemeData`
   - `AnimalIslandTokens`
@@ -102,6 +116,7 @@ Flutter 包主入口：
 - 先对齐 `AnimalIslandTokens` 中的 typography scale，再写组件内局部覆盖
 - 通过 `context.animalIslandTheme.isNes` 区分 NES 专属视觉，不要复制一套不兼容 API
 - 通过 `context.animalIslandTheme.isWestworld` 区分 Westworld 专属视觉；必要时拆出 `_WestworldXxx` widget / painter，不要把复杂绘制塞进通用分支
+- 通过 `context.animalIslandTheme.isGuofengDoodle` 区分国风手绘视觉；必要时拆出 `_GuofengXxx` widget / painter，不要污染动森默认分支
 - 新主题优先扩展 `AnimalIslandGameStyle` 和 `AnimalIslandThemeData` palette/token
 - 页面容器优先使用：
   - `AnimalCard`
@@ -112,6 +127,7 @@ Flutter 包主入口：
 - 资源从包内 `assets/animal_island/...` 读取，不要复制散落资源
 - NES 核心图形优先 `CustomPainter` 或文本符号，减少对动森 SVG/PNG 的依赖
 - Westworld 核心图形优先 `CustomPainter`：细线、折角、扫描、Rehoboam 圆、状态扰动；避免 bitmap 依赖和 Material 默认 spinner
+- 国风核心图形优先复用 `guofeng` 资源和轻量 painter：手绘边缘、纸面描边、墨线分隔，不引入重型图片背景
 - Example 页面要同时兼顾：
   - 移动端窄屏
   - Web / Desktop 宽屏
@@ -145,6 +161,8 @@ Flutter 包主入口：
   - NES 八位机 UI，像素字体、有限色板、硬边框、低帧率动效
 - `AnimalIslandGameStyle.westworld`
   - Westworld/Rehoboam 系统 UI，细线折角、克制黑白灰、动态圆、扫描线、编号式信息层级
+- `AnimalIslandGameStyle.guofengDoodle`
+  - 国风手绘 UI，米纸底、墨线、朱砂/竹青点缀、手绘状态插画
 
 设计依据：
 
@@ -153,6 +171,7 @@ Flutter 包主入口：
 - 游戏内存在 `Night Owl` ordinance，说明夜间生活节奏是合法世界观扩展
 - NES UI 设计以 PPU 有限色板、8-bit 字体、网格化构图和硬边反馈为主要风格来源
 - Westworld/Rehoboam UI 设计以极简系统面板、细线几何、透视/扫描节奏、动态圆形 divergence 反馈为主要风格来源
+- 国风手绘 UI 设计以纸面材质、墨线轮廓、低饱和自然色和中文字体气质为主要风格来源
 
 ## 组件清单
 
@@ -203,6 +222,14 @@ Westworld 主题特别注意：
 - `AnimalCheckboxGroup` 使用移动端可点选的线性选项条，不使用复杂缠线或过度 HUD 装饰
 - `AnimalCard` 动效只应作用在线条本身，不新增额外 UI 图层抢占内容
 
+国风手绘主题特别注意：
+
+- `AnimalStatusView` 使用国风状态图，loading/empty/error 三态要区分清楚
+- `AnimalFooter` 使用国风山水/树海资源，不复用动森 footer 或 NES 地形
+- `AnimalButton` / `AnimalInput` / `AnimalCard` 可以保留有机圆角，但边框应有手绘笔触感，不要退回默认 Material
+- `AnimalDateTimePicker`、`AnimalBottomSheet` 和 `AnimalModal` 要保持纸面层级与轻阴影，不做厚重卷轴或大面积纹理
+- 中文标题优先 `15-18`，正文优先 `13-15`，避免用大号字体替代手绘质感
+
 ## 入口与初始化
 
 ```dart
@@ -245,6 +272,20 @@ MaterialApp(
 );
 ```
 
+国风手绘主题：
+
+```dart
+import 'package:animal_island_ui_flutter/animal_island_ui_flutter.dart';
+
+MaterialApp(
+  theme: buildAnimalIslandTheme(
+    mode: AnimalIslandThemeMode.day,
+    gameStyle: AnimalIslandGameStyle.guofengDoodle,
+  ),
+  home: const HomePage(),
+);
+```
+
 动态切换：
 
 ```dart
@@ -252,7 +293,8 @@ setState(() {
   gameStyle = switch (gameStyle) {
     AnimalIslandGameStyle.animalIsland => AnimalIslandGameStyle.nes8Bit,
     AnimalIslandGameStyle.nes8Bit => AnimalIslandGameStyle.westworld,
-    AnimalIslandGameStyle.westworld => AnimalIslandGameStyle.animalIsland,
+    AnimalIslandGameStyle.westworld => AnimalIslandGameStyle.guofengDoodle,
+    AnimalIslandGameStyle.guofengDoodle => AnimalIslandGameStyle.animalIsland,
   };
 });
 ```
@@ -265,6 +307,7 @@ setState(() {
 - 窄屏下优先保证阅读顺序、触控舒适区和组件完整显示
 - NES 页面不做营销式大渐变 hero；优先做可操作面板、像素 HUD、网格菜单和硬边状态反馈
 - Westworld 页面不做霓虹赛博朋克 hero；优先做可操作系统面板、编号导航、细线 HUD、Rehoboam 状态圆和横向/分栏信息布局
+- 国风手绘页面不做古风海报；优先做可操作纸面面板、手绘图标、淡墨分隔和轻量状态插画
 
 ## 复制到其他项目
 
@@ -289,6 +332,7 @@ setState(() {
 - 是否定义 day / night 两种视觉结果？
 - 如果是 NES：是否像素字体、硬边框、有限色板、低帧率动效？
 - 如果是 Westworld：是否细线、折角、编号、动态圆、克制黑白灰，并保持移动端控件可识别？
+- 如果是 Guofeng：是否米纸底、墨线/朱砂/竹青点缀、手绘状态图，并保持组件轻量可读？
 - hover / active 是否克制，不抖动、不花哨？
 - 是否能放进现有 example 的展示框架？
 - 是否会破坏原有 React 版设计语言统一性？
@@ -308,6 +352,7 @@ setState(() {
 - 保证白天和夜晚切换后组件仍像同一套系统
 - 新增游戏风格时扩展 `AnimalIslandGameStyle`，再补 palette、半径、边框、动效 token
 - Westworld 扩展时先补 `westworldDay` / `westworldNight`，再补 `westworldPanelDecoration` / painter，不要在每个组件里散落颜色常量
+- Guofeng 扩展时先补 `guofengDay` / `guofengNight`，再补 `guofeng` 资源与 `_GuofengXxx` 分支，不要把手绘特性塞进动森分支
 
 ### 3. 组件补齐
 

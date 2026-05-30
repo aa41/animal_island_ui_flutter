@@ -1,3 +1,3 @@
 display_name: Animal Island UI Flutter
-short_description: Build Flutter UI in the Animal Island design language with day and night themes.
-default_prompt: Recreate or extend this Flutter UI using the bundled Animal Island design system, components, and theme rules.
+short_description: Build Flutter UI with Animal Island, NES, Westworld, and Guofeng themes.
+default_prompt: Recreate or extend this Flutter UI using the bundled Animal Island Flutter components, theme tokens, and cross-style rules.

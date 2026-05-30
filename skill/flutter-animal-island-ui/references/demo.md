@@ -11,6 +11,7 @@
 - 使用草地 / 岛屿氛围背景
 - 标题要有游戏感，不要普通 SaaS hero
 - 组件一览要用 card 网格，不用朴素 list
+- 主题切换必须能覆盖 Animal Island / NES / Westworld / Guofeng 四套风格
 
 ## 组件页规则
 
@@ -22,6 +23,13 @@
 - 演示区域
 - 必要时附示例代码
 - 必要时附 API 表
+
+跨主题展示：
+
+- Animal Island：适合展示默认卡片、NookPhone 氛围和温暖状态反馈
+- NES：适合展示像素 HUD、硬边状态、虚线卡片和低帧率 loading
+- Westworld：适合展示系统面板、编号 tabs、线性表单和 Rehoboam 状态圆
+- Guofeng：适合展示米纸面板、墨线控件、手绘状态图和中文排版密度
 
 如果是 `BottomSheet`：
 
