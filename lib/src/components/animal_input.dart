@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../models/animal_island_models.dart';
@@ -5,6 +7,7 @@ import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
 import 'animal_component_dispatcher.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 import 'theme_strategies/animal_input_theme_strategy.dart';
 
 class AnimalInput extends StatelessWidget {
@@ -264,6 +267,7 @@ class _ThemedAnimalInputState extends State<_ThemedAnimalInput> {
     final strategy = AnimalInputThemeStrategy.forGameStyle(widget.gameStyle);
     final focused = _focusNode.hasFocus;
     final hasText = _controller.text.isNotEmpty;
+    final isNes = widget.gameStyle == AnimalIslandGameStyle.nes8Bit;
 
     final metrics = switch (widget.size) {
       AnimalInputSize.small => _InputMetrics(
@@ -292,6 +296,126 @@ class _ThemedAnimalInputState extends State<_ThemedAnimalInput> {
       ),
     };
 
+    final inputContent = Row(
+      children: [
+        if (widget.prefix != null) ...[
+          IconTheme(
+            data: IconThemeData(
+              color: theme.textSecondary,
+              size: metrics.fontSize + 2,
+            ),
+            child: widget.prefix!,
+          ),
+          const SizedBox(width: 6),
+        ],
+        Expanded(
+          child: TextField(
+            controller: _controller,
+            focusNode: _focusNode,
+            enabled: widget.enabled,
+            style: strategy.textStyle(
+              context,
+              theme,
+              enabled: widget.enabled,
+              fontSize: metrics.fontSize,
+            ),
+            decoration: InputDecoration(
+              isCollapsed: true,
+              border: InputBorder.none,
+              hintText: widget.hintText,
+              hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: theme.textDisabled,
+                fontWeight: FontWeight.w400,
+                fontSize: metrics.fontSize,
+              ),
+            ),
+            onChanged: widget.onChanged,
+          ),
+        ),
+        if (widget.allowClear && hasText && widget.enabled)
+          GestureDetector(
+            onTap: _clear,
+            child: Container(
+              width: 20,
+              height: 20,
+              margin: const EdgeInsets.only(left: 4),
+              decoration: BoxDecoration(
+                color: _hovered
+                    ? theme.textBody.withValues(alpha: 0.1)
+                    : Colors.transparent,
+                shape: isNes ? BoxShape.rectangle : BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '×',
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: _hovered ? theme.textBody : theme.textDisabled,
+                  fontSize: AnimalIslandTokens.fontBodySm,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+        if (widget.suffix != null) ...[
+          const SizedBox(width: 6),
+          IconTheme(
+            data: IconThemeData(
+              color: theme.textSecondary,
+              size: metrics.fontSize + 2,
+            ),
+            child: widget.suffix!,
+          ),
+        ],
+      ],
+    );
+
+    if (isNes) {
+      final outlineColor = switch (widget.status) {
+        AnimalInputStatus.error => theme.error,
+        AnimalInputStatus.warning => theme.warning,
+        _ =>
+          focused
+              ? theme.borderHover
+              : _hovered
+              ? theme.borderHover
+              : theme.border,
+      };
+      return MouseRegion(
+        onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
+        onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
+        child: AnimatedContainer(
+          duration: theme.interactionDuration,
+          curve: theme.interactionCurve,
+          height: metrics.height + 8,
+          child: NesPixelFrame(
+            palette: NesPixelFramePalette(
+              background: strategy.backgroundColor(
+                theme,
+                enabled: widget.enabled,
+              ),
+              border: outlineColor,
+              shadow: theme.inputShadow,
+              highlight: Colors.white,
+              lowlight: theme.borderLight,
+              accent: theme.borderHover,
+            ),
+            hovered: _hovered,
+            focused: focused,
+            disabled: !widget.enabled,
+            texture: true,
+            pixel: 4,
+            shadowOffset: widget.shadow || focused
+                ? Offset(4, metrics.shadowDepth)
+                : const Offset(4, 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: math.max(0, metrics.horizontal - 8),
+            ),
+            child: Center(child: inputContent),
+          ),
+        ),
+      );
+    }
+
     final input = MouseRegion(
       onEnter: widget.enabled ? (_) => setState(() => _hovered = true) : null,
       onExit: widget.enabled ? (_) => setState(() => _hovered = false) : null,
@@ -314,78 +438,7 @@ class _ThemedAnimalInputState extends State<_ThemedAnimalInput> {
           borderWidth: metrics.borderWidth,
           shadowDepth: metrics.shadowDepth,
         ),
-        child: Row(
-          children: [
-            if (widget.prefix != null) ...[
-              IconTheme(
-                data: IconThemeData(
-                  color: theme.textSecondary,
-                  size: metrics.fontSize + 2,
-                ),
-                child: widget.prefix!,
-              ),
-              const SizedBox(width: 6),
-            ],
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                focusNode: _focusNode,
-                enabled: widget.enabled,
-                style: strategy.textStyle(
-                  context,
-                  theme,
-                  enabled: widget.enabled,
-                  fontSize: metrics.fontSize,
-                ),
-                decoration: InputDecoration(
-                  isCollapsed: true,
-                  border: InputBorder.none,
-                  hintText: widget.hintText,
-                  hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: theme.textDisabled,
-                    fontWeight: FontWeight.w400,
-                    fontSize: metrics.fontSize,
-                  ),
-                ),
-                onChanged: widget.onChanged,
-              ),
-            ),
-            if (widget.allowClear && hasText && widget.enabled)
-              GestureDetector(
-                onTap: _clear,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  margin: const EdgeInsets.only(left: 4),
-                  decoration: BoxDecoration(
-                    color: _hovered
-                        ? theme.textBody.withValues(alpha: 0.1)
-                        : Colors.transparent,
-                    shape: BoxShape.circle,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    '×',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: _hovered ? theme.textBody : theme.textDisabled,
-                      fontSize: AnimalIslandTokens.fontBodySm,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            if (widget.suffix != null) ...[
-              const SizedBox(width: 6),
-              IconTheme(
-                data: IconThemeData(
-                  color: theme.textSecondary,
-                  size: metrics.fontSize + 2,
-                ),
-                child: widget.suffix!,
-              ),
-            ],
-          ],
-        ),
+        child: inputContent,
       ),
     );
     if (widget.gameStyle != AnimalIslandGameStyle.guofengDoodle) {

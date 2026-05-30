@@ -66,7 +66,7 @@ MaterialApp(
 内置游戏风格：
 
 - `AnimalIslandGameStyle.animalIsland`：动森系自然 UI，大圆角、暖色、NookPhone 氛围
-- `AnimalIslandGameStyle.nes8Bit`：NES 八位机像素 UI，像素字体、粗描边、硬阴影、低帧率动效
+- `AnimalIslandGameStyle.nes8Bit`：NES 平台游戏 UI，马里奥式配色、圆润游戏字体、粗描边、硬阴影、低帧率动效
 - `AnimalIslandGameStyle.westworld`：Westworld / Rehoboam 科幻系统 UI，细线折角、编号式信息层级、动态状态圆
 - `AnimalIslandGameStyle.guofengDoodle`：国风手绘 UI，米纸底、墨线边框、朱砂/竹青点缀、手绘状态图
 

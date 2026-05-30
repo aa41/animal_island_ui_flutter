@@ -160,7 +160,7 @@ final class _NesAnimalInputThemeStrategy extends AnimalInputThemeStrategy {
       fontSize: fontSize,
       color: enabled ? theme.textBody : theme.textDisabled,
       letterSpacing: 0.14,
-      fontFamily: 'Press Start 2P',
+      fontFamily: null,
     );
   }
 

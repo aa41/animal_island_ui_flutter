@@ -8,7 +8,7 @@
 ## 游戏风格
 
 - `AnimalIslandGameStyle.animalIsland`：有机圆角、暖色、柔和阴影、NookPhone 氛围
-- `AnimalIslandGameStyle.nes8Bit`：像素字体、硬边框、有限色板、低帧率动效
+- `AnimalIslandGameStyle.nes8Bit`：圆润游戏字体、硬边框、马里奥式有限色板、低帧率动效
 - `AnimalIslandGameStyle.westworld`：系统细线、黑白灰、编号、扫描线、Rehoboam 动态圆
 - `AnimalIslandGameStyle.guofengDoodle`：米纸底、墨线、朱砂/竹青点缀、手绘状态图
 

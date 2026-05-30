@@ -5,6 +5,7 @@ import '../theme/animal_island_theme.dart';
 import '../theme/animal_island_tokens.dart';
 import 'animal_component_dispatcher.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 
 class AnimalCheckboxGroup<T> extends StatelessWidget {
   const AnimalCheckboxGroup({
@@ -323,6 +324,72 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>>
       );
     }
 
+    if (theme.isNes) {
+      return MouseRegion(
+        onEnter: disabled ? null : (_) => setState(() => _hovered = true),
+        onExit: disabled ? null : (_) => setState(() => _hovered = false),
+        child: GestureDetector(
+          onTap: disabled ? null : widget.onTap,
+          child: Opacity(
+            opacity: disabled ? 0.55 : 1,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox.square(
+                  dimension: box + 8,
+                  child: NesPixelFrame(
+                    palette: NesPixelFramePalette(
+                      background: widget.checked
+                          ? (_hovered ? theme.primaryHover : theme.primary)
+                          : theme.surfaceRaised,
+                      border: widget.checked
+                          ? theme.border
+                          : (_hovered ? theme.borderHover : theme.border),
+                      shadow: theme.buttonShadow,
+                      highlight: Colors.white,
+                      lowlight: widget.checked
+                          ? theme.primaryActive
+                          : theme.borderLight,
+                      accent: theme.borderHover,
+                    ),
+                    hovered: _hovered,
+                    focused: _hovered,
+                    disabled: disabled,
+                    texture: !widget.checked,
+                    pixel: 3,
+                    shadowOffset: const Offset(3, 3),
+                    child: AnimatedOpacity(
+                      opacity: widget.checked ? 1 : 0,
+                      duration: AnimalIslandTokens.fast,
+                      child: CustomPaint(
+                        painter: _NesCheckboxCheckPainter(
+                          color: Colors.white,
+                          shadow: theme.primaryActive,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AnimalIslandTokens.spacingSm),
+                DefaultTextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    fontSize: fontSize,
+                    color: disabled
+                        ? theme.textDisabled
+                        : (_hovered ? theme.textPrimary : theme.textBody),
+                    fontWeight: widget.checked
+                        ? FontWeight.w800
+                        : FontWeight.w600,
+                  ),
+                  child: widget.option.label,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return MouseRegion(
       onEnter: disabled ? null : (_) => setState(() => _hovered = true),
       onExit: disabled ? null : (_) => setState(() => _hovered = false),
@@ -380,6 +447,37 @@ class _CheckboxTileState<T> extends State<_CheckboxTile<T>>
         ),
       ),
     );
+  }
+}
+
+class _NesCheckboxCheckPainter extends CustomPainter {
+  const _NesCheckboxCheckPainter({required this.color, required this.shadow});
+
+  final Color color;
+  final Color shadow;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (size.isEmpty || !size.isFinite) {
+      return;
+    }
+    final unit = size.shortestSide / 5;
+    final blocks = [Offset(1, 2), Offset(2, 3), Offset(3, 2), Offset(4, 1)];
+    final shadowPaint = Paint()..color = shadow.withValues(alpha: 0.55);
+    final paint = Paint()..color = color;
+    for (final block in blocks) {
+      final rect = Rect.fromLTWH(block.dx * unit, block.dy * unit, unit, unit);
+      canvas.drawRect(
+        rect.shift(Offset(unit * 0.35, unit * 0.35)),
+        shadowPaint,
+      );
+      canvas.drawRect(rect, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _NesCheckboxCheckPainter oldDelegate) {
+    return oldDelegate.color != color || oldDelegate.shadow != shadow;
   }
 }
 

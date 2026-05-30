@@ -13,7 +13,7 @@
 
 - 纯 UI 组件库，不包含任何业务原生桥接代码
 - 动森主题保持暖色、圆角、3D 压感、NookPhone 风格视觉语言
-- NES 八位机主题提供像素字体、硬边轮廓、粗描边、零模糊阴影、低帧率像素动效
+- NES 八位机主题提供马里奥式高饱和配色、圆润游戏字体、硬边轮廓、粗描边、零模糊阴影、低帧率动效
 - Westworld / Rehoboam 主题提供克制黑白灰、细线折角、编号式信息层级和动态状态圆
 - 国风手绘主题提供米纸底、墨线轮廓、朱砂/竹青点缀和手绘状态插画
 - 支持 `AnimalIslandGameStyle.animalIsland` / `nes8Bit` / `westworld` / `guofengDoodle`
@@ -31,8 +31,8 @@
   - 奶油底、木色文字、草地/海岛氛围
   - 大圆角、柔和阴影、轻量 hover / active 动效
 - `AnimalIslandGameStyle.nes8Bit`
-  - NES 八位机像素 UI
-  - 高对比有限色板、Press Start 2P 像素字体
+  - NES 平台游戏 UI
+  - 天空蓝、砖红、金币黄、管道绿等高对比有限色板，搭配圆润厚实的游戏字体
   - 方形/小圆角、粗描边、硬阴影、像素 loading / empty / error 状态
 - `AnimalIslandGameStyle.westworld`
   - Westworld / Rehoboam 科幻系统 UI

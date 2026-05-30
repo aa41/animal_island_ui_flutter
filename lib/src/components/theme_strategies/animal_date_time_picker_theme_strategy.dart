@@ -334,6 +334,176 @@ final class _AnimalIslandDateTimePickerThemeStrategy
 final class _NesAnimalDateTimePickerThemeStrategy
     extends _AnimalIslandDateTimePickerThemeStrategy {
   const _NesAnimalDateTimePickerThemeStrategy();
+
+  @override
+  EdgeInsets rootPadding({required bool compact}) =>
+      EdgeInsets.all(compact ? 12 : 14);
+
+  @override
+  BoxDecoration rootDecoration(
+    AnimalIslandThemeData theme, {
+    required bool compact,
+  }) {
+    return BoxDecoration(
+      color: theme.surfaceRaised,
+      borderRadius: BorderRadius.zero,
+      border: Border.all(color: theme.border, width: theme.borderWidth),
+      boxShadow: [
+        BoxShadow(
+          color: theme.buttonShadow,
+          blurRadius: 0,
+          offset: const Offset(6, 6),
+        ),
+      ],
+    );
+  }
+
+  @override
+  double sectionGap() => 10;
+
+  @override
+  EdgeInsets panelPadding(AnimalDateTimePickerPanelKind kind) {
+    return switch (kind) {
+      AnimalDateTimePickerPanelKind.calendar => const EdgeInsets.fromLTRB(
+        10,
+        10,
+        10,
+        12,
+      ),
+      AnimalDateTimePickerPanelKind.time => const EdgeInsets.fromLTRB(
+        10,
+        12,
+        10,
+        12,
+      ),
+    };
+  }
+
+  @override
+  BoxDecoration pickerPanelDecoration(AnimalIslandThemeData theme) {
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.zero,
+      border: Border.all(color: theme.border, width: theme.borderWidth),
+      boxShadow: [
+        BoxShadow(
+          color: theme.buttonShadow,
+          blurRadius: 0,
+          offset: const Offset(3, 3),
+        ),
+      ],
+    );
+  }
+
+  @override
+  double gridMainAxisSpacing() => 5;
+
+  @override
+  double gridCrossAxisSpacing() => 5;
+
+  @override
+  TextStyle monthTitleStyle(BuildContext context, AnimalIslandThemeData theme) {
+    return Theme.of(context).textTheme.titleMedium!.copyWith(
+      color: theme.textPrimary,
+      fontSize: AnimalIslandTokens.fontBody,
+      fontWeight: FontWeight.w900,
+    );
+  }
+
+  @override
+  TextStyle weekdayStyle(BuildContext context, AnimalIslandThemeData theme) {
+    return Theme.of(context).textTheme.labelMedium!.copyWith(
+      fontSize: AnimalIslandTokens.fontCaption,
+      color: theme.textSecondary,
+      fontWeight: FontWeight.w900,
+    );
+  }
+
+  @override
+  BoxDecoration calendarCellDecoration(
+    AnimalIslandThemeData theme, {
+    required bool selected,
+    required bool today,
+  }) {
+    return BoxDecoration(
+      color: selected
+          ? const Color(0xFF209CEE)
+          : today
+          ? theme.primarySoft
+          : theme.surfaceRaised,
+      borderRadius: BorderRadius.zero,
+      border: Border.all(
+        color: selected
+            ? theme.border
+            : today
+            ? theme.borderHover
+            : theme.borderLight,
+        width: selected || today ? 3 : 2,
+      ),
+      boxShadow: selected
+          ? const [
+              BoxShadow(
+                color: Color(0xFF006BB3),
+                blurRadius: 0,
+                offset: Offset(2, 2),
+              ),
+            ]
+          : null,
+    );
+  }
+
+  @override
+  TextStyle calendarCellTextStyle(
+    BuildContext context,
+    AnimalIslandThemeData theme, {
+    required bool selected,
+    required bool disabled,
+  }) {
+    return Theme.of(context).textTheme.labelLarge!.copyWith(
+      fontSize: AnimalIslandTokens.fontCaption,
+      color: disabled
+          ? theme.textDisabled
+          : selected
+          ? Colors.white
+          : theme.textPrimary,
+      fontWeight: FontWeight.w900,
+    );
+  }
+
+  @override
+  BoxDecoration wheelDecoration(AnimalIslandThemeData theme) {
+    return BoxDecoration(
+      color: theme.surface,
+      borderRadius: BorderRadius.zero,
+      border: Border.all(color: theme.border, width: theme.borderWidth),
+    );
+  }
+
+  @override
+  BoxDecoration wheelSelectionDecoration(AnimalIslandThemeData theme) {
+    return BoxDecoration(
+      color: theme.primarySoft,
+      borderRadius: BorderRadius.zero,
+      border: Border.all(color: theme.borderHover, width: 3),
+    );
+  }
+
+  @override
+  BoxDecoration wheelFadeDecoration(AnimalIslandThemeData theme) {
+    return BoxDecoration(
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [
+          theme.surfaceRaised,
+          theme.surfaceRaised.withValues(alpha: 0),
+          theme.surfaceRaised.withValues(alpha: 0),
+          theme.surfaceRaised,
+        ],
+        stops: const [0, 0.18, 0.82, 1],
+      ),
+    );
+  }
 }
 
 final class _GuofengAnimalDateTimePickerThemeStrategy

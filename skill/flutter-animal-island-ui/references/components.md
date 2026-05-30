@@ -29,7 +29,7 @@
 所有公开 `Animal*` 组件应随 `AnimalIslandGameStyle` 自动切换视觉。新增或修改组件时，优先检查是否需要同时覆盖：
 
 - Animal Island：暖色、有机圆角、柔和阴影
-- NES：像素字体、硬边框、有限色板、低帧率反馈
+- NES：圆润游戏字体、硬边框、马里奥式有限色板、低帧率反馈
 - Westworld：细线折角、系统面板、Rehoboam 状态圆
 - Guofeng：米纸底、墨线、手绘边缘、国风状态图
 

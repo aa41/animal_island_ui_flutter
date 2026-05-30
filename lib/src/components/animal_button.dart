@@ -8,6 +8,7 @@ import '../theme/animal_island_tokens.dart';
 import '_animal_dashed_outline.dart';
 import 'animal_component_dispatcher.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 import 'theme_strategies/animal_button_theme_strategy.dart';
 
 class AnimalButton extends StatelessWidget {
@@ -300,29 +301,76 @@ class _ThemedAnimalButtonState extends State<_ThemedAnimalButton>
     final showDashedBorder =
         widget.type == AnimalButtonType.dashed && !widget.loading;
     final isGuofeng = widget.gameStyle == AnimalIslandGameStyle.guofengDoodle;
+    final isNes = widget.gameStyle == AnimalIslandGameStyle.nes8Bit;
+    final nesPixel = widget.size == AnimalButtonSize.small ? 3.0 : 4.0;
+    final nesHorizontalBoost = switch (widget.size) {
+      AnimalButtonSize.small => 12.0,
+      AnimalButtonSize.middle => 10.0,
+      AnimalButtonSize.large => 10.0,
+    };
 
     final buttonChild = Stack(
+      clipBehavior: Clip.none,
       children: [
         Positioned.fill(
-          child: AnimatedContainer(
-            duration: theme.interactionDuration,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(metrics.radius),
-              color: colors.background,
-              border: showDashedBorder || isGuofeng
-                  ? null
-                  : Border.all(color: colors.border, width: theme.borderWidth),
-              boxShadow: shadowDepth == 0
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow,
-                        blurRadius: 0,
-                        offset: Offset(0, shadowDepth),
+          child: isNes
+              ? AnimatedBuilder(
+                  animation: Listenable.merge([?_controller]),
+                  builder: (context, _) => CustomPaint(
+                    painter: NesPixelFramePainter(
+                      palette: NesPixelFramePalette(
+                        background: colors.background,
+                        border: colors.border,
+                        shadow: colors.shadow,
+                        highlight: Colors.white,
+                        lowlight: widget.danger
+                            ? theme.borderLight
+                            : colors.shadow,
+                        accent: widget.danger
+                            ? theme.borderLight
+                            : widget.type == AnimalButtonType.primary
+                            ? theme.primaryHover
+                            : theme.borderHover,
                       ),
-                    ],
-            ),
-          ),
+                      pressed: _pressed,
+                      hovered: _hovered,
+                      focused: _hovered && enabled,
+                      disabled: !enabled,
+                      dashed: showDashedBorder,
+                      texture:
+                          widget.type == AnimalButtonType.defaultType ||
+                          widget.type == AnimalButtonType.dashed,
+                      pixel: nesPixel,
+                      compact: true,
+                      reserveShadowSpace: false,
+                      shadowOffset: shadowDepth == 0
+                          ? Offset.zero
+                          : Offset(4, shadowDepth),
+                    ),
+                  ),
+                )
+              : AnimatedContainer(
+                  duration: theme.interactionDuration,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(metrics.radius),
+                    color: colors.background,
+                    border: showDashedBorder || isGuofeng
+                        ? null
+                        : Border.all(
+                            color: colors.border,
+                            width: theme.borderWidth,
+                          ),
+                    boxShadow: shadowDepth == 0
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: colors.shadow,
+                              blurRadius: 0,
+                              offset: Offset(0, shadowDepth),
+                            ),
+                          ],
+                  ),
+                ),
         ),
         if (isGuofeng)
           Positioned.fill(
@@ -338,7 +386,7 @@ class _ThemedAnimalButtonState extends State<_ThemedAnimalButton>
               ),
             ),
           )
-        else if (showDashedBorder)
+        else if (showDashedBorder && !isNes)
           Positioned.fill(
             child: IgnorePointer(
               child: CustomPaint(
@@ -379,7 +427,7 @@ class _ThemedAnimalButtonState extends State<_ThemedAnimalButton>
         Center(
           child: Padding(
             padding: EdgeInsets.symmetric(
-              horizontal: metrics.horizontal,
+              horizontal: metrics.horizontal + (isNes ? nesHorizontalBoost : 0),
               vertical: (metrics.height - metrics.fontSize - 8) / 2,
             ),
             child: content,
@@ -391,7 +439,7 @@ class _ThemedAnimalButtonState extends State<_ThemedAnimalButton>
     final translated = AnimatedContainer(
       duration: theme.interactionDuration,
       transform: Matrix4.translationValues(0, offsetY, 0),
-      height: metrics.height,
+      height: metrics.height + (isNes ? 2 : 0),
       child: buttonChild,
     );
     final child = widget.block

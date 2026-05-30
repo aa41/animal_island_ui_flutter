@@ -94,13 +94,13 @@ final class _NesAnimalSelectThemeStrategy extends AnimalSelectThemeStrategy {
   BoxDecoration menuDecoration(AnimalIslandThemeData theme) {
     return BoxDecoration(
       color: theme.surfaceRaised,
-      borderRadius: BorderRadius.circular(theme.radiusBase),
+      borderRadius: BorderRadius.zero,
       border: Border.all(color: theme.border, width: theme.borderWidth),
       boxShadow: [
         BoxShadow(
           color: theme.buttonShadow,
           blurRadius: 0,
-          offset: const Offset(0, 4),
+          offset: const Offset(5, 5),
         ),
       ],
     );
@@ -110,14 +110,14 @@ final class _NesAnimalSelectThemeStrategy extends AnimalSelectThemeStrategy {
   BoxDecoration triggerDecoration(AnimalIslandThemeData theme, bool open) {
     return BoxDecoration(
       color: theme.surface,
-      borderRadius: BorderRadius.circular(theme.radiusSm),
+      borderRadius: BorderRadius.zero,
       border: Border.all(color: theme.border, width: theme.borderWidth),
       boxShadow: open
           ? [
               BoxShadow(
                 color: theme.buttonShadow,
                 blurRadius: 0,
-                offset: const Offset(0, 3),
+                offset: const Offset(4, 4),
               ),
             ]
           : null,

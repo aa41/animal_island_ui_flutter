@@ -9,6 +9,7 @@ import 'animal_component_dispatcher.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 import 'theme_strategies/animal_modal_theme_strategy.dart';
 
 const Object _defaultModalFooterMarker = Object();
@@ -344,6 +345,27 @@ class _AnimalModalPanel extends StatelessWidget {
                   radius: theme.radiusLg,
                   strokeWidth: theme.borderWidth,
                   seed: 41,
+                ),
+              ),
+            ),
+          ),
+        if (gameStyle == AnimalIslandGameStyle.nes8Bit)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: NesPixelFramePainter(
+                  palette: NesPixelFramePalette(
+                    background: theme.surfaceRaised,
+                    border: theme.border,
+                    shadow: theme.buttonShadow,
+                    highlight: Colors.white,
+                    lowlight: theme.borderLight,
+                    accent: theme.borderHover,
+                  ),
+                  texture: true,
+                  pixel: 4,
+                  compact: true,
+                  shadowOffset: const Offset(6, 6),
                 ),
               ),
             ),

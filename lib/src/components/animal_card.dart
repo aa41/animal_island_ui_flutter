@@ -5,6 +5,7 @@ import '../theme/animal_island_theme.dart';
 import '_animal_dashed_outline.dart';
 import 'animal_component_dispatcher.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 
 class AnimalCard extends StatelessWidget {
   const AnimalCard({
@@ -200,6 +201,32 @@ class _ThemedAnimalCardState extends State<_ThemedAnimalCard>
       child: Stack(
         fit: StackFit.passthrough,
         children: [
+          if (theme.isNes)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: NesPixelFramePainter(
+                    palette: NesPixelFramePalette(
+                      background: widget.type == AnimalCardType.dashed
+                          ? theme.surface.withValues(alpha: 0.92)
+                          : background,
+                      border: theme.border,
+                      shadow: theme.buttonShadow,
+                      highlight: Colors.white,
+                      lowlight: theme.borderLight,
+                      accent: theme.borderHover,
+                    ),
+                    hovered: _hovered,
+                    dashed: widget.type == AnimalCardType.dashed,
+                    texture: true,
+                    pixel: 4,
+                    shadowOffset: widget.type == AnimalCardType.dashed
+                        ? Offset.zero
+                        : Offset(4, _hovered ? 5 : 6),
+                  ),
+                ),
+              ),
+            ),
           Padding(
             padding: padding,
             child: DefaultTextStyle(
@@ -241,7 +268,7 @@ class _ThemedAnimalCardState extends State<_ThemedAnimalCard>
                 ),
               ),
             )
-          else if (widget.type == AnimalCardType.dashed)
+          else if (widget.type == AnimalCardType.dashed && !theme.isNes)
             Positioned.fill(
               child: IgnorePointer(
                 child: CustomPaint(
@@ -249,8 +276,8 @@ class _ThemedAnimalCardState extends State<_ThemedAnimalCard>
                     color: dashedBorderColor,
                     radius: theme.isWestworld ? 0 : 20,
                     strokeWidth: theme.borderWidth,
-                    dashLength: theme.isNes ? 4 : 7,
-                    gapLength: theme.isNes ? 4 : 5,
+                    dashLength: 7,
+                    gapLength: 5,
                   ),
                 ),
               ),
@@ -301,6 +328,21 @@ class _ThemedAnimalCardState extends State<_ThemedAnimalCard>
             : background,
         hovered: hovered,
         emphasized: widget.type == AnimalCardType.title,
+      );
+    }
+
+    if (theme.isNes) {
+      return BoxDecoration(
+        color: Colors.transparent,
+        boxShadow: widget.type == AnimalCardType.dashed
+            ? null
+            : [
+                BoxShadow(
+                  color: theme.buttonShadow,
+                  blurRadius: 0,
+                  offset: Offset(4, hovered ? 5 : 6),
+                ),
+              ],
       );
     }
 

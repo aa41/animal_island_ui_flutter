@@ -37,7 +37,7 @@ description: >
 ### NES 八位机像素风格
 
 - 高对比有限色板：蓝、黑、白、红、黄、绿、青为主
-- Press Start 2P 像素字体与紧凑字号
+- 圆润厚实的游戏字体与紧凑字号，避免继续追求模板化像素字体
 - 方形或极小圆角，避免动森式有机 blob 轮廓
 - 3px 级粗描边、零模糊硬阴影、像素网格感
 - 低帧率、阶梯式交互反馈，避免柔和 spring 和 Material 圆形 loading
@@ -158,7 +158,7 @@ Flutter 包主入口：
 - `AnimalIslandGameStyle.animalIsland`
   - 动森系自然 UI，大圆角、暖色、柔和阴影
 - `AnimalIslandGameStyle.nes8Bit`
-  - NES 八位机 UI，像素字体、有限色板、硬边框、低帧率动效
+  - NES 平台游戏 UI，圆润游戏字体、马里奥式有限色板、硬边框、低帧率动效
 - `AnimalIslandGameStyle.westworld`
   - Westworld/Rehoboam 系统 UI，细线折角、克制黑白灰、动态圆、扫描线、编号式信息层级
 - `AnimalIslandGameStyle.guofengDoodle`
@@ -330,7 +330,7 @@ setState(() {
 - 默认字号是否先按移动端 scale 收敛，而不是先放大再回调？
 - 是否保持暖色阴影和大圆角？
 - 是否定义 day / night 两种视觉结果？
-- 如果是 NES：是否像素字体、硬边框、有限色板、低帧率动效？
+- 如果是 NES：是否使用圆润游戏字体、硬边框、马里奥式有限色板、低帧率动效？
 - 如果是 Westworld：是否细线、折角、编号、动态圆、克制黑白灰，并保持移动端控件可识别？
 - 如果是 Guofeng：是否米纸底、墨线/朱砂/竹青点缀、手绘状态图，并保持组件轻量可读？
 - hover / active 是否克制，不抖动、不花哨？

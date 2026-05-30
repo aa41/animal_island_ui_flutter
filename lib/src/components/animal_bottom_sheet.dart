@@ -8,6 +8,7 @@ import 'animal_component_dispatcher.dart';
 import 'animal_button.dart';
 import 'animal_typewriter.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 import 'theme_strategies/animal_bottom_sheet_shared.dart';
 import 'theme_strategies/animal_bottom_sheet_theme_strategy.dart';
 
@@ -469,6 +470,28 @@ class _AnimalBottomSheetPanelState extends State<_AnimalBottomSheetPanel> {
           ),
           child: Stack(
             children: [
+              if (widget.gameStyle == AnimalIslandGameStyle.nes8Bit)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: CustomPaint(
+                      painter: NesPixelFramePainter(
+                        palette: NesPixelFramePalette(
+                          background: theme.surfaceRaised,
+                          border: theme.border,
+                          shadow: theme.buttonShadow,
+                          highlight: Colors.white,
+                          lowlight: theme.borderLight,
+                          accent: theme.borderHover,
+                        ),
+                        texture: true,
+                        pixel: 4,
+                        compact: true,
+                        reserveShadowSpace: false,
+                        shadowOffset: const Offset(6, 6),
+                      ),
+                    ),
+                  ),
+                ),
               PhysicalShape(
                 clipper: outerClipper,
                 color: strategy.outerColor(theme),

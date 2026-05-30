@@ -152,7 +152,7 @@ final class _NesAnimalButtonThemeStrategy extends AnimalButtonThemeStrategy {
   }) {
     if (loading) {
       return AnimalButtonColors(
-        background: theme.primary,
+        background: const Color(0xFF209CEE),
         border: theme.border,
         foreground: Colors.white,
         shadow: Colors.transparent,
@@ -163,9 +163,9 @@ final class _NesAnimalButtonThemeStrategy extends AnimalButtonThemeStrategy {
       if (type == AnimalButtonType.primary) {
         return AnimalButtonColors(
           background: theme.error,
-          border: theme.error,
+          border: theme.border,
           foreground: Colors.white,
-          shadow: theme.errorActive,
+          shadow: theme.buttonShadow,
         );
       }
 
@@ -180,7 +180,7 @@ final class _NesAnimalButtonThemeStrategy extends AnimalButtonThemeStrategy {
 
       return AnimalButtonColors(
         background: ghost ? Colors.transparent : theme.surface,
-        border: theme.error,
+        border: theme.border,
         foreground: theme.error,
         shadow: theme.buttonShadow,
       );
@@ -188,22 +188,22 @@ final class _NesAnimalButtonThemeStrategy extends AnimalButtonThemeStrategy {
 
     return switch (type) {
       AnimalButtonType.primary => AnimalButtonColors(
-        background: ghost ? Colors.transparent : theme.primary,
-        border: ghost ? theme.primary : theme.border,
-        foreground: ghost ? theme.primary : Colors.white,
-        shadow: ghost ? Colors.transparent : theme.buttonShadow,
+        background: ghost ? Colors.transparent : const Color(0xFF209CEE),
+        border: ghost ? const Color(0xFF209CEE) : theme.border,
+        foreground: ghost ? const Color(0xFF209CEE) : Colors.white,
+        shadow: ghost ? Colors.transparent : const Color(0xFF006BB3),
       ),
       AnimalButtonType.defaultType => AnimalButtonColors(
         background: ghost ? Colors.transparent : theme.surface,
-        border: theme.border,
+        border: ghost ? theme.borderHover : theme.border,
         foreground: theme.textPrimary,
-        shadow: theme.buttonShadow,
+        shadow: const Color(0xFFADAFBC),
       ),
       AnimalButtonType.dashed => AnimalButtonColors(
         background: ghost ? Colors.transparent : theme.surface,
         border: theme.border,
         foreground: theme.textPrimary,
-        shadow: Colors.transparent,
+        shadow: const Color(0xFFADAFBC),
       ),
       AnimalButtonType.text => AnimalButtonColors(
         background: Colors.transparent,

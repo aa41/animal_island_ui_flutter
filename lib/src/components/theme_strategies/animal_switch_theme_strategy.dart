@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../components/guofeng_components.dart';
+import '../../components/nes_pixel_frame.dart';
 import '../../theme/animal_island_theme.dart';
 import '../../theme/animal_island_tokens.dart';
 
@@ -407,12 +408,38 @@ class _DefaultSwitchControl extends StatelessWidget {
               duration: theme.interactionDuration,
               curve: theme.interactionCurve,
               constraints: BoxConstraints(minWidth: minWidth),
-              height: height,
+              height: nes ? height + 8 : height,
               padding: const EdgeInsets.symmetric(horizontal: 2),
-              decoration: _trackDecoration(theme, checked),
+              decoration: nes ? null : _trackDecoration(theme, checked),
               child: Stack(
                 clipBehavior: Clip.none,
                 children: [
+                  if (nes)
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: NesPixelFramePainter(
+                          palette: NesPixelFramePalette(
+                            background: checked
+                                ? const Color(0xFF92CC41)
+                                : theme.surfaceMuted,
+                            border: theme.border,
+                            shadow: checked
+                                ? const Color(0xFF4AA52E)
+                                : theme.buttonShadow,
+                            highlight: Colors.white,
+                            lowlight: checked
+                                ? const Color(0xFF4AA52E)
+                                : theme.borderLight,
+                            accent: theme.borderHover,
+                          ),
+                          hovered: enabled,
+                          texture: !checked,
+                          pixel: 3,
+                          compact: true,
+                          shadowOffset: const Offset(3, 3),
+                        ),
+                      ),
+                    ),
                   SizedBox(width: minWidth - 4, height: height),
                   if (hasText)
                     Positioned.fill(
@@ -440,20 +467,20 @@ class _DefaultSwitchControl extends StatelessWidget {
                     curve: theme.interactionCurve,
                     left: checked ? null : 0,
                     right: checked ? 0 : null,
-                    top: small ? 1 : 2,
+                    top: nes ? (small ? 4 : 5) : (small ? 1 : 2),
                     child: Transform.translate(
-                      offset: const Offset(0, -1),
+                      offset: Offset(0, nes ? 0 : -1),
                       child: Container(
                         width: knob,
                         height: knob,
                         decoration: BoxDecoration(
                           color: theme.surfaceRaised,
                           shape: nes ? BoxShape.rectangle : BoxShape.circle,
-                          borderRadius: nes
-                              ? BorderRadius.circular(theme.radiusSm)
-                              : null,
+                          borderRadius: nes ? BorderRadius.zero : null,
                           border: Border.all(
-                            color: checked ? theme.success : theme.borderLight,
+                            color: checked
+                                ? const Color(0xFF4AA52E)
+                                : theme.border,
                             width: nes ? 3.0 : 1,
                           ),
                           boxShadow: [

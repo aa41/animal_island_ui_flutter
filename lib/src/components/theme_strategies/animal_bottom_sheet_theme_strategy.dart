@@ -275,17 +275,16 @@ final class _NesAnimalBottomSheetThemeStrategy
   const _NesAnimalBottomSheetThemeStrategy();
 
   @override
-  BorderRadius? clipRadius(AnimalIslandThemeData theme) =>
-      BorderRadius.circular(theme.radiusBase);
+  BorderRadius? clipRadius(AnimalIslandThemeData theme) => BorderRadius.zero;
 
   @override
-  Color outerColor(AnimalIslandThemeData theme) => theme.borderLight;
+  Color outerColor(AnimalIslandThemeData theme) => Colors.transparent;
 
   @override
   double elevation(AnimalIslandThemeData theme) => 0;
 
   @override
-  double framePadding(AnimalIslandThemeData theme) => theme.borderWidth;
+  double framePadding(AnimalIslandThemeData theme) => 0;
 
   @override
   EdgeInsets contentPadding(AnimalIslandThemeData theme) =>
@@ -296,18 +295,7 @@ final class _NesAnimalBottomSheetThemeStrategy
 
   @override
   BoxDecoration panelDecoration(AnimalIslandThemeData theme) {
-    return BoxDecoration(
-      color: theme.surfaceRaised,
-      borderRadius: BorderRadius.circular(theme.radiusBase),
-      border: Border.all(color: theme.border, width: theme.borderWidth),
-      boxShadow: [
-        BoxShadow(
-          color: theme.buttonShadow,
-          blurRadius: 0,
-          offset: const Offset(0, 6),
-        ),
-      ],
-    );
+    return BoxDecoration(color: theme.surfaceRaised);
   }
 
   @override

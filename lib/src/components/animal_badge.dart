@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/animal_island_theme.dart';
 import 'animal_component_dispatcher.dart';
+import 'nes_pixel_frame.dart';
 
 class AnimalBadge extends StatelessWidget {
   const AnimalBadge({
@@ -85,7 +86,7 @@ class _GuofengAnimalBadge extends _ThemedAnimalBadge {
   }) : super(gameStyle: AnimalIslandGameStyle.guofengDoodle);
 }
 
-abstract class _ThemedAnimalBadge extends StatefulWidget {
+abstract class _ThemedAnimalBadge extends StatelessWidget {
   const _ThemedAnimalBadge({
     required this.gameStyle,
     required this.label,
@@ -101,42 +102,13 @@ abstract class _ThemedAnimalBadge extends StatefulWidget {
   final EdgeInsetsGeometry padding;
 
   @override
-  State<_ThemedAnimalBadge> createState() => _ThemedAnimalBadgeState();
-}
-
-class _ThemedAnimalBadgeState extends State<_ThemedAnimalBadge>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(
-    vsync: this,
-    duration: const Duration(milliseconds: 2600),
-  );
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final theme = context.animalIslandTheme;
-    if (theme.isWestworld && !_controller.isAnimating) {
-      _controller.repeat();
-    }
-    if (!theme.isWestworld && _controller.isAnimating) {
-      _controller.stop();
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
 
     if (theme.isGuofengDoodle) {
-      final background = widget.backgroundColor ?? theme.primary;
+      final background = backgroundColor ?? theme.primary;
       final foreground =
-          widget.foregroundColor ??
+          foregroundColor ??
           (theme.mode == AnimalIslandThemeMode.day
               ? Colors.white
               : theme.textPrimary);
@@ -147,11 +119,11 @@ class _ThemedAnimalBadgeState extends State<_ThemedAnimalBadge>
           paper: theme.surface,
         ),
         child: Padding(
-          padding: widget.padding.add(
+          padding: padding.add(
             const EdgeInsets.symmetric(horizontal: 3, vertical: 1),
           ),
           child: Text(
-            widget.label,
+            label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
               color: foreground,
               letterSpacing: 0.4,
@@ -162,9 +134,36 @@ class _ThemedAnimalBadgeState extends State<_ThemedAnimalBadge>
       );
     }
 
+    if (theme.isNes) {
+      final background = backgroundColor ?? theme.primary;
+      final foreground = foregroundColor ?? Colors.white;
+      return NesPixelFrame(
+        palette: NesPixelFramePalette(
+          background: background,
+          border: theme.border,
+          shadow: theme.buttonShadow,
+          highlight: Colors.white,
+          lowlight: theme.primaryActive,
+          accent: theme.borderHover,
+        ),
+        texture: true,
+        pixel: 3,
+        shadowOffset: const Offset(3, 3),
+        padding: padding.add(const EdgeInsets.symmetric(horizontal: 2)),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            color: foreground,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.08,
+          ),
+        ),
+      );
+    }
+
     final badge = DecoratedBox(
       decoration: BoxDecoration(
-        color: widget.backgroundColor ?? theme.surfaceSoft,
+        color: backgroundColor ?? theme.surfaceSoft,
         borderRadius: BorderRadius.circular(
           theme.isWestworld ? 0 : theme.radiusPill,
         ),
@@ -178,11 +177,11 @@ class _ThemedAnimalBadgeState extends State<_ThemedAnimalBadge>
             : null,
       ),
       child: Padding(
-        padding: widget.padding,
+        padding: padding,
         child: Text(
-          widget.label,
+          label,
           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-            color: widget.foregroundColor ?? theme.textSecondary,
+            color: foregroundColor ?? theme.textSecondary,
             letterSpacing: theme.isWestworld ? 1.55 : null,
             fontWeight: theme.isWestworld ? FontWeight.w500 : null,
           ),
@@ -194,22 +193,13 @@ class _ThemedAnimalBadgeState extends State<_ThemedAnimalBadge>
       return badge;
     }
 
-    final accent = widget.foregroundColor ?? theme.textPrimary;
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) => CustomPaint(
-        painter: _WestworldBadgeFramePainter(
-          progress: _controller.value,
-          line: theme.panelLineColor(emphasized: true),
-          accent: accent,
-        ),
-        foregroundPainter: _WestworldBadgeSweepPainter(
-          progress: _controller.value,
-          line: accent.withValues(alpha: 0.38),
-        ),
-        child: ClipPath(clipper: _WestworldBadgeClipper(), child: child),
+    final accent = foregroundColor ?? theme.textPrimary;
+    return CustomPaint(
+      painter: _WestworldBadgeFramePainter(
+        line: theme.panelLineColor(emphasized: true),
+        accent: accent,
       ),
-      child: badge,
+      child: ClipPath(clipper: _WestworldBadgeClipper(), child: badge),
     );
   }
 }
@@ -279,13 +269,8 @@ class _WestworldBadgeClipper extends CustomClipper<Path> {
 }
 
 class _WestworldBadgeFramePainter extends CustomPainter {
-  const _WestworldBadgeFramePainter({
-    required this.progress,
-    required this.line,
-    required this.accent,
-  });
+  const _WestworldBadgeFramePainter({required this.line, required this.accent});
 
-  final double progress;
   final Color line;
   final Color accent;
 
@@ -316,8 +301,8 @@ class _WestworldBadgeFramePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1
       ..color = accent.withValues(alpha: 0.5);
-    final nodeX = 7 + (size.width - 14) * progress;
-    canvas.drawCircle(Offset(nodeX, size.height), 2.2, nodePaint);
+    canvas.drawCircle(const Offset(cut, 0), 2.2, nodePaint);
+    canvas.drawCircle(Offset(size.width - cut, size.height), 2.2, nodePaint);
     canvas.drawLine(
       Offset(4, size.height * 0.5),
       Offset(size.width * 0.22, size.height * 0.5),
@@ -329,38 +314,6 @@ class _WestworldBadgeFramePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _WestworldBadgeFramePainter oldDelegate) {
-    return oldDelegate.progress != progress ||
-        oldDelegate.line != line ||
-        oldDelegate.accent != accent;
-  }
-}
-
-class _WestworldBadgeSweepPainter extends CustomPainter {
-  const _WestworldBadgeSweepPainter({
-    required this.progress,
-    required this.line,
-  });
-
-  final double progress;
-  final Color line;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (size.isEmpty || !size.isFinite) {
-      return;
-    }
-    final x = progress * (size.width + 18) - 9;
-    canvas.drawLine(
-      Offset(x, 3),
-      Offset(x, size.height - 3),
-      Paint()
-        ..color = line
-        ..strokeWidth = 1,
-    );
-  }
-
-  @override
-  bool shouldRepaint(covariant _WestworldBadgeSweepPainter oldDelegate) {
-    return oldDelegate.progress != progress || oldDelegate.line != line;
+    return oldDelegate.line != line || oldDelegate.accent != accent;
   }
 }

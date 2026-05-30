@@ -5,6 +5,7 @@ import '../theme/animal_island_tokens.dart';
 import '../utils/animal_island_assets.dart';
 import 'animal_component_dispatcher.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 
 class AnimalCollapse extends StatelessWidget {
   const AnimalCollapse({
@@ -114,17 +115,43 @@ class _ThemedAnimalCollapseState extends State<_ThemedAnimalCollapse> {
   Widget build(BuildContext context) {
     final theme = context.animalIslandTheme;
     final isGuofeng = widget.gameStyle == AnimalIslandGameStyle.guofengDoodle;
+    final isNes = widget.gameStyle == AnimalIslandGameStyle.nes8Bit;
 
-    return Opacity(
+    final collapse = Opacity(
       opacity: widget.enabled ? 1 : 0.6,
       child: Stack(
         children: [
+          if (isNes)
+            Positioned.fill(
+              child: IgnorePointer(
+                child: CustomPaint(
+                  painter: NesPixelFramePainter(
+                    palette: NesPixelFramePalette(
+                      background: theme.surface,
+                      border: _expanded ? theme.borderHover : theme.border,
+                      shadow: theme.buttonShadow,
+                      highlight: Colors.white,
+                      lowlight: theme.borderLight,
+                      accent: theme.borderHover,
+                    ),
+                    focused: _expanded,
+                    texture: true,
+                    pixel: 4,
+                    compact: true,
+                    reserveShadowSpace: false,
+                    shadowOffset: const Offset(5, 5),
+                  ),
+                ),
+              ),
+            ),
           DecoratedBox(
             decoration: theme.isWestworld
                 ? theme.westworldPanelDecoration(
                     color: theme.surface,
                     emphasized: _expanded,
                   )
+                : isNes
+                ? const BoxDecoration(color: Colors.transparent)
                 : BoxDecoration(
                     color: theme.surface,
                     borderRadius: BorderRadius.circular(theme.radiusBase),
@@ -285,6 +312,12 @@ class _ThemedAnimalCollapseState extends State<_ThemedAnimalCollapse> {
         ],
       ),
     );
+    return isNes
+        ? Padding(
+            padding: const EdgeInsets.only(right: 5, bottom: 5),
+            child: collapse,
+          )
+        : collapse;
   }
 
   Widget _buildToggle(AnimalIslandThemeData theme, bool isGuofeng) {
@@ -309,6 +342,38 @@ class _ThemedAnimalCollapseState extends State<_ThemedAnimalCollapse> {
           painter: _GuofengCollapseTogglePainter(
             expanded: _expanded,
             color: _expanded ? theme.primaryActive : theme.border,
+          ),
+        ),
+      );
+    }
+
+    if (theme.isNes) {
+      return SizedBox.square(
+        dimension: 30,
+        child: NesPixelFrame(
+          palette: NesPixelFramePalette(
+            background: _expanded ? theme.primary : theme.surfaceRaised,
+            border: theme.border,
+            shadow: theme.buttonShadow,
+            highlight: Colors.white,
+            lowlight: _expanded ? theme.primaryActive : theme.borderLight,
+            accent: theme.borderHover,
+          ),
+          pressed: _expanded,
+          texture: !_expanded,
+          pixel: 3,
+          compact: true,
+          shadowOffset: const Offset(3, 3),
+          child: Center(
+            child: Text(
+              _expanded ? '−' : '+',
+              style: TextStyle(
+                color: _expanded ? Colors.white : theme.textPrimary,
+                fontWeight: FontWeight.w900,
+                fontSize: 18,
+                height: 1,
+              ),
+            ),
           ),
         ),
       );

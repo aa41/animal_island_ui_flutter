@@ -9,6 +9,7 @@ import '../theme/animal_island_tokens.dart';
 import '../utils/animal_island_assets.dart';
 import 'animal_component_dispatcher.dart';
 import 'guofeng_components.dart';
+import 'nes_pixel_frame.dart';
 
 class AnimalTabs extends StatelessWidget {
   const AnimalTabs({
@@ -518,6 +519,64 @@ class _TabChipState extends State<_TabChip>
                 child: widget.item.label,
               ),
             ],
+          ),
+        ),
+      );
+    }
+
+    if (theme.isNes) {
+      return MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        cursor: SystemMouseCursors.click,
+        child: AnimatedContainer(
+          duration: theme.interactionDuration,
+          curve: theme.interactionCurve,
+          transform: Matrix4.translationValues(0, widget.active ? 0 : 2, 0),
+          child: NesPixelFrame(
+            palette: NesPixelFramePalette(
+              background: widget.active
+                  ? theme.primary
+                  : (_hovered ? theme.surfaceSoft : theme.surfaceRaised),
+              border: widget.active
+                  ? theme.border
+                  : (_hovered ? theme.borderHover : theme.border),
+              shadow: widget.active ? theme.primaryActive : theme.buttonShadow,
+              highlight: Colors.white,
+              lowlight: widget.active ? theme.primaryActive : theme.borderLight,
+              accent: theme.borderHover,
+            ),
+            hovered: _hovered,
+            focused: _hovered,
+            texture: !widget.active,
+            pixel: 3,
+            shadowOffset: widget.active && widget.shadow
+                ? const Offset(3, 3)
+                : Offset.zero,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox.square(
+                  dimension: 8,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: widget.active ? Colors.white : theme.textSecondary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AnimalIslandTokens.spacingSm),
+                DefaultTextStyle(
+                  style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                    color: widget.active ? Colors.white : theme.textPrimary,
+                    fontWeight: widget.active
+                        ? FontWeight.w800
+                        : FontWeight.w600,
+                  ),
+                  child: widget.item.label,
+                ),
+              ],
+            ),
           ),
         ),
       );
