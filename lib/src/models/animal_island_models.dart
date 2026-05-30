@@ -30,6 +30,14 @@ enum AnimalLoadMoreState { idle, loading, noMore, error }
 
 enum AnimalStatusTone { loading, error, empty }
 
+enum AnimalMessageType { info, success, warning, error }
+
+enum AnimalMessageDisplayMode { queue, replace }
+
+enum AnimalToastPosition { top, center, bottom }
+
+enum AnimalSnackbarPosition { top, bottom }
+
 enum AnimalDateTimePickerMode { date, time, dateTime }
 
 enum AnimalIconName {

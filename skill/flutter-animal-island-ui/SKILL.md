@@ -197,6 +197,10 @@ Flutter 包主入口：
 - `AnimalTabs`
 - `AnimalCodeBlock`
 - `AnimalBadge`
+- `AnimalToast`
+- `showAnimalToast`
+- `AnimalSnackbar`
+- `showAnimalSnackbar`
 - `AnimalStatusView`
 - `AnimalLoading`
 - `AnimalErrorState`
@@ -229,6 +233,19 @@ Westworld 主题特别注意：
 - `AnimalButton` / `AnimalInput` / `AnimalCard` 可以保留有机圆角，但边框应有手绘笔触感，不要退回默认 Material
 - `AnimalDateTimePicker`、`AnimalBottomSheet` 和 `AnimalModal` 要保持纸面层级与轻阴影，不做厚重卷轴或大面积纹理
 - 中文标题优先 `15-18`，正文优先 `13-15`，避免用大号字体替代手绘质感
+
+## Toast / Snackbar 约束
+
+- `AnimalToast` 用于短暂、低打断反馈；`AnimalSnackbar` 用于更完整的操作反馈，可带 `title`、`action` 和较长 `message`
+- 业务代码优先使用 `showAnimalToast(...)` / `showAnimalSnackbar(...)`，不要直接回退到 `ScaffoldMessenger.showSnackBar` 或默认 Material Toast/Snackbar 外观
+- 两者都必须保持四套主题一致：Animal Island 温暖圆润、NES 像素硬边框、Westworld 细线系统面板、Guofeng 纸面墨线
+- 同类消息同一时刻只能展示一个；连续触发必须使用 `AnimalMessageDisplayMode` 控制展示策略
+- 默认使用 `AnimalMessageDisplayMode.queue`：当前消息展示完毕后再展示下一条，适合保存成功、同步完成、任务流式反馈
+- 使用 `AnimalMessageDisplayMode.replace`：下一条需要展示时立即取消上一条，适合搜索筛选变化、网络状态更新、用户连续操作产生的新结果
+- `duration: Duration.zero` 代表不自动关闭，必须允许用户通过关闭入口或业务状态变化移除，避免永久遮挡页面关键操作
+- Toast 默认更轻、更窄，文案应控制在一行或短句；Snackbar 可以承载标题和行动，但仍应避免塞入表单、列表或复杂交互
+- Overlay 位置要尊重安全区和移动端触控空间：Toast 可用 `top / center / bottom`，Snackbar 可用 `top / bottom`
+- 示例页必须提供静态预览、触发按钮、`queue` / `replace` 两种策略演示、API 表和代码片段
 
 ## 入口与初始化
 

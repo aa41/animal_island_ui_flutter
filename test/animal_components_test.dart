@@ -768,6 +768,249 @@ void main() {
     expect(find.text('暂时空白'), findsOneWidget);
   });
 
+  for (final style in AnimalIslandGameStyle.values) {
+    testWidgets('AnimalToast renders themed message for $style', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        wrapStyle(
+          style,
+          const AnimalToast(
+            type: AnimalMessageType.success,
+            message: Text('保存成功'),
+          ),
+        ),
+      );
+
+      expect(find.text('保存成功'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+      'AnimalSnackbar renders title, message, and action for $style',
+      (tester) async {
+        await tester.pumpWidget(
+          wrapStyle(
+            style,
+            const AnimalSnackbar(
+              type: AnimalMessageType.warning,
+              title: Text('背包已满'),
+              message: Text('请先清理一些物品。'),
+              action: Text('查看'),
+            ),
+          ),
+        );
+
+        expect(find.text('背包已满'), findsOneWidget);
+        expect(find.text('请先清理一些物品。'), findsOneWidget);
+        expect(find.text('查看'), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
+  testWidgets('showAnimalToast inserts and dismisses overlay', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAnimalIslandTheme(gameStyle: AnimalIslandGameStyle.nes8Bit),
+        home: Builder(
+          builder: (context) => AnimalButton(
+            onPressed: () {
+              showAnimalToast(
+                context: context,
+                message: const Text('TOAST READY'),
+                duration: const Duration(milliseconds: 300),
+              );
+            },
+            child: const Text('show'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('show'));
+    await tester.pump();
+    expect(find.text('TOAST READY'), findsOneWidget);
+
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pump();
+    expect(find.text('TOAST READY'), findsNothing);
+  });
+
+  testWidgets('showAnimalToast queues messages one at a time', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAnimalIslandTheme(gameStyle: AnimalIslandGameStyle.nes8Bit),
+        home: Builder(
+          builder: (context) => AnimalButton(
+            onPressed: () {
+              showAnimalToast(
+                context: context,
+                message: const Text('TOAST FIRST'),
+                duration: const Duration(milliseconds: 300),
+              );
+              showAnimalToast(
+                context: context,
+                message: const Text('TOAST SECOND'),
+                duration: const Duration(milliseconds: 300),
+              );
+            },
+            child: const Text('show queue'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('show queue'));
+    await tester.pump();
+    expect(find.text('TOAST FIRST'), findsOneWidget);
+    expect(find.text('TOAST SECOND'), findsNothing);
+
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pump();
+    expect(find.text('TOAST FIRST'), findsNothing);
+    expect(find.text('TOAST SECOND'), findsOneWidget);
+  });
+
+  testWidgets('showAnimalToast replaces the active message', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAnimalIslandTheme(gameStyle: AnimalIslandGameStyle.nes8Bit),
+        home: Builder(
+          builder: (context) => AnimalButton(
+            onPressed: () {
+              showAnimalToast(
+                context: context,
+                message: const Text('TOAST OLD'),
+                duration: const Duration(seconds: 1),
+              );
+              showAnimalToast(
+                context: context,
+                displayMode: AnimalMessageDisplayMode.replace,
+                message: const Text('TOAST NEW'),
+                duration: Duration.zero,
+              );
+            },
+            child: const Text('show replace'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('show replace'));
+    await tester.pump();
+    expect(find.text('TOAST OLD'), findsNothing);
+    expect(find.text('TOAST NEW'), findsOneWidget);
+  });
+
+  testWidgets('showAnimalSnackbar inserts overlay with action', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAnimalIslandTheme(
+          gameStyle: AnimalIslandGameStyle.westworld,
+        ),
+        home: Builder(
+          builder: (context) => AnimalButton(
+            onPressed: () {
+              showAnimalSnackbar(
+                context: context,
+                title: const Text('VECTOR'),
+                message: const Text('SNACKBAR READY'),
+                action: const Text('UNDO'),
+                duration: Duration.zero,
+              );
+            },
+            child: const Text('show snackbar'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('show snackbar'));
+    await tester.pump();
+
+    expect(find.text('VECTOR'), findsOneWidget);
+    expect(find.text('SNACKBAR READY'), findsOneWidget);
+    expect(find.text('UNDO'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('showAnimalSnackbar queues messages one at a time', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAnimalIslandTheme(
+          gameStyle: AnimalIslandGameStyle.westworld,
+        ),
+        home: Builder(
+          builder: (context) => AnimalButton(
+            onPressed: () {
+              showAnimalSnackbar(
+                context: context,
+                title: const Text('SNACK FIRST TITLE'),
+                message: const Text('SNACK FIRST'),
+                duration: const Duration(milliseconds: 300),
+              );
+              showAnimalSnackbar(
+                context: context,
+                title: const Text('SNACK SECOND TITLE'),
+                message: const Text('SNACK SECOND'),
+                duration: const Duration(milliseconds: 300),
+              );
+            },
+            child: const Text('show snackbar queue'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('show snackbar queue'));
+    await tester.pump();
+    expect(find.text('SNACK FIRST'), findsOneWidget);
+    expect(find.text('SNACK SECOND'), findsNothing);
+
+    await tester.pump(const Duration(milliseconds: 350));
+    await tester.pump();
+    expect(find.text('SNACK FIRST'), findsNothing);
+    expect(find.text('SNACK SECOND'), findsOneWidget);
+  });
+
+  testWidgets('showAnimalSnackbar replaces the active message', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: buildAnimalIslandTheme(
+          gameStyle: AnimalIslandGameStyle.westworld,
+        ),
+        home: Builder(
+          builder: (context) => AnimalButton(
+            onPressed: () {
+              showAnimalSnackbar(
+                context: context,
+                title: const Text('SNACK OLD TITLE'),
+                message: const Text('SNACK OLD'),
+                duration: const Duration(seconds: 1),
+              );
+              showAnimalSnackbar(
+                context: context,
+                displayMode: AnimalMessageDisplayMode.replace,
+                title: const Text('SNACK NEW TITLE'),
+                message: const Text('SNACK NEW'),
+                duration: Duration.zero,
+              );
+            },
+            child: const Text('show snackbar replace'),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('show snackbar replace'));
+    await tester.pump();
+    expect(find.text('SNACK OLD'), findsNothing);
+    expect(find.text('SNACK NEW'), findsOneWidget);
+  });
+
   testWidgets('NES status states use generated pixel status assets', (
     tester,
   ) async {

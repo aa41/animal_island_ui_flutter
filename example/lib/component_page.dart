@@ -120,6 +120,10 @@ class ComponentPage extends StatelessWidget {
         return [_modalDemo(context)];
       case 'bottomsheet':
         return [_bottomSheetDemo(context)];
+      case 'toast':
+        return [_toastDemo(context)];
+      case 'snackbar':
+        return [_snackbarDemo(context)];
       case 'refresh':
         return [_refreshDemo(context)];
       case 'typewriter':
@@ -529,6 +533,14 @@ class ComponentPage extends StatelessWidget {
 
   Widget _bottomSheetDemo(BuildContext context) {
     return const _BottomSheetDemoSection();
+  }
+
+  Widget _toastDemo(BuildContext context) {
+    return const _ToastDemoSection();
+  }
+
+  Widget _snackbarDemo(BuildContext context) {
+    return const _SnackbarDemoSection();
   }
 
   Widget _refreshDemo(BuildContext context) {
@@ -1222,6 +1234,428 @@ class _BottomSheetDemoSectionState extends State<_BottomSheetDemoSection> {
               desc: '正文是否启用打字机效果',
               type: 'bool',
               defaultValue: 'false',
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _ToastDemoSection extends StatelessWidget {
+  const _ToastDemoSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return DemoSection(
+      title: 'Toast',
+      tag: 'overlay',
+      description: '适合保存成功、同步完成、轻微错误等低打断反馈，会随当前主题自动切换外观。',
+      children: [
+        const DemoLabel('嵌入式预览'),
+        const DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalToast(
+                type: AnimalMessageType.info,
+                message: Text('今日岛屿广播已更新'),
+              ),
+              AnimalToast(
+                type: AnimalMessageType.success,
+                message: Text('道具已放入口袋'),
+              ),
+              AnimalToast(
+                type: AnimalMessageType.warning,
+                message: Text('背包空间快满了'),
+              ),
+              AnimalToast(
+                type: AnimalMessageType.error,
+                message: Text('同步失败，请稍后再试'),
+              ),
+            ],
+          ),
+        ),
+        const DemoLabel('类型'),
+        DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    type: AnimalMessageType.info,
+                    message: const Text('今日岛屿广播已更新'),
+                  );
+                },
+                child: const Text('Info'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    type: AnimalMessageType.success,
+                    message: const Text('道具已放入口袋'),
+                  );
+                },
+                child: const Text('Success'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.dashed,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    type: AnimalMessageType.warning,
+                    message: const Text('背包空间快满了'),
+                  );
+                },
+                child: const Text('Warning'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                danger: true,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    type: AnimalMessageType.error,
+                    message: const Text('同步失败，请稍后再试'),
+                  );
+                },
+                child: const Text('Error'),
+              ),
+            ],
+          ),
+        ),
+        const DemoLabel('位置'),
+        DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    position: AnimalToastPosition.top,
+                    message: const Text('顶部提示'),
+                  );
+                },
+                child: const Text('Top'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    position: AnimalToastPosition.center,
+                    message: const Text('居中提示'),
+                  );
+                },
+                child: const Text('Center'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    position: AnimalToastPosition.bottom,
+                    message: const Text('底部提示'),
+                  );
+                },
+                child: const Text('Bottom'),
+              ),
+            ],
+          ),
+        ),
+        const DemoLabel('展示策略'),
+        DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    message: const Text('第一条提示'),
+                    duration: const Duration(milliseconds: 1200),
+                  );
+                  showAnimalToast(
+                    context: context,
+                    type: AnimalMessageType.success,
+                    message: const Text('第二条会排队出现'),
+                    duration: const Duration(milliseconds: 1200),
+                  );
+                },
+                child: const Text('Queue'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalToast(
+                    context: context,
+                    message: const Text('这条会被替换'),
+                    duration: const Duration(seconds: 3),
+                  );
+                  showAnimalToast(
+                    context: context,
+                    type: AnimalMessageType.warning,
+                    displayMode: AnimalMessageDisplayMode.replace,
+                    message: const Text('新的提示立即显示'),
+                    duration: const Duration(milliseconds: 1600),
+                  );
+                },
+                child: const Text('Replace'),
+              ),
+            ],
+          ),
+        ),
+        const DemoCodeBlock(
+          "showAnimalToast(\n  context: context,\n  type: AnimalMessageType.success,\n  position: AnimalToastPosition.top,\n  displayMode: AnimalMessageDisplayMode.queue,\n  message: const Text('道具已放入口袋'),\n);",
+        ),
+        const DemoApiTable(
+          rows: [
+            DemoApiRow(
+              prop: 'message',
+              desc: '提示正文',
+              type: 'Widget',
+              required: true,
+            ),
+            DemoApiRow(
+              prop: 'type',
+              desc: '反馈类型',
+              type: 'AnimalMessageType',
+              defaultValue: 'info',
+            ),
+            DemoApiRow(
+              prop: 'position',
+              desc: '展示位置',
+              type: 'AnimalToastPosition',
+              defaultValue: 'top',
+            ),
+            DemoApiRow(
+              prop: 'duration',
+              desc: '自动关闭时间',
+              type: 'Duration',
+              defaultValue: '2200ms',
+            ),
+            DemoApiRow(
+              prop: 'displayMode',
+              desc: '展示策略：排队或替换',
+              type: 'AnimalMessageDisplayMode',
+              defaultValue: 'queue',
+            ),
+            DemoApiRow(prop: 'icon', desc: '自定义前缀图标', type: 'Widget?'),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _SnackbarDemoSection extends StatelessWidget {
+  const _SnackbarDemoSection();
+
+  @override
+  Widget build(BuildContext context) {
+    return DemoSection(
+      title: 'Snackbar',
+      tag: 'feedback',
+      description: '用于比 Toast 更完整的操作反馈，适合带标题、行动入口或较长说明的信息。',
+      children: [
+        const DemoLabel('嵌入式预览'),
+        const DemoBox(
+          child: Column(
+            children: [
+              AnimalSnackbar(
+                type: AnimalMessageType.success,
+                title: Text('保存成功'),
+                message: Text('岛屿设置已经同步到当前设备。'),
+                action: Text('查看'),
+              ),
+              SizedBox(height: 12),
+              AnimalSnackbar(
+                type: AnimalMessageType.warning,
+                title: Text('背包已满'),
+                message: Text('清理一些物品后再继续收集。'),
+                action: Text('整理'),
+              ),
+            ],
+          ),
+        ),
+        const DemoLabel('基础调用'),
+        DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                onPressed: () {
+                  showAnimalSnackbar(
+                    context: context,
+                    type: AnimalMessageType.success,
+                    title: const Text('保存成功'),
+                    message: const Text('岛屿设置已经同步到当前设备。'),
+                    action: const Text('查看'),
+                  );
+                },
+                child: const Text('Success'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.dashed,
+                onPressed: () {
+                  showAnimalSnackbar(
+                    context: context,
+                    type: AnimalMessageType.warning,
+                    title: const Text('背包已满'),
+                    message: const Text('清理一些物品后再继续收集。'),
+                    action: const Text('整理'),
+                  );
+                },
+                child: const Text('Warning'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                danger: true,
+                onPressed: () {
+                  showAnimalSnackbar(
+                    context: context,
+                    type: AnimalMessageType.error,
+                    title: const Text('同步失败'),
+                    message: const Text('请检查网络后重新尝试。'),
+                    action: const Text('重试'),
+                  );
+                },
+                child: const Text('Error'),
+              ),
+            ],
+          ),
+        ),
+        const DemoLabel('位置'),
+        DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalSnackbar(
+                    context: context,
+                    position: AnimalSnackbarPosition.top,
+                    title: const Text('顶部通知'),
+                    message: const Text('访客申请已经抵达。'),
+                  );
+                },
+                child: const Text('Top'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalSnackbar(
+                    context: context,
+                    position: AnimalSnackbarPosition.bottom,
+                    title: const Text('底部通知'),
+                    message: const Text('任务列表已经更新。'),
+                  );
+                },
+                child: const Text('Bottom'),
+              ),
+            ],
+          ),
+        ),
+        const DemoLabel('展示策略'),
+        DemoBox(
+          child: Wrap(
+            spacing: 12,
+            runSpacing: 12,
+            children: [
+              AnimalButton(
+                type: AnimalButtonType.primary,
+                onPressed: () {
+                  showAnimalSnackbar(
+                    context: context,
+                    title: const Text('第一条反馈'),
+                    message: const Text('会先完整展示这一条。'),
+                    duration: const Duration(milliseconds: 1400),
+                  );
+                  showAnimalSnackbar(
+                    context: context,
+                    type: AnimalMessageType.success,
+                    title: const Text('第二条反馈'),
+                    message: const Text('上一条结束后再出现。'),
+                    duration: const Duration(milliseconds: 1400),
+                  );
+                },
+                child: const Text('Queue'),
+              ),
+              AnimalButton(
+                type: AnimalButtonType.defaultType,
+                onPressed: () {
+                  showAnimalSnackbar(
+                    context: context,
+                    title: const Text('待替换反馈'),
+                    message: const Text('新的反馈会立刻接管展示。'),
+                    duration: const Duration(seconds: 3),
+                  );
+                  showAnimalSnackbar(
+                    context: context,
+                    type: AnimalMessageType.warning,
+                    displayMode: AnimalMessageDisplayMode.replace,
+                    title: const Text('立即展示'),
+                    message: const Text('旧反馈已被取消。'),
+                    duration: const Duration(milliseconds: 1800),
+                  );
+                },
+                child: const Text('Replace'),
+              ),
+            ],
+          ),
+        ),
+        const DemoCodeBlock(
+          "showAnimalSnackbar(\n  context: context,\n  type: AnimalMessageType.warning,\n  displayMode: AnimalMessageDisplayMode.replace,\n  title: const Text('背包已满'),\n  message: const Text('清理一些物品后再继续收集。'),\n  action: const Text('整理'),\n);",
+        ),
+        const DemoApiTable(
+          rows: [
+            DemoApiRow(
+              prop: 'message',
+              desc: '反馈正文',
+              type: 'Widget',
+              required: true,
+            ),
+            DemoApiRow(prop: 'title', desc: '标题区内容', type: 'Widget?'),
+            DemoApiRow(
+              prop: 'type',
+              desc: '反馈类型',
+              type: 'AnimalMessageType',
+              defaultValue: 'info',
+            ),
+            DemoApiRow(
+              prop: 'position',
+              desc: '展示位置',
+              type: 'AnimalSnackbarPosition',
+              defaultValue: 'bottom',
+            ),
+            DemoApiRow(prop: 'action', desc: '右侧操作区', type: 'Widget?'),
+            DemoApiRow(
+              prop: 'duration',
+              desc: '自动关闭时间',
+              type: 'Duration',
+              defaultValue: '4s',
+            ),
+            DemoApiRow(
+              prop: 'displayMode',
+              desc: '展示策略：排队或替换',
+              type: 'AnimalMessageDisplayMode',
+              defaultValue: 'queue',
             ),
           ],
         ),
